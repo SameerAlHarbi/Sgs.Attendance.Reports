@@ -1,0 +1,68 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+    <!-- for FF, Chrome, Opera -->
+    <link rel="icon" type="image/png" href="~/Images/SGS-ICON.ico" sizes="16x16">
+    <link rel="icon" type="image/png" href="~/Images/SGS-ICON.ico" sizes="32x32">
+
+    <!-- CSS -->
+    <link href="~/node_modules/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
+    <link href="~/node_modules/@@fortawesome/fontawesome-free-webfonts/css/fontawesome.css" rel="stylesheet" />
+    <link href="~/node_modules/@@fortawesome/fontawesome-free-webfonts/css/fa-solid.css" rel="stylesheet" />
+    <link href="~/node_modules/@@fortawesome/fontawesome-free-webfonts/css/fa-regular.css" rel="stylesheet" />
+    <link href="~/node_modules/@@fortawesome/fontawesome-free-webfonts/css/fa-brands.css" rel="stylesheet" />
+
+    <link rel="stylesheet" href="~/Styles/Kendo/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Styles/Kendo/kendo.bootstrap-v4.min.css" />
+    <link rel="stylesheet" href="~/Styles/Kendo/kendo.rtl.min.css" />
+
+    <link href="~/Styles/main.css" rel="stylesheet" />
+    <link href="~/Styles/header.css" rel="stylesheet" />
+    <link href="~/Styles/footer.css" rel="stylesheet" />
+
+    @* Place Kendo UI scripts after jQuery *@
+    <script src="~/node_modules/jquery/dist/jquery.js"></script>
+    <script src="~/Scripts/Kendo/kendo.all.min.js"></script>
+    <script src="~/Scripts/Kendo/kendo.aspnetmvc.min.js"></script>
+    <script src="~/Scripts/Kendo/cultures/kendo.culture.es-US.min.js"></script>
+
+    <title>@ViewBag.Title</title>
+
+    @RenderSection("header", required: false)
+</head>
+<body>
+
+    <div class="main-Container">
+
+        <header>
+            <partial name="_Header" />
+        </header>
+
+        <partial name="_Navbar" />
+        <main class="k-rtl">
+            @RenderBody()
+        </main>
+
+        <footer>
+            <partial name="_Footer" />
+        </footer>
+
+    </div>
+
+    <!-- Script files -->
+    <script src="~/node_modules/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="~/Scripts/app.js"></script>
+
+    <partial name="_LayoutScript" />
+
+    <!-- View specific scripts -->
+    @RenderSection("scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,55 @@
+﻿@-webkit-keyframes fadeIn {
+    from {
+        opacity: 0
+    }
+
+    to {
+        opacity: 1
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0
+    }
+
+    to {
+        opacity: 1
+    }
+}
+
+@-webkit-keyframes movetop {
+    from {
+        top: 100px;
+        opacity: 0;
+    }
+
+    to {
+        top: 0px;
+        opacity: 1;
+    }
+}
+
+@keyframes movetop {
+    from {
+        top: 100px;
+        opacity: 0;
+    }
+
+    to {
+        top: 0px;
+        opacity: 1;
+    }
+}
+
+.fadeIn {
+    position: relative;
+    animation: fadeIn 3s 1;
+    -webkit-animation: fadeIn 3s 1;
+}
+
+.moveUp {
+    position: relative;
+    animation: movetop 3s 1;
+    -webkit-animation: movetop 3s 1;
+}
