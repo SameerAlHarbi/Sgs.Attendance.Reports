@@ -12,4 +12,13 @@
         CheckIn,
         CheckOut
     }
+
+    public enum ContractWorkTime
+    {
+        MorningWork,
+        MorningShift,
+        EveningShift,
+        NightShift
+    }
+
 }

@@ -4,7 +4,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Serialization;
+using Sameer.Shared.Data;
 using Sameer.Shared.Mvc;
+using Sgs.Attendance.Reports.Data;
 using System.Globalization;
 
 namespace Sgs.Attendance.Reports
@@ -25,6 +27,8 @@ namespace Sgs.Attendance.Reports
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSameerDbDataManagers<AttendanceReportsDb>(_config);
+
             services.AddAutoMapper();
 
             services.AddMvc()

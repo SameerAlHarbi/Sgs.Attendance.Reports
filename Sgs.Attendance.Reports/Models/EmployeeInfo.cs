@@ -11,6 +11,8 @@ namespace Sgs.Attendance.Reports.Models
         [Range(1, 10000, ErrorMessage = "Employee id not valid !")]
         public int EmployeeId { get; set; }
 
+        public ContractWorkTime ContractWorkTime { get; set; }
+
         public AttendanceProof AttendanceProof { get; set; }
 
         public string Note { get; set; }
