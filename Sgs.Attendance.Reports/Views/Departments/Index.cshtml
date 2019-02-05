@@ -1,0 +1,54 @@
+﻿@model IEnumerable<DepartmentInfoViewModel>
+
+@{
+    ViewData["Title"] = "الهيكل الإداري";
+}
+
+<div class="row">
+    <div class="col-md-4">
+        <h3 class="text-info">الادارات والاقسام</h3>
+        <hr />
+        @(
+            Html.Kendo().TreeView()
+                .Name("departmentsTree")
+                .Events(events => events
+                        .Select("onDepartmentSelect"))
+                .BindTo(Model, (NavigationBindingFactory<TreeViewItem> mappings) =>
+                {
+                    mappings.For<DepartmentInfoViewModel>(binding => binding.ItemDataBound((item, dept) =>
+                    {
+                        item.Text = dept.Name;
+                        item.Id = dept.Code;
+                        //item.Expanded = true;
+                    })
+                        .Children(dept => dept.ChildDepartmentsList));
+                })
+        )
+    </div>
+    <div class="col"></div>
+</div>
+
+@section scripts{ 
+    <script>
+
+        function onDepartmentSelect(e) {
+            var treeview = $("#departmentsTree").data("kendoTreeView");
+            var selectedNode = treeview.dataItem(e.node);
+
+            deptCode = selectedNode.id;
+
+            //var employeesTree = $("#employeesTree").data("kendoTreeList");
+            //kendo.ui.progress($("#employeesTree"), true);
+            //employeesTree.dataSource.read();
+        }
+
+        $(function () {
+
+            var treeview = $("#departmentsTree").data("kendoTreeView");
+
+            // expand the path of nodes with IDs 1, 2, and 3
+            treeview.expandPath([130]);
+        });
+
+    </script>
+}

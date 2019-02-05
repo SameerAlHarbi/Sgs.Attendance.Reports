@@ -8,6 +8,10 @@ namespace Sgs.Attendance.Reports.Services
     {
         Task<List<EmployeeInfoViewModel>> GetEmployeesInfo(IEnumerable<int> employeesIds = null);
 
-        Task<List<EmployeeInfoViewModel>> GetEmployeesInfo(string departmentCode);
+        Task<List<EmployeeInfoViewModel>> GetDepartmentEmployeesInfo(string departmentCode);
+
+        Task<IEnumerable<DepartmentInfoViewModel>> GetAllDepartmentsInfo();
+
+        Task<IEnumerable<DepartmentInfoViewModel>> GetChildsDepartmentsInfo(string parentDepartmentCode);
     }
 }

@@ -18,7 +18,8 @@
         MorningWork,
         MorningShift,
         EveningShift,
-        NightShift
+        NightShift,
+        OffShift
     }
 
 }

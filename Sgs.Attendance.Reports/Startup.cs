@@ -7,7 +7,9 @@ using Newtonsoft.Json.Serialization;
 using Sameer.Shared.Data;
 using Sameer.Shared.Mvc;
 using Sgs.Attendance.Reports.Data;
+using Sgs.Attendance.Reports.Services;
 using System.Globalization;
+using System.Net.Http.Headers;
 
 namespace Sgs.Attendance.Reports
 {
@@ -28,6 +30,13 @@ namespace Sgs.Attendance.Reports
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSameerDbDataManagers<AttendanceReportsDb>(_config);
+
+            services.AddHttpClient<IErpManager, ErpManager>(client =>
+            {
+                client.BaseAddress = new System.Uri(@"http://172.16.11.44:810/HrPortalApi/api/Hr/portal/");
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(mediaType: "application/json"));
+            });
 
             services.AddAutoMapper();
 

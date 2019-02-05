@@ -1,11 +1,11 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Sgs.Attendance.Reports.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
-using Sgs.Attendance.Reports.ViewModels;
 
 namespace Sgs.Attendance.Reports.Services
 {
@@ -53,7 +53,7 @@ namespace Sgs.Attendance.Reports.Services
             }
         }
 
-        public async Task<List<EmployeeInfoViewModel>> GetEmployeesInfo(string departmentCode)
+        public async Task<List<EmployeeInfoViewModel>> GetDepartmentEmployeesInfo(string departmentCode)
         {
             try
             {
@@ -109,6 +109,95 @@ namespace Sgs.Attendance.Reports.Services
                                 }
                             }
                         }
+                    }
+
+                    return results;
+                }
+                else if (response.StatusCode == HttpStatusCode.NotFound)
+                {
+                    throw new Exception("Data not found !!");
+                }
+                else //Else in case of BadRequest for not found data or InternalServerError
+                {
+                    throw new Exception("Internal Server Error");
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        private void setDepartmentId(DepartmentInfoViewModel department)
+        {
+            department.Id = int.Parse(department.Code);
+            foreach (var childDepartment in department.ChildDepartmentsList)
+            {
+                childDepartment.ParentDepartmentInfo = department;
+                setDepartmentId(childDepartment);
+            }
+        }
+
+        public async Task<IEnumerable<DepartmentInfoViewModel>> GetAllDepartmentsInfo()
+        {
+            try
+            {
+                HttpResponseMessage response = await _client.GetAsync("departments");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    string content = await response.Content.ReadAsStringAsync();
+                    var results = JsonConvert.DeserializeObject<List<DepartmentInfoViewModel>>(content);
+
+                    foreach (var department in results)
+                    {
+                        setDepartmentId(department);
+                    }
+
+                    var sgs = results?.FirstOrDefault()?.ChildDepartmentsList.FirstOrDefault(d => d.Id == 130);
+                    if (sgs != null)
+                    {
+                        sgs.ParentDepartmentInfo = null;
+                        sgs.ParentCode = null;
+                        sgs.ParentName = null;
+
+                        results = new List<DepartmentInfoViewModel> { sgs };
+                    }
+
+                    return results;
+                }
+                else if (response.StatusCode == HttpStatusCode.NotFound)
+                {
+                    throw new Exception("Data not found !!");
+                }
+                else //Else in case of BadRequest for not found data or InternalServerError
+                {
+                    throw new Exception("Internal Server Error");
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public async Task<IEnumerable<DepartmentInfoViewModel>> GetChildsDepartmentsInfo(string parentDepartmentCode)
+        {
+            try
+            {
+                string url = !string.IsNullOrWhiteSpace(parentDepartmentCode) ? $"ChildDepartments?deptCode={parentDepartmentCode}" : "ChildDepartments";
+                HttpResponseMessage response = await _client.GetAsync(url);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    string content = await response.Content.ReadAsStringAsync();
+                    var results = JsonConvert.DeserializeObject<List<DepartmentInfoViewModel>>(content);
+
+                    foreach (var item in results)
+                    {
+                        item.Id = int.Parse(item.Code);
+                        item.ParentDepartmentInfo = results.FirstOrDefault(d => d.Code == item.ParentCode);
+                        item.ChildDepartmentsList.AddRange(results.Where(d => d.ParentCode == item.Code));
                     }
 
                     return results;

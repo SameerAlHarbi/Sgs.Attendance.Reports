@@ -10,6 +10,8 @@ namespace Sgs.Attendance.Reports.Data
         {
         }
 
-        public DbSet<EmployeeInfo> EmployeesInfo { get; set; }
+        public DbSet<EmployeeCalendar> EmployeesCalendars { get; set; }
+
+        public DbSet<EmployeeExcuse> EmployeesExcuses { get; set; }
     }
 }

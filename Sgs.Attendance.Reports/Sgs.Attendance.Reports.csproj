@@ -51,7 +51,7 @@
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.1" />
     <PackageReference Include="Sameer.Shared" Version="2.1.1" />
     <PackageReference Include="Sameer.Shared.Data" Version="2.5.0" />
-    <PackageReference Include="Sameer.Shared.Mvc" Version="1.0.1" />
+    <PackageReference Include="Sameer.Shared.Mvc" Version="1.5.0" />
     <PackageReference Include="Telerik.UI.for.AspNet.Core" Version="2019.1.115" />
   </ItemGroup>
 

@@ -27,6 +27,8 @@ namespace Sgs.Attendance.Reports.Helpers
                     return "وردية المساء";
                 case ContractWorkTime.NightShift:
                     return "وردية الليل";
+                case ContractWorkTime.OffShift:
+                    return "إجازة الوردية";
                 default:
                     return "دوام الصباح";
             }
