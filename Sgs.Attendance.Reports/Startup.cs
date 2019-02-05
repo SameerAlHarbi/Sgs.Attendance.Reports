@@ -1,20 +1,37 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-//using Sameer.Shared.Helpers.Mvc;
+using Newtonsoft.Json.Serialization;
+using Sameer.Shared.Mvc;
 using System.Globalization;
 
 namespace Sgs.Attendance.Reports
 {
     public class Startup
     {
+        private IConfiguration _config { get; }
+        private IHostingEnvironment _env;
+
+        public Startup(IConfiguration configuration
+            , IHostingEnvironment environment)
+        {
+            _config = configuration;
+            _env = environment;
+        }
+
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddAutoMapper();
-            services.AddMvc();
+
+            services.AddMvc()
+                .SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Version_2_2)
+                .AddJsonOptions(options => options.SerializerSettings.ContractResolver = new DefaultContractResolver());
+
+            services.AddKendo();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -35,7 +52,7 @@ namespace Sgs.Attendance.Reports
 
             app.UseStaticFiles();
 
-            //app.UseNodeModules(env.ContentRootPath);
+            app.UseNodeModules(env.ContentRootPath);
 
             app.UseMvcWithDefaultRoute();
         }

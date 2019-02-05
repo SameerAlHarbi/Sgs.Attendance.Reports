@@ -7,6 +7,7 @@ using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Sgs.Attendance.Reports.Services;
 
 namespace Sgs.Attendance.Reports
 {
