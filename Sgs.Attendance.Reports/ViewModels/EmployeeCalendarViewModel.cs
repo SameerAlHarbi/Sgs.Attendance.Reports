@@ -13,7 +13,7 @@ namespace Sgs.Attendance.Reports.ViewModels
 
         public AttendanceProof AttendanceProof { get; set; }
 
-        public DateTime StartDate { get; set; }
+        public DateTime? StartDate { get; set; }
 
         public DateTime? EndDate { get; set; }
 

@@ -21,16 +21,16 @@ namespace Sgs.Attendance.Reports.Helpers
         {
             switch (contractWorkTime)
             {
-                case ContractWorkTime.MorningShift:
-                    return "وردية الصباح";
-                case ContractWorkTime.EveningShift:
-                    return "وردية المساء";
-                case ContractWorkTime.NightShift:
-                    return "وردية الليل";
-                case ContractWorkTime.OffShift:
-                    return "إجازة الوردية";
+                case ContractWorkTime.ShiftB:
+                    return "الوردية ب";
+                case ContractWorkTime.ShiftC:
+                    return "الوردية ج";
+                case ContractWorkTime.ShiftD:
+                    return "الوردية د";
+                case ContractWorkTime.ShiftE:
+                    return "الوردية هـ";
                 default:
-                    return "دوام الصباح";
+                    return "موظفي الصباح";
             }
         }
     }

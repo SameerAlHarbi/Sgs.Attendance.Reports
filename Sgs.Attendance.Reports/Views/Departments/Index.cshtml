@@ -5,31 +5,145 @@
 }
 
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-3">
         <h3 class="text-info">الادارات والاقسام</h3>
-        <hr />
+        <br />
         @(
-            Html.Kendo().TreeView()
-                .Name("departmentsTree")
-                .Events(events => events
-                        .Select("onDepartmentSelect"))
-                .BindTo(Model, (NavigationBindingFactory<TreeViewItem> mappings) =>
-                {
-                    mappings.For<DepartmentInfoViewModel>(binding => binding.ItemDataBound((item, dept) =>
-                    {
-                        item.Text = dept.Name;
-                        item.Id = dept.Code;
-                        //item.Expanded = true;
-                    })
-                        .Children(dept => dept.ChildDepartmentsList));
-                })
+                                                    Html.Kendo().TreeView()
+                                                        .Name("departmentsTree")
+                                                        .Events(events => events
+                                                                .Select("onDepartmentSelect"))
+                                                        .BindTo(Model, (NavigationBindingFactory<TreeViewItem> mappings) =>
+                                                        {
+                                                            mappings.For<DepartmentInfoViewModel>(binding => binding.ItemDataBound((item, dept) =>
+                                                            {
+                                                                item.Text = dept.Name;
+                                                                item.Id = dept.Code;
+                                                        //item.Expanded = true;
+                                                    })
+                                                                .Children(dept => dept.ChildDepartmentsList));
+                                                        })
         )
     </div>
-    <div class="col"></div>
+    <div class="col">
+        <h3 class="text-info">الموظفين</h3>
+        <br />
+        @(Html.Kendo().TreeList<EmployeeInfoViewModel>()
+                                        .Name("employeesTree")
+                                        .Messages(m => m.NoRows("لا يوجد موظفين"))
+                                        .Columns(columns =>
+                                        {
+                                            columns.Add().Field(e => e.EmployeeId).Title("الرقم الوظيفي").Width(150);
+                                            columns.Add().Field(e => e.Name).Title("الاسم").Template("<a href='" +
+                                                Url.Action("Details") +
+                                                "/#= EmployeeId #' class='text-info' title='تفاصيل'> #= Name # </a>").Width(300);
+                                            columns.Add().Field(e => e.DepartmentName).Title("الادارة - القسم");
+                                            columns.Add().Field(e => e.ContractWorkTimeText).Title("الوردية");
+                                            columns.Add().Field(e => e.AttendanceProofText).Title("نوع البصمة");
+                                            columns.Add().Field(e => e.Note).Title("ملاحظات");
+                                            columns.Add().Field(e => e.Id).Title("تحكم").Template(
+                                                                     "<a href='" + Url.Action("Details", "Employees") + "/#= EmployeeId #' class='text-info' title='تفاصيل'><i class='fa fa fa-info-circle'></i> </a>" +
+                                                                     "<a href='.modal' data-toggle='modal' data-workTime='#= ContractWorkTimeString #' data-attendance='#= AttendanceProofString #' data-employeeId='#= EmployeeId #' data-employeeName='#= Name #' data-note='#= Note #' class='text-secondary'  title='تعديل'><i class='fa fa-pencil-alt'></i> </a>");
+                                        })
+                                        .Sortable()
+                                        .DataSource(dataSource => dataSource
+                                            .Read(read => read.Action("GetDepartmentEmployees", "Employees").Data("readData"))
+                                            .ServerOperation(false)
+                                            .Model(m =>
+                                            {
+                                                m.Id(f => f.EmployeeId);
+                                                m.ParentId(f => f.ReportToId);
+                                                m.Expanded(true);
+                                            })
+                                        )
+                                        .Events(e => e.DataBound("onEmployeesBound"))
+        )
+    </div>
 </div>
 
-@section scripts{ 
-    <script>
+<!-- Modal -->
+<div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form id="employeeForm">
+
+                <input id="empId" name="empId" type="hidden" />
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalLabel">تعديل بيانات الموظف</h5>
+                </div>
+                <div class="modal-body">
+
+                    <h5 class="text-info"></h5>
+                    <br />
+                    <div class="form-group">
+                        <label for="ContractWorkTime" class="control-label">الوردية</label>
+                        <div class="col" style="margin-top:5px">
+                            <div class="form-check form-check-inline">
+                                <input style="margin-left:5px" class="form-check-input" type="radio" id="ShiftA" name="ContractWorkTime" value="ShiftA">
+                                <label for="ShiftA" class="form-check-label"> موظفي الصباح ( أ ) </label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input style="margin-left:5px" class="form-check-input" type="radio" id="ShiftB" name="ContractWorkTime" value="ShiftB"  data-toggle="tooltip" data-placement="top" title="وردية صباحية">
+                                <label for="ShiftB" class="form-check-label" data-toggle="tooltip" data-placement="top" title="وردية صباحية"> ب </label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input style="margin-left:5px" class="form-check-input" type="radio" id="ShiftC" name="ContractWorkTime" value="ShiftC">
+                                <label for="ShiftC" class="form-check-label"> ج </label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input style="margin-left:5px" class="form-check-input" type="radio" id="ShiftD" name="ContractWorkTime" value="ShiftD">
+                                <label for="ShiftD" class="form-check-label"> د </label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input style="margin-left:5px" class="form-check-input" type="radio" id="ShiftE" name="ContractWorkTime" value="ShiftE">
+                                <label for="ShiftE" class="form-check-label">هـ </label>
+                            </div>
+                            <small id="emailHelp" class="form-text text-muted text-center">حسب وقت الوردية في تاريخ 01-01-2018 م</small>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="AttendanceProof" class="control-label">نوع البصمة</label>
+                        <div class="col" style="margin-top:5px">
+                            <div class="form-check form-check-inline">
+                                <input style="margin-left:5px" class="form-check-input" type="radio" id="RequiredInOut" name="AttendanceProof" value="RequiredInOut">
+                                <label for="RequiredInOut" class="form-check-label"> حضور وانصراف </label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input style="margin-left:5px" class="form-check-input" type="radio" id="RequiredIn" name="AttendanceProof" value="RequiredIn">
+                                <label for="RequiredIn" class="form-check-label"> حضور فقط </label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input style="margin-left:5px" class="form-check-input" type="radio" id="Exempted" name="AttendanceProof" value="Exempted">
+                                <label for="Exempted" class="form-check-label control-label"> معفي </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="note" class="control-label">ملاحظات</label>
+                        <textarea class="form-control" rows="3" id="note" name="note"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">حفظ</button>
+                    <button type="reset" class="btn btn-secondary" style="margin-right:10px;" data-dismiss="modal">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <partial name="_ValidationScripts">
+        <script>
+
+        var deptCode = "";
+
+        function readData() {
+            return {
+                deptCode: deptCode
+            };
+        };
 
         function onDepartmentSelect(e) {
             var treeview = $("#departmentsTree").data("kendoTreeView");
@@ -37,18 +151,76 @@
 
             deptCode = selectedNode.id;
 
-            //var employeesTree = $("#employeesTree").data("kendoTreeList");
-            //kendo.ui.progress($("#employeesTree"), true);
-            //employeesTree.dataSource.read();
+            var employeesTree = $("#employeesTree").data("kendoTreeList");
+            kendo.ui.progress($("#employeesTree"), true);
+            employeesTree.dataSource.read();
         }
 
-        $(function () {
+        function onEmployeesBound(arg) {
+            kendo.ui.progress($("#employeesTree"), false);
+        }
+
+            $(function () {
+
+                $('[data-toggle="tooltip"]').tooltip()
 
             var treeview = $("#departmentsTree").data("kendoTreeView");
 
-            // expand the path of nodes with IDs 1, 2, and 3
+            // expand the path of nodes with IDs 130
             treeview.expandPath([130]);
+
+            $('form').submit(function (e) {
+                if ($(this).valid()) {
+
+                    $(".modal").modal("hide");
+
+                    var empId = $("#empId").val();
+                    var empNote = $("#note").val();
+                    var atdProof = $("input[name='AttendanceProof']:checked").val();
+                    var workTime = $("input[name='ContractWorkTime']:checked").val();
+
+                    var options = {
+                        url: "@Url.Action("UpdateDefaultCalendar", "EmployeesCalendars")",
+                        type: "Post",
+                        data: { employeeId: empId, attendanceProof: atdProof, contractWorkTime: workTime , note: empNote},
+                        dataType: "json",
+                        success: function (data) {
+                            var employeesTree = $("#employeesTree").data("kendoTreeList");
+                            kendo.ui.progress($("#employeesTree"), true);
+                            employeesTree.dataSource.read();
+                        },
+                        error: function () {
+                            console.log("error");
+                        }
+                    };
+
+                    $.ajax(options);
+
+                }
+
+                e.preventDefault();
+            });
+
+            $('.modal').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget) // Button that triggered the modal
+                var employeeId = button.data('employeeid') // Extract info from data-* attributes
+                var employeeName = button.data('employeename') // Extract info from data-* attributes
+                var attendance = button.data('attendance');
+                var workTime = button.data('worktime');
+                var empNote = button.data('note');
+                // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
+                // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+                var modal = $(this)
+                modal.find('.modal-body h5').text(employeeName);
+
+
+                $('#' + attendance).prop('checked', true);
+                $('#' + workTime).prop('checked', true);
+                $('#empId').val(employeeId);
+                $('#note').val(empNote);
+            })
+
         });
 
-    </script>
+        </script>
 }

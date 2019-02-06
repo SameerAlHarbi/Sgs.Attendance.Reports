@@ -15,11 +15,11 @@
 
     public enum ContractWorkTime
     {
-        MorningWork,
-        MorningShift,
-        EveningShift,
-        NightShift,
-        OffShift
+        ShiftA,
+        ShiftB,
+        ShiftC,
+        ShiftD,
+        ShiftE
     }
 
 }
