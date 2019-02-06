@@ -28,16 +28,16 @@ namespace Sgs.Attendance.Reports.Controllers
         {
             try
             {
-                var currentData = await _employeesCalendarsManager.GetSingleItemAsync(c => c.EmployeeId == model.EmployeeId && !c.EndDate.HasValue);
+                var currentData = await _employeesCalendarsManager.GetSingleItemAsync(c => c.EmployeeId == model.EmployeeId && c.StartDate == model.StartDate && !c.EndDate.HasValue);
 
                 currentData = currentData ?? new EmployeeCalendar
                 {
-                    EmployeeId = model.EmployeeId,
-                    StartDate = new DateTime(2018, 01, 01),
+                    EmployeeId = model.EmployeeId
                 };
 
                 currentData.ContractWorkTime = model.ContractWorkTime;
                 currentData.AttendanceProof = model.AttendanceProof;
+                currentData.StartDate = model.StartDate.Value.Date;
                 currentData.Note = model.Note;
 
                 if (currentData.Id == 0)

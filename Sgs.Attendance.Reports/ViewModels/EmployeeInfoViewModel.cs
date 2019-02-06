@@ -1,5 +1,6 @@
 ﻿using Sgs.Attendance.Reports.Helpers;
 using Sgs.Attendance.Reports.Models;
+using System;
 
 namespace Sgs.Attendance.Reports.ViewModels
 {
@@ -32,6 +33,8 @@ namespace Sgs.Attendance.Reports.ViewModels
         public string AttendanceProofText => AttendanceProof.GetText();
 
         public string AttendanceProofString => AttendanceProof.ToString();
+
+        public DateTime DefaultCalendarStartDate { get; set; }
 
         public string Note { get; set; }
     }

@@ -38,7 +38,7 @@ namespace Sgs.Attendance.Reports.Controllers
                 var ids = employeesInfoList.Select(e => e.EmployeeId).ToList();
 
                 var employeesCalenars = await _employeesCalendarsManager.GetAll(c => ids.Contains(c.EmployeeId) && setupDate >= c.StartDate
-                    && ( !c.EndDate.HasValue || setupDate <= c.EndDate.Value)).AsNoTracking().ToListAsync();
+                    && ( !c.EndDate.HasValue || setupDate <= c.EndDate.Value)).OrderByDescending(c => c.StartDate).AsNoTracking().ToListAsync();
 
                 foreach (var empInfo in employeesInfoList)
                 {
@@ -48,13 +48,14 @@ namespace Sgs.Attendance.Reports.Controllers
                     defaultCalendar = defaultCalendar ?? new EmployeeCalendar
                     {
                         AttendanceProof = AttendanceProof.RequiredInOut,
-                        ContractWorkTime = ContractWorkTime.ShiftA
+                        ContractWorkTime = ContractWorkTime.ShiftA,
+                        StartDate = new DateTime(2018, 12, 1)
                     };
 
                     empInfo.AttendanceProof = employeeCalendar?.AttendanceProof ?? defaultCalendar.AttendanceProof;
                     empInfo.ContractWorkTime = employeeCalendar?.ContractWorkTime ?? defaultCalendar.ContractWorkTime;
                     empInfo.Note = employeeCalendar?.Note ?? defaultCalendar.Note;
-
+                    empInfo.DefaultCalendarStartDate = defaultCalendar.StartDate;
                 }
 
                 return employeesInfoList.ToList() ;
@@ -74,17 +75,6 @@ namespace Sgs.Attendance.Reports.Controllers
             }
 
             var allDataList = await _erpManager.GetDepartmentEmployeesInfo(deptCode);
-
-            var ids = allDataList.Select(e => e.EmployeeId).ToList();
-
-            var employeesCalenars = await _employeesCalendarsManager.GetAll(e => ids.Contains(e.EmployeeId)).AsNoTracking().ToListAsync();
-
-            foreach (var calendar in employeesCalenars)
-            {
-                var dat = allDataList.First(d => d.EmployeeId == calendar.EmployeeId);
-                dat.AttendanceProof = calendar.AttendanceProof;
-                dat.Note = calendar.Note;
-            }
             
             allDataList = await setupEmployeesInfo(allDataList.OrderBy(d => d.DepartmentName),DateTime.Now);
 
@@ -94,6 +84,28 @@ namespace Sgs.Attendance.Reports.Controllers
                 e => e);
 
             return Json(result);
+        }
+
+        public async Task<IActionResult> Details(int id)
+        {
+            try
+            {
+                var resultData = await _erpManager.GetEmployeesInfo(new int[] { id});
+
+                if(resultData == null || resultData.Count <1)
+                {
+                    return NotFound();
+                }
+
+                resultData = await setupEmployeesInfo(resultData,DateTime.Today);
+
+                return View(resultData.First());
+
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
     }
 }

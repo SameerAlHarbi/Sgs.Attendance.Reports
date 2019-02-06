@@ -10,6 +10,10 @@
     <Content Include="node_modules\**" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Remove="node_modules\%2a%2a" />
+  </ItemGroup>
+
   <!--<ItemGroup>
     <Content Include="node_modules\%40fortawesome\fontawesome-free-webfonts\css\fa-brands.css" />
     <Content Include="node_modules\%40fortawesome\fontawesome-free-webfonts\css\fa-regular.css" />

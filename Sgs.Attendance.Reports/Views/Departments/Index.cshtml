@@ -6,7 +6,7 @@
 
 <div class="row">
     <div class="col-md-3">
-        <h3 class="text-info">الادارات والاقسام</h3>
+        <h5 class="text-info">الادارات والاقسام</h5>
         <br />
         @(
                                                     Html.Kendo().TreeView()
@@ -26,7 +26,7 @@
         )
     </div>
     <div class="col">
-        <h3 class="text-info">الموظفين</h3>
+        <h5 class="text-info">الموظفين</h5>
         <br />
         @(Html.Kendo().TreeList<EmployeeInfoViewModel>()
                                         .Name("employeesTree")
@@ -35,15 +35,14 @@
                                         {
                                             columns.Add().Field(e => e.EmployeeId).Title("الرقم الوظيفي").Width(150);
                                             columns.Add().Field(e => e.Name).Title("الاسم").Template("<a href='" +
-                                                Url.Action("Details") +
+                                                Url.Action("Details","Employees") +
                                                 "/#= EmployeeId #' class='text-info' title='تفاصيل'> #= Name # </a>").Width(300);
                                             columns.Add().Field(e => e.DepartmentName).Title("الادارة - القسم");
                                             columns.Add().Field(e => e.ContractWorkTimeText).Title("الوردية");
                                             columns.Add().Field(e => e.AttendanceProofText).Title("نوع البصمة");
-                                            columns.Add().Field(e => e.Note).Title("ملاحظات");
-                                            columns.Add().Field(e => e.Id).Title("تحكم").Template(
-                                                                     "<a href='" + Url.Action("Details", "Employees") + "/#= EmployeeId #' class='text-info' title='تفاصيل'><i class='fa fa fa-info-circle'></i> </a>" +
-                                                                     "<a href='.modal' data-toggle='modal' data-workTime='#= ContractWorkTimeString #' data-attendance='#= AttendanceProofString #' data-employeeId='#= EmployeeId #' data-employeeName='#= Name #' data-note='#= Note #' class='text-secondary'  title='تعديل'><i class='fa fa-pencil-alt'></i> </a>");
+                                            columns.Add().Field(e => e.Id).Title("تحكم").Width(100).Template(
+                                                                     "<a href='" + Url.Action("Details", "Employees") + "/#= EmployeeId #' class='text-info' title='تفاصيل الموظف'><i class='fa fa fa-info-circle'></i> </a>" +
+                                                                     "<a href='.modal' data-toggle='modal' data-startDate='#= DefaultCalendarStartDate #' data-workTime='#= ContractWorkTimeString #' data-attendance='#= AttendanceProofString #' data-employeeId='#= EmployeeId #' data-employeeName='#= Name #' data-note='#= Note #' class='text-info' title='التقويم الافتراضي'><i class='fas fa-calendar-alt'></i> </a>");
                                         })
                                         .Sortable()
                                         .DataSource(dataSource => dataSource
@@ -70,7 +69,7 @@
                 <input id="empId" name="empId" type="hidden" />
 
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalLabel">تعديل بيانات الموظف</h5>
+                    <h5 class="modal-title" id="modalLabel"><i class='far fa-calendar-alt'></i> التقويم الافتراضي للموظف</h5>
                 </div>
                 <div class="modal-body">
 
@@ -79,23 +78,23 @@
                     <div class="form-group">
                         <label for="ContractWorkTime" class="control-label">الوردية</label>
                         <div class="col" style="margin-top:5px">
-                            <div class="form-check form-check-inline">
+                            <div class="form-check form-check-inline" data-toggle="tooltip" data-placement="top" title="دوام صباحي ٧:٣٠ ص - ٢:٣٠ م">
                                 <input style="margin-left:5px" class="form-check-input" type="radio" id="ShiftA" name="ContractWorkTime" value="ShiftA">
                                 <label for="ShiftA" class="form-check-label"> موظفي الصباح ( أ ) </label>
                             </div>
-                            <div class="form-check form-check-inline">
-                                <input style="margin-left:5px" class="form-check-input" type="radio" id="ShiftB" name="ContractWorkTime" value="ShiftB"  data-toggle="tooltip" data-placement="top" title="وردية صباحية">
-                                <label for="ShiftB" class="form-check-label" data-toggle="tooltip" data-placement="top" title="وردية صباحية"> ب </label>
+                            <div class="form-check form-check-inline" data-toggle="tooltip" data-placement="top" title="وردية صباحية ٧:٣٠ ص - ٣:٣٠ م">
+                                <input style="margin-left:5px" class="form-check-input" type="radio" id="ShiftB" name="ContractWorkTime" value="ShiftB">
+                                <label for="ShiftB" class="form-check-label"> ب </label>
                             </div>
-                            <div class="form-check form-check-inline">
+                            <div class="form-check form-check-inline"  data-toggle="tooltip" data-placement="top" title="وردية مسائية ٣:٣٠ م - ١١:٣٠ م">
                                 <input style="margin-left:5px" class="form-check-input" type="radio" id="ShiftC" name="ContractWorkTime" value="ShiftC">
                                 <label for="ShiftC" class="form-check-label"> ج </label>
                             </div>
-                            <div class="form-check form-check-inline">
+                            <div class="form-check form-check-inline"  data-toggle="tooltip" data-placement="top" title="وردية ليلية ١١:٣٠ م - ٧:٣٠ ص">
                                 <input style="margin-left:5px" class="form-check-input" type="radio" id="ShiftD" name="ContractWorkTime" value="ShiftD">
                                 <label for="ShiftD" class="form-check-label"> د </label>
                             </div>
-                            <div class="form-check form-check-inline">
+                            <div class="form-check form-check-inline"  data-toggle="tooltip" data-placement="top" title="إجازة نهاية الوردية">
                                 <input style="margin-left:5px" class="form-check-input" type="radio" id="ShiftE" name="ContractWorkTime" value="ShiftE">
                                 <label for="ShiftE" class="form-check-label">هـ </label>
                             </div>
@@ -105,19 +104,25 @@
                     <div class="form-group">
                         <label for="AttendanceProof" class="control-label">نوع البصمة</label>
                         <div class="col" style="margin-top:5px">
-                            <div class="form-check form-check-inline">
+                            <div class="form-check form-check-inline" data-toggle="tooltip" data-placement="top" title="بصمتين للحضور و الانصراف">
                                 <input style="margin-left:5px" class="form-check-input" type="radio" id="RequiredInOut" name="AttendanceProof" value="RequiredInOut">
                                 <label for="RequiredInOut" class="form-check-label"> حضور وانصراف </label>
                             </div>
-                            <div class="form-check form-check-inline">
+                            <div class="form-check form-check-inline" data-toggle="tooltip" data-placement="top" title="بصمة واحدة فقط خلال وقت الدوام لإثبات الحضور">
                                 <input style="margin-left:5px" class="form-check-input" type="radio" id="RequiredIn" name="AttendanceProof" value="RequiredIn">
                                 <label for="RequiredIn" class="form-check-label"> حضور فقط </label>
                             </div>
-                            <div class="form-check form-check-inline">
+                            <div class="form-check form-check-inline" data-toggle="tooltip" data-placement="top" title="معفي من البصمة">
                                 <input style="margin-left:5px" class="form-check-input" type="radio" id="Exempted" name="AttendanceProof" value="Exempted">
                                 <label for="Exempted" class="form-check-label control-label"> معفي </label>
                             </div>
                         </div>
+                    </div>
+                    <br />
+                    <div class="form-group">
+                        <label for="startDate" class="control-label">بداية التقويم</label>
+                        <br />
+                        <kendo-datepicker name="startDate" id="startDate" value="DateTime.Today" format="yyyy-MM-dd" title="تاريخ بداية التقويم" />
                     </div>
                     <div class="form-group">
                         <label for="note" class="control-label">ملاحظات</label>
@@ -178,11 +183,12 @@
                     var empNote = $("#note").val();
                     var atdProof = $("input[name='AttendanceProof']:checked").val();
                     var workTime = $("input[name='ContractWorkTime']:checked").val();
+                    var startDate = $("#startDate").val();
 
                     var options = {
                         url: "@Url.Action("UpdateDefaultCalendar", "EmployeesCalendars")",
                         type: "Post",
-                        data: { employeeId: empId, attendanceProof: atdProof, contractWorkTime: workTime , note: empNote},
+                        data: { employeeId: empId, attendanceProof: atdProof, contractWorkTime: workTime, StartDate:startDate, note: empNote},
                         dataType: "json",
                         success: function (data) {
                             var employeesTree = $("#employeesTree").data("kendoTreeList");
@@ -207,17 +213,22 @@
                 var employeeName = button.data('employeename') // Extract info from data-* attributes
                 var attendance = button.data('attendance');
                 var workTime = button.data('worktime');
+                var startDate = button.data('startdate');
                 var empNote = button.data('note');
                 // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
                 // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
                 var modal = $(this)
                 modal.find('.modal-body h5').text(employeeName);
 
-
                 $('#' + attendance).prop('checked', true);
                 $('#' + workTime).prop('checked', true);
                 $('#empId').val(employeeId);
+                var todayDate = kendo.toString(kendo.parseDate(startDate), 'yyyy-MM-dd');
+                $("#startDate").data("kendoDatePicker").value(todayDate);
                 $('#note').val(empNote);
+
+                
+
             })
 
         });
