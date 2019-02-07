@@ -33,5 +33,31 @@ namespace Sgs.Attendance.Reports.Helpers
                     return "موظفي الصباح";
             }
         }
+
+        public static int ConvertToInteger(this string text)
+        {
+            if (text.Length > 0)
+            {
+                while (true)
+                {
+                    int result = 0;
+                    if (int.TryParse(text, out result))
+                    {
+                        return result;
+                    }
+                    if (text.Length > 0)
+                    {
+                        text = text.Substring(1, text.Length - 1);
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+            return 0;
+        }
+
+       
     }
 }

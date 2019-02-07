@@ -20,5 +20,7 @@ namespace Sgs.Attendance.Reports.Models
         public DateTime? EndDate { get; set; }
 
         public string Note { get; set; }
+
+        public int UserId { get; set; }
     }
 }

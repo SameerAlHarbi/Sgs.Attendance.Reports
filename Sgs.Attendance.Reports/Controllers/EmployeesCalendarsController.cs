@@ -8,6 +8,7 @@ using Sgs.Attendance.Reports.Services;
 using Sgs.Attendance.Reports.ViewModels;
 using System;
 using System.Threading.Tasks;
+using Sgs.Attendance.Reports.Helpers;
 
 namespace Sgs.Attendance.Reports.Controllers
 {
@@ -39,6 +40,11 @@ namespace Sgs.Attendance.Reports.Controllers
                 currentData.AttendanceProof = model.AttendanceProof;
                 currentData.StartDate = model.StartDate.Value.Date;
                 currentData.Note = model.Note;
+
+                if(User.Identity.IsAuthenticated)
+                {
+                    currentData.UserId = User.Identity.Name.ConvertToInteger();
+                }
 
                 if (currentData.Id == 0)
                 {

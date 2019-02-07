@@ -19,5 +19,7 @@ namespace Sgs.Attendance.Reports.Models
         public double? ExcuseHours { get; set; }
 
         public string Note { get; set; }
+
+        public int UserId { get; set; }
     }
 }

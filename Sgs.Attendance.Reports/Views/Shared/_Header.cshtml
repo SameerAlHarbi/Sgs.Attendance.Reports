@@ -1,4 +1,16 @@
-﻿<div class="header-top">
-    <div class="header-title"></div>
+﻿@using System.DirectoryServices.AccountManagement
+
+
+<div class="header-top">
+    <div class="header-title">
+        @if (User.Identity.IsAuthenticated)
+        {
+            using (var context = new PrincipalContext(ContextType.Domain))
+            {
+                UserPrincipal principal = UserPrincipal.FindByIdentity(context, User.Identity.Name);
+                <p style="color:#fff; margin:15px 30px;font-size:x-large;text-align:right;">@principal.Name</p>
+            }
+        }
+    </div>
     <div class="header-logo"></div>
 </div>

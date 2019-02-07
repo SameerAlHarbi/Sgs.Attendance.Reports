@@ -37,9 +37,36 @@ namespace Sgs.Attendance.Reports.Migrations
 
                     b.Property<DateTime>("StartDate");
 
+                    b.Property<int>("UserId");
+
                     b.HasKey("Id");
 
                     b.ToTable("EmployeesCalendars");
+                });
+
+            modelBuilder.Entity("Sgs.Attendance.Reports.Models.EmployeeExcuse", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("EmployeeId");
+
+                    b.Property<DateTime>("ExcueseDate");
+
+                    b.Property<double?>("ExcuseHours");
+
+                    b.Property<int>("ExcuseType");
+
+                    b.Property<string>("Note");
+
+                    b.Property<DateTime>("RegisterDate");
+
+                    b.Property<int>("UserId");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("EmployeesExcuses");
                 });
 #pragma warning restore 612, 618
         }
