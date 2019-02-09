@@ -21,3 +21,9 @@ main {
     border-radius: 10px;
     padding: 40px;
 }
+
+.toast-top-left {
+    margin-top: 80px;
+    margin-left: 40px;
+    text-align: right;
+}

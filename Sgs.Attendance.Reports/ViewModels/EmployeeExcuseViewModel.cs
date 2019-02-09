@@ -12,6 +12,8 @@ namespace Sgs.Attendance.Reports.ViewModels
 
         public string EmployeeName { get; set; }
 
+        public DateTime RegisterDate { get; set; }
+
         public DateTime ExcueseDate { get; set; }
 
         public string ExcueseDateHijri => ExcueseDate.ConvertToString(true, true, true) + "هـ ";
@@ -47,5 +49,7 @@ namespace Sgs.Attendance.Reports.ViewModels
         }
 
         public string Note { get; set; }
+
+        public int UserId { get; set; }
     }
 }

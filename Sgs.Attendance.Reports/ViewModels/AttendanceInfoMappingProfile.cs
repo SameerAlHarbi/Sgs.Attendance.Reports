@@ -10,7 +10,9 @@ namespace Sgs.Attendance.Reports.ViewModels
             CreateMap<EmployeeCalendar, EmployeeInfoViewModel>()
                 .ReverseMap();
 
-            CreateMap<EmployeeExcuse, EmployeeExcuseViewModel>();
+            CreateMap<EmployeeExcuse, EmployeeExcuseViewModel>().ReverseMap();
+
+            CreateMap<ProcessingRequest, ProcessingRequestViewModel>().ReverseMap();
         }
     }
 }

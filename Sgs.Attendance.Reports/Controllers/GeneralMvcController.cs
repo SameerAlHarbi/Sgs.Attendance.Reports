@@ -14,7 +14,6 @@ namespace Sgs.Attendance.Reports.Controllers
 {
     public class GeneralMvcController<M,VM> : Controller where M:class,ISameerObject,new() where VM:class,new()
     {
-
         protected virtual string _objectTypeName { get; set; } = typeof(M).Name;
 
         protected IMapper _mapper;
@@ -154,15 +153,53 @@ namespace Sgs.Attendance.Reports.Controllers
             return View();
         }
 
-        protected virtual async Task<List<VM>> fillItemsMissingData(List<VM> resultData)
+        protected virtual async Task<IEnumerable<M>> getAllModelsDataCollection()
+        {
+            try
+            {
+                return await _dataManager.GetAllDataList();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        protected virtual async Task<IEnumerable<VM>> mapToViewModelsDataCollection(IEnumerable<M> modelsDataCollection)
+        {
+            try
+            {
+                return await Task.FromResult(_mapper.Map<IEnumerable<VM>>(modelsDataCollection));
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        protected virtual async Task<IEnumerable<VM>> fillMissingItemsData(IEnumerable<VM> resultData)
         {
             return await Task.FromResult(resultData);
         }
 
-        protected virtual async Task<VM> fillItemMissingData(VM dataItem)
+        protected virtual async Task<VM> fillMissingItemData(VM dataItem)
         {
-            var resultDataItem = await fillItemsMissingData(new List<VM>() { dataItem });
+            var resultDataItem = await fillMissingItemsData(new List<VM>() { dataItem });
             return resultDataItem.First();
+        }
+
+        protected virtual async Task<IEnumerable<VM>> getAllViewModelsDataCollection()
+        {
+            try
+            {
+                var allModelsDataList = await getAllModelsDataCollection();
+                var allViewModelsDataCollection = await mapToViewModelsDataCollection(allModelsDataList);
+                return await fillMissingItemsData(allViewModelsDataCollection);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         [HttpGet]
@@ -171,9 +208,7 @@ namespace Sgs.Attendance.Reports.Controllers
             try
             {
                 ViewData["StatusMessage"] = this.StatusMessage;
-                var allDataList = await _dataManager.GetAllDataList();
-                var resultDataModelList = await fillItemsMissingData(_mapper.Map<List<VM>>(allDataList));
-                return View(resultDataModelList);
+                return View(await getAllViewModelsDataCollection());
             }
             catch (Exception)
             {
@@ -184,9 +219,13 @@ namespace Sgs.Attendance.Reports.Controllers
         [HttpGet]
         public virtual async Task<IActionResult> GetAllDataJson()
         {
-            var allDataList = await _dataManager.GetAllDataList();
-            var resultDataModelList = await fillItemsMissingData(_mapper.Map<List<VM>>(allDataList));
-            return Json(resultDataModelList);
+            return Json(await getAllViewModelsDataCollection());
+        }
+
+        public virtual async Task<IActionResult> GetAllDataJsonForKendo([DataSourceRequest] DataSourceRequest request)
+        {
+            var resultDataModelList = await getAllViewModelsDataCollection();
+            return Json(resultDataModelList.ToDataSourceResult(request));
         }
 
         //protected async Task<IActionResult> VerifyData(string fieldName,string fieldValue, int? id = null
@@ -207,18 +246,10 @@ namespace Sgs.Attendance.Reports.Controllers
         //    }
         //}
 
-
-        public virtual async Task<IActionResult> GetAllDataJsonForKendo([DataSourceRequest] DataSourceRequest request)
-        {
-            var allDataList = await _dataManager.GetAllDataList();
-            var resultDataModelList = await fillItemsMissingData(_mapper.Map<List<VM>>(allDataList));
-            return Json(resultDataModelList.ToDataSourceResult(request));
-        }
-
         public virtual async Task<IActionResult> GetAllDataByFilterJsonForKendo([DataSourceRequest] DataSourceRequest request,string filterField,int filterValue)
         {
             var allDataList = await _dataManager.GetAllDataList(filterField,filterValue);
-            var resultDataModelList = await fillItemsMissingData(_mapper.Map<List<VM>>(allDataList));
+            var resultDataModelList = await fillMissingItemsData(_mapper.Map<List<VM>>(allDataList));
             return Json(resultDataModelList.ToDataSourceResult(request));
         }
 
@@ -251,7 +282,7 @@ namespace Sgs.Attendance.Reports.Controllers
                     return null;
                 }
 
-                var result = await fillItemMissingData(_mapper.Map<VM>(currentData));
+                var result = await fillMissingItemData(_mapper.Map<VM>(currentData));
                 return await getDataViewModelByIdResult(result);
             }
             catch (Exception)

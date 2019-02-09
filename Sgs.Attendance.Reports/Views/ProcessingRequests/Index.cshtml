@@ -1,0 +1,141 @@
+﻿
+@{
+    ViewData["Title"] = "طلبات المعالجة";
+}
+
+<button class="btn btn-outline-info"
+        style="width:200px"
+        data-toggle="modal"
+        data-target="#addNewModal">
+    <i class="fa fa-plus"></i> طلب معالجة جديد
+</button>
+<br />
+<br />
+@(Html.Kendo().Grid<ProcessingRequestViewModel>()
+                            .Name("grdProcessings")
+                            .Columns(clmn =>
+                            {
+                                clmn.Bound(c => c.RequestDate).Title("تاريخ الطلب").Format("{0:yyyy/MM/dd hh:mm tt}");
+                                clmn.Bound(c => c.FromDate).Title("تاريخ البداية").Format("{0:yyyy/MM/dd}");
+                                clmn.Bound(c => c.ToDate).Title("تاريخ النهاية").Format("{0:yyyy/MM/dd}");
+                                clmn.Bound(c => c.Employees).Title("الموظفين");
+                                clmn.Bound(c => c.Status).Title("حالة الطلب");
+                            })
+                            .DataSource(d =>
+                            d.Ajax()
+                            .ServerOperation(false)
+                            .Read("GetAllProcessingRequestsForKendo", "ProcessingRequests").Events(e => e.Error("readDataError")))
+)
+
+
+<div id="addNewModal"
+     class="modal fade"
+     tabindex="-1"
+     role="dialog"
+     aria-labelledby="addNewLabel"
+     aria-hidden="true">
+
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title text-info" id="addExcuseLabel"><i class="fas fa-microchip"></i> طلب معالجة جديد</h5>
+            </div>
+            <form id="newProcessingForm">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="fromDate" class="control-label">تاريخ بداية المعالجة</label>
+                        <kendo-datepicker min="new DateTime(2018,12,1)"
+                                          max="DateTime.Today"
+                                          class="form-control"
+                                          id="fromDate"
+                                          name="fromDate"
+                                          value="DateTime.Today"
+                                          format="yyyy-MM-dd" title="تاريخ بداية المعالجة" />
+                    </div>
+                    <div class="form-group">
+                        <label for="toDate" class="control-label">تاريخ نهاية المعالجة</label>
+                        <kendo-datepicker min="new DateTime(2018,12,1)"
+                                          max="DateTime.Today"
+                                          class="form-control"
+                                          id="toDate"
+                                          name="toDate"
+                                          format="yyyy-MM-dd"
+                                          value="DateTime.Today"
+                                          title="تاريخ نهاية المعالجة" />
+                    </div>
+                    <div class="form-group">
+                        <label for="employees" class="control-label">الموظفين</label>
+                        <input id="employees" name="employees" class="form-control" title="الموظفين" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">حفظ</button>
+                    <button onclick="toastr.warning('تم الغاء الأمر')" type="reset" class="btn btn-secondary" style="margin-right:10px;" data-dismiss="modal">إلغاء الأمر</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+@section scripts{
+
+    <partial name="_ValidationScripts" />
+
+    <script>
+
+                function readDataError(e) {
+                    toastr.error(e.errors.message);
+                }
+
+                $(function () {
+
+                    $('#newProcessingForm').submit(function (e) {
+                        if ($(this).valid()) {
+
+                            $("#addNewModal").modal("hide");
+
+                            var options = {
+                                        url: "@Url.Action("AddNewProcessingRequest", "ProcessingRequests")",
+                                        type: "Post",
+                                        data: {
+                                                fromDate: $("#fromDate").val(),
+                                                toDate: $("#toDate").val(),
+                                                employees: $("#employees").val()
+                                               },
+                                        dataType: "json",
+                                        success: function (data) {
+
+                                            if (data.errors) {
+                                                toastr.error("يوجد طلب معالجة مفتوح مسبقاً !");
+                                                return;
+                                            }
+
+                                            var dataGrid = $("#grdProcessings").data("kendoGrid");
+                                            dataGrid.dataSource.read();
+                                            toastr.success("تم حفظ طلب المعالجة بنجاح");
+                                        },
+                                        error: function () {
+                                            toastr.error("خطأ اثناء حفظ طلب المعالجة");
+                                        }
+                                    };
+
+                                    $.ajax(options);
+
+
+                        }
+
+                        e.preventDefault();
+                    });
+
+                    $('#addNewModal').on('show.bs.modal', function (event) {
+                        var button = $(event.relatedTarget) // Button that triggered the modal
+
+                    })
+
+                });
+
+    </script>
+}

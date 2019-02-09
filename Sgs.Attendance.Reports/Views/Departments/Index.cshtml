@@ -30,7 +30,7 @@
         <br />
         @(Html.Kendo().TreeList<EmployeeInfoViewModel>()
                                         .Name("employeesTree")
-                                        .Messages(m => m.NoRows("لا يوجد موظفين"))
+                                        .Messages(m => m.NoRows("لا يوجد موظفين").Loading("يتم قراءة البيانات"))
                                         .Columns(columns =>
                                         {
                                             columns.Add().Field(e => e.EmployeeId).Title("الرقم الوظيفي").Width(150);
@@ -122,7 +122,7 @@
                     <div class="form-group">
                         <label for="startDate" class="control-label">بداية التقويم</label>
                         <br />
-                        <kendo-datepicker name="startDate" id="startDate" value="DateTime.Today" format="yyyy-MM-dd" title="تاريخ بداية التقويم" />
+                        <kendo-datepicker min="new DateTime(2018,12,1)" name="startDate" id="startDate" value="DateTime.Today" format="yyyy-MM-dd" title="تاريخ بداية التقويم" />
                     </div>
                     <div class="form-group">
                         <label for="note" class="control-label">ملاحظات</label>
@@ -131,7 +131,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="submit" class="btn btn-primary">حفظ</button>
-                    <button type="reset" class="btn btn-secondary" style="margin-right:10px;" data-dismiss="modal">إلغاء</button>
+                    <button onclick="toastr.warning('تم الغاء الأمر')" type="reset" class="btn btn-secondary" style="margin-right:10px;" data-dismiss="modal">إلغاء</button>
                 </div>
             </form>
         </div>
@@ -150,11 +150,14 @@
             };
         };
 
+            var selectedDepartmentText;
+
         function onDepartmentSelect(e) {
             var treeview = $("#departmentsTree").data("kendoTreeView");
             var selectedNode = treeview.dataItem(e.node);
 
             deptCode = selectedNode.id;
+            selectedDepartmentText = selectedNode.text;
 
             var employeesTree = $("#employeesTree").data("kendoTreeList");
             kendo.ui.progress($("#employeesTree"), true);
@@ -163,6 +166,10 @@
 
         function onEmployeesBound(arg) {
             kendo.ui.progress($("#employeesTree"), false);
+            if (!selectedDepartmentText) {
+                return;
+            }
+            toastr.info("موظفي  " + selectedDepartmentText);
         }
 
             $(function () {
@@ -194,9 +201,11 @@
                             var employeesTree = $("#employeesTree").data("kendoTreeList");
                             kendo.ui.progress($("#employeesTree"), true);
                             employeesTree.dataSource.read();
+                            toastr.success("تم حفظ تقويم الموظف بنجاح");
                         },
                         error: function () {
                             console.log("error");
+                            toastr.error("خطأ اثناء حفظ التقويم");
                         }
                     };
 

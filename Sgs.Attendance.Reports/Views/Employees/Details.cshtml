@@ -1,8 +1,244 @@
 ﻿@model EmployeeInfoViewModel
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "تفاصيل الموظف";
 }
 
-<h1>Details</h1>
+<div class="row">
+    <div class="col">
+        <div class="clearfix">
+            <h4 class="text-info float-right">تفاصيل</h4>
+        </div>
+        <hr />
+        @Model.EmployeeId
+        <br />
+        @Model.Name
+        <br />
+        @Model.DepartmentId
+        <br />
+        @Model.DepartmentName
+        <br />
+        @Model.AttendanceProofText
+        <br />
+        @Model.Note
+    </div>
+    <div class="col">
+        <div class="clearfix">
+            <h4 class="text-info float-right">الاستذان</h4>
+            <button class="btn btn-sm btn-outline-info float-left" style="width:150px" data-toggle="modal" data-target="#addExcuseModal"><i class="fa fa-plus"></i>  إضافة استئذان جديد </button>
+        </div>
+        <hr />
+        @(Html.Kendo().Grid<EmployeeExcuseViewModel>()
+                                .Name("grdExcuses")
+                                .Columns(clmn =>
+                                {
+                                    clmn.Bound(c => c.ExcueseDate).Format("{0:yyyy/MM/dd}").Title("تاريخ الإستئذان");
+                                    clmn.Bound(c => c.ExcueseDateHijri).Title("تاريخ الإستئذان هجري");
+                                    clmn.Bound(c => c.ExcuseTypeText).Title("نوع الإستئذان"); ;
+                                    clmn.Bound(c => c.ExcuseHoursTime).Title("مدة الإستئذان");
+                                    clmn.Bound(c => c.Id).Title("حذف").ClientTemplate("<a href='\\#deleteModal' data-toggle='modal' data-excuseId='#= Id #' class='text-danger' title='حذف'><i class='fas fa-trash-alt'></i></a>");
+                                })
+                                .Sortable(s => s.SortMode(GridSortMode.SingleColumn))
+                                .DataSource(dataSource => dataSource
+                                    .Ajax()
+                                    .Read(read => read.Action("GetAllEmployeeExcusesJsonForKendo", "EmployeesExcuses").Data("readExcusesData"))
+                                )
+        )
+    </div>
+</div>
+
+<!-- Modal -->
+<div id="addExcuseModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="addExcuseLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form id="excuseForm">
+
+                <div class="modal-header">
+                    <h5 class="modal-title text-info" id="addExcuseLabel"> تسجيل استئذان جديد للموظف</h5>
+                </div>
+                <div class="modal-body">
+
+                    <div class="form-group">
+                        <label for="excuseDate" class="control-label">تاريخ الاستئذان</label>
+                        <br />
+                        <kendo-datepicker min="new DateTime(2018,12,1)" name="excuseDate" id="excuseDate" value="DateTime.Today" format="yyyy-MM-dd" title="تاريخ الاستئذان" />
+                    </div>
+                    <div class="form-group">
+                        <label for="ExcuseType" class="control-label">نوع الاستئذان</label>
+                        <div class="col" style="margin-top:5px">
+                            <div class="form-check form-check-inline">
+                                <input style="margin-left:5px" class="form-check-input" type="radio" id="checkIn" name="ExcuseType" value="CheckIn">
+                                <label for="checkIn" class="form-check-label"> استئذان دخول </label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input style="margin-left:5px" class="form-check-input" type="radio" id="checkOut" name="ExcuseType" value="CheckOut">
+                                <label for="checkOut" class="form-check-label"> استئذان خروج </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="ExcuseType" class="control-label">مدة الإستئذان</label>
+                        <br />
+                        <kendo-timepicker name="ExcuseHours"
+                                          id="ExcuseHours"
+                                          min='DateTime.Parse("0:00")'
+                                          max='DateTime.Parse("5:00")'
+                                          interval="60"
+                                          culture="en-US"
+                                          format="HH:mm" value='DateTime.Parse("0:00")' />
+                    </div>
+                    <div class="form-group">
+                        <label for="excuseNote" class="control-label">ملاحظات</label>
+                        <textarea class="form-control" rows="3" id="excuseNote" name="excuseNote"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">حفظ</button>
+                    <button onclick="toastr.warning('تم الغاء الأمر')" type="reset" class="btn btn-secondary" style="margin-right:10px;" data-dismiss="modal">إلغاء الأمر</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="deleteModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="deleteLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger" id="deleteLabel"> هل آنت متأكد من الحذف ؟</h5>
+            </div>
+            <div class="modal-body">
+
+            </div>
+            <div class="modal-footer">
+                <button onclick="deleteConfiremd()" class="btn btn-primary" data-dismiss="modal">نعم</button>
+                <button onclick="toastr.warning('تم الغاء الأمر')" class="btn btn-secondary" style="margin-right:10px;" data-dismiss="modal">إلغاء الأمر</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+
+    <partial name="_ValidationScripts" />
+
+    <script>
+
+        function readExcusesData() {
+            return {
+                employeeId: @Model.EmployeeId,
+            }
+        }
+
+        var deleteMode;
+
+        function deleteConfiremd() {
+
+            $("#deleteModal").modal("hide");
+
+            if (!deleteMode) {
+                return;
+            }
+
+            if (deleteMode == 'excuse') {
+                deleteExcuse();
+            }
+        }
+
+        var selectedExcuse;
+
+        function deleteExcuse() {
+                
+
+                if (!selectedExcuse) {
+                    return;
+                }
+
+                var options = {
+                        url: "@Url.Action("DeleteEmployeeExcuse", "EmployeesExcuses")",
+                        type: "Post",
+                        data: {
+                            excuseId: selectedExcuse
+                        },
+                        dataType: "json",
+                        success: function (data) {
+
+                            if (data.errors) {
+                                alert("error hapend");
+                                return;
+                            }
+
+                            var dataGrid = $("#grdExcuses").data("kendoGrid");
+                            dataGrid.dataSource.read();
+                            toastr.success("تم حذف استئذان الموظف بنجاح");
+                        },
+                        error: function () {
+                            console.log("error");
+                            toastr.error("خطأ اثناء حذف استئذان الموظف");
+                        }
+                    };
+
+                    $.ajax(options);
+
+            }
+
+        $(function () {
+
+            $('#excuseForm').submit(function (e) {
+                if ($(this).valid()) {
+
+                    $("#addExcuseModal").modal("hide");
+
+                    var options = {
+                        url: "@Url.Action("AddEmployeeExcuse", "EmployeesExcuses")",
+                        type: "Post",
+                        data: {
+                            employeeId: @Model.EmployeeId,
+                            excuseDate: $("#excuseDate").val(),
+                            note: $("#excuseNote").val(),
+                            excuseType: $("input[name='ExcuseType']:checked").val(),
+                            excuseHours:$("#ExcuseHours").val()
+                        },
+                        dataType: "json",
+                        success: function (data) {
+
+                            if (data.errors) {
+                                toastr.error("الاستئذان مسجل مسبقا للموظف !");
+                                return;
+                            }
+                            
+                            var dataGrid = $("#grdExcuses").data("kendoGrid");
+                            dataGrid.dataSource.read();
+                            toastr.success("تم حفظ استئذان الموظف بنجاح");
+                        },
+                        error: function () {
+                            toastr.error("خطأ اثناء حفظ استئذان الموظف");
+                        }
+                    };
+
+                    $.ajax(options);
+
+                }
+
+                e.preventDefault();
+            });
+
+            $('#addExcuseModal').on('show.bs.modal', function (event) {
+                $('#checkIn').prop('checked', true);
+            })
+
+            $('#deleteModal').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget) // Button that triggered the modal
+                selectedExcuse = button.data('excuseid') // Extract info from data-* attributes
+                if (selectedExcuse) {
+                    $('#deleteLabel').text('هل انت متأكد من حذف الاستئذان ؟');
+                    deleteMode = 'excuse';
+                }
+            })
+
+        });
+
+    </script>
+
+}
 
