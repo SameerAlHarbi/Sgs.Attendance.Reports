@@ -1,0 +1,36 @@
+﻿
+@{
+    ViewData["Title"] = "الموظف";
+}
+
+<div class="form-inline" style="justify-content:center">
+    <div class="col-md-1" style="text-align:left">الرقم الوظيفي :</div>
+    <div class="col-md-4">
+        @(Html.Kendo()
+                                .AutoComplete()
+                                .Name("employeeId")
+                                .DataTextField("EmployeeId")
+                                .MinLength(2)
+                                .Delay(1000)
+                                .Events(e => e.Select("employeeSelected").Change("employeeChanged"))
+                                .Placeholder("الرقم الوظيفي")
+                                .HtmlAttributes(new { @class = "form-control", style = "min-width:100%;", data_val_number = "الرقم الوظيفي فقط", title = "ادخل الاسم او الرقم الوظيفي للموظف", placeHolder = "الاسم او الرقم الوظيفي" })
+                                .Template("#= EmployeeId # | #= Name #")
+                                .DataSource(source =>
+                                {
+                                    source
+                                    .Custom()
+                                    .Group(g => g.Add("DepartmentName", typeof(string)))
+                                    .Type("aspnetmvc-ajax")
+                                    .Transport(transport =>
+                                    {
+                                        transport.Read(r => r.Action("GetAllEmployeesForAutoCompleteKendoWedget", "Employees").Data("commissionerParameterData"));
+                                    })
+                                    .ServerFiltering(true);
+                                })
+        )
+    </div>
+    <div class="col-md-1"><button class="btn btn-info" title="البحث عن معلومات الموظف"> بحث  <i class="fas fa-search"></i> </button></div>
+</div>
+<br />
+<hr />

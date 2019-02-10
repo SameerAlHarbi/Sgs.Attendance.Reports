@@ -107,5 +107,38 @@ namespace Sgs.Attendance.Reports.Controllers
                 throw;
             }
         }
+
+        public IActionResult EmployeeDetails()
+        {
+            return View();
+        }
+
+        public async Task<JsonResult> GetAllEmployeesForAutoCompleteKendoWedget([DataSourceRequest]DataSourceRequest request
+            , string employeeId = "")
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(employeeId))
+                {
+                    return Json(new List<EmployeeInfoViewModel>());
+                }
+                IEnumerable<EmployeeInfoViewModel> results = new List<EmployeeInfoViewModel>();
+
+                if (int.TryParse(employeeId, out int empId))
+                {
+                    results = await this._erpManager.GetEmployeesInfo(new int[] { empId});
+                }
+                else
+                {
+                    results = await this.GetDataCollection(null, $"employeeName={employeeId}");
+                }
+
+                return this.Json(results);
+            }
+            catch (Exception ex)
+            {
+                return Json(new DataSourceResult() { Errors = ex.Message });
+            }
+        }
     }
 }
