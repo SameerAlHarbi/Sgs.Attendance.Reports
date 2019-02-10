@@ -130,7 +130,7 @@ namespace Sgs.Attendance.Reports.Controllers
                 }
                 else
                 {
-                    results = await this.GetDataCollection(null, $"employeeName={employeeId}");
+                    results = await this._erpManager.GetEmployeesInfo(employeeName: employeeId);
                 }
 
                 return this.Json(results);

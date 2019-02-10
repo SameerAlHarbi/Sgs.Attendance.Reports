@@ -6,7 +6,7 @@ namespace Sgs.Attendance.Reports.Services
 {
     public interface IErpManager
     {
-        Task<List<EmployeeInfoViewModel>> GetEmployeesInfo(IEnumerable<int> employeesIds = null);
+        Task<List<EmployeeInfoViewModel>> GetEmployeesInfo(IEnumerable<int> employeesIds = null,string employeeName = null);
 
         Task<List<EmployeeInfoViewModel>> GetDepartmentEmployeesInfo(string departmentCode);
 
