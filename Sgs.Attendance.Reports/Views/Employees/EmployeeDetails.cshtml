@@ -1,0 +1,150 @@
+﻿
+@{
+    ViewData["Title"] = "الموظف";
+}
+
+<div class="row" style="justify-content:center;vertical-align:central">
+    <div class="col-md-2" style="text-align:left;line-height:42px">الرقم الوظيفي :</div>
+    <div class="col-md-6">
+        @(Html.Kendo()
+                        .AutoComplete()
+                        .Name("employeeId")
+                        .DataTextField("EmployeeId")
+                        .MinLength(2)
+                        .Delay(1000)
+                        .Events(e => e.Select("employeeSelected").Change("employeeChanged"))
+                        .Placeholder("الرقم الوظيفي")
+                        .HtmlAttributes(new { @class = "form-control searchInput", style = "min-width:100%;", data_val_number = "الرقم الوظيفي فقط", title = "ادخل الاسم او الرقم الوظيفي للموظف", placeHolder = "الاسم او الرقم الوظيفي" })
+                        .Template("#= EmployeeId # | #= Name #")
+                        .DataSource(source =>
+                        {
+                            source
+                            .Custom()
+                            .Group(g => g.Add("DepartmentName", typeof(string)))
+                            .Type("aspnetmvc-ajax")
+                            .Transport(transport =>
+                            {
+                                transport.Read(r => r.Action("GetAllEmployeesForAutoCompleteKendoWedget", "Employees").Data("ParameterData"));
+                            })
+                            .ServerFiltering(true);
+                        })
+        )
+        <small id="employeeInfo" class="form-text text-muted"></small>
+    </div>
+    <div class="col-md-2"><a id="findEmployee" asp-action="Details" asp-controller="Employees" asp-route-id="__id__" class="btn btn-info" title="البحث عن معلومات الموظف"> بحث  <i class="fas fa-search"></i> </a></div>
+</div>
+<br />
+<hr />
+
+@section header{ 
+
+    <style>
+
+        .k-rtl.k-popup .k-list .k-item > .k-group, [dir="rtl"] .k-popup .k-list .k-item > .k-group {
+            right: 0;
+            left: 0;
+        }
+
+
+    </style>
+
+}
+
+@section scripts{ 
+
+    <script>
+
+        function ParameterData() {
+            return {
+                employeeId: $("#employeeId").val()
+            };
+        };
+
+        var lastSelectedEmployee;
+        function employeeSelected(e) {
+
+            var dataItem = this.dataItem(e.item.index());
+
+            if (dataItem && dataItem.Name) {
+                lastSelectedEmployee = { id: dataItem.EmployeeId, name: dataItem.Name };
+            }
+
+            showEmployeeInfo();
+        }
+
+        function employeeChanged() {
+
+            var empId = $("#employeeId").val();
+            if (!empId || isNaN(empId)) {
+                lastSelectedEmployee = null;
+                showEmployeeInfo();
+                return;
+            }
+
+            if (!lastSelectedEmployee || !lastSelectedEmployee.id || lastSelectedEmployee.id != empId)
+                {
+                    var options = {
+                        url: "@Url.Action("GetEmployeeInfoJson", "Employees")",
+                        type: "POST",
+                    data: { employeeId: empId },
+                    dataType: "json",
+                    success: function (data) {
+                        if (data.EmployeeId && data.Name) {
+                            lastSelectedEmployee = { id: data.EmployeeId, name: data.Name };
+                            showEmployeeInfo();
+                        }
+                        else if (data.errors) {
+                            lastSelectedEmployee = null;
+                            $("#employeeInfo").text(data.errors);
+                            $('#employeeInfo').css('color', 'red');
+                        }
+                    },
+                    error: function () {
+                        $("#employeeInfo").text('خطأ الرجاء المحاولة لاحقاً');
+                        $('#employeeInfo').css('color', 'red');
+                    },
+                    beforeSend: function () {
+
+                    },
+                    complete: function () {
+
+                    }
+                };
+
+                $.ajax(options);
+            }
+
+        }
+
+        
+        function showEmployeeInfo() {
+            if (lastSelectedEmployee) {
+                $("#employeeInfo").text(lastSelectedEmployee.name);
+                $('#employeeInfo').css('color', '#26a969');
+                var urlId = $("#findEmployee").attr('href');
+                urlId = urlId.replace('__id__', lastSelectedEmployee.id);
+                $("#findEmployee").attr('href',urlId);
+            }
+            else {
+                $("#employeeInfo").text('الرجاء اختيار الموظف من القائمة');
+                $('#employeeInfo').css('color', '#26a969');
+                toastr.error("الرجاء اختيار الموظف من القائمة");
+            }
+        }
+
+        $(function () {
+
+            $("#findEmployee").click(function (event) {
+                var urlId = $("#findEmployee").attr('href');
+                if (urlId.search("__id__") >= 0) {
+                    event.preventDefault();
+                }
+                toastr.error("الرجاء اختيار الموظف من القائمة");
+            });
+
+        });
+
+    </script>
+
+}
+

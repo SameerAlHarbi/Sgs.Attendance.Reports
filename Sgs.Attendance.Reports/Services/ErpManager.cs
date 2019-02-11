@@ -18,16 +18,22 @@ namespace Sgs.Attendance.Reports.Services
             _client = client;
         }
 
-        public async Task<List<EmployeeInfoViewModel>> GetEmployeesInfo(IEnumerable<int> employeesIds = null)
+        public async Task<List<EmployeeInfoViewModel>> GetEmployeesInfo(IEnumerable<int> employeesIds = null,string employeeName = null)
         {
             try
             {
                 string url = "Employees";
 
-                if (employeesIds != null || employeesIds.Count() > 0)
+                if (employeesIds != null && employeesIds.Count() > 0)
                 {
                     string employeesIdsString = string.Join(',', employeesIds);
                     url += $"?employeesIds={employeesIdsString}";
+                }
+
+                if(employeeName != null)
+                {
+                    url += url.IndexOf('?') >= 0 ? "&" : "?";
+                    url += $"employeeName={employeeName}";
                 }
 
                 HttpResponseMessage response = await _client.GetAsync(url);

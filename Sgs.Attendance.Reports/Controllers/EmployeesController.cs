@@ -107,5 +107,61 @@ namespace Sgs.Attendance.Reports.Controllers
                 throw;
             }
         }
+
+        public IActionResult EmployeeDetails()
+        {
+            return View();
+        }
+
+        public async Task<JsonResult> GetAllEmployeesForAutoCompleteKendoWedget([DataSourceRequest]DataSourceRequest request
+            , string employeeId = "")
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(employeeId))
+                {
+                    return Json(new List<EmployeeInfoViewModel>());
+                }
+                IEnumerable<EmployeeInfoViewModel> results = new List<EmployeeInfoViewModel>();
+
+                if (int.TryParse(employeeId, out int empId))
+                {
+                    results = await this._erpManager.GetEmployeesInfo(new int[] { empId});
+                }
+                else
+                {
+                    results = await this._erpManager.GetEmployeesInfo(employeeName: employeeId);
+                }
+
+                return this.Json(results);
+            }
+            catch (Exception ex)
+            {
+                return Json(new DataSourceResult() { Errors = ex.Message });
+            }
+        }
+
+        public async Task<ActionResult> EmployeesNamesJson()
+        {
+            IEnumerable<EmployeeInfoViewModel> results = await _erpManager.GetEmployeesInfo();
+            return Json(results.Select(e => e.Name).OrderBy(e => e).Distinct());
+        }
+
+        public async Task<JsonResult> GetEmployeeInfoJson(int employeeId)
+        {
+            try
+            {
+                IEnumerable<EmployeeInfoViewModel> results = await _erpManager.GetEmployeesInfo(new int[] { employeeId });
+                if(results == null || results.Count() <1 )
+                {
+                    return Json(new { errors = "لايمكن العثور على بيانات الموظف" });
+                }
+                return Json(results.FirstOrDefault());
+            }
+            catch (Exception)
+            {
+                return Json(new { errors="خطأ اثناء قراءة البيانات"});
+            }
+        }
     }
 }
