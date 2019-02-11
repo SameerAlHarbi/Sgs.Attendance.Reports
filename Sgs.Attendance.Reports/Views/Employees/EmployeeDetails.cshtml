@@ -3,8 +3,8 @@
     ViewData["Title"] = "الموظف";
 }
 
-<div class="form-inline" style="justify-content:center">
-    <div class="col-md-2" style="text-align:left">الرقم الوظيفي :</div>
+<div class="row" style="justify-content:center;vertical-align:central">
+    <div class="col-md-2" style="text-align:left;line-height:42px">الرقم الوظيفي :</div>
     <div class="col-md-6">
         @(Html.Kendo()
                         .AutoComplete()
@@ -31,7 +31,7 @@
         )
         <small id="employeeInfo" class="form-text text-muted"></small>
     </div>
-    <div class="col-md-2"><button class="btn btn-info" title="البحث عن معلومات الموظف"> بحث  <i class="fas fa-search"></i> </button></div>
+    <div class="col-md-2"><a id="findEmployee" asp-action="Details" asp-controller="Employees" asp-route-id="__id__" class="btn btn-info" title="البحث عن معلومات الموظف"> بحث  <i class="fas fa-search"></i> </a></div>
 </div>
 <br />
 <hr />
@@ -44,7 +44,7 @@
             right: 0;
             left: 0;
         }
-        
+
 
     </style>
 
@@ -90,18 +90,18 @@
                     dataType: "json",
                     success: function (data) {
                         if (data.EmployeeId && data.Name) {
-                            lastSelectedCommissioner = { id: data.EmployeeId, name: data.Name };
-                            showCommissionerInfo();
+                            lastSelectedEmployee = { id: data.EmployeeId, name: data.Name };
+                            showEmployeeInfo();
                         }
-                        else if (data.error) {
-                            lastSelectedCommissioner = null;
-                            $("#commissionerEmployeeInfo").text(data.error);
-                            $('#commissionerEmployeeInfo').css('color', 'red');
+                        else if (data.errors) {
+                            lastSelectedEmployee = null;
+                            $("#employeeInfo").text(data.errors);
+                            $('#employeeInfo').css('color', 'red');
                         }
                     },
                     error: function () {
-                        $("#commissionerEmployeeInfo").text('@Resources.CommissionerEmployee_NotFound');
-                        $('#commissionerEmployeeInfo').css('color', 'red');
+                        $("#employeeInfo").text('خطأ الرجاء المحاولة لاحقاً');
+                        $('#employeeInfo').css('color', 'red');
                     },
                     beforeSend: function () {
 
@@ -121,12 +121,28 @@
             if (lastSelectedEmployee) {
                 $("#employeeInfo").text(lastSelectedEmployee.name);
                 $('#employeeInfo').css('color', '#26a969');
+                var urlId = $("#findEmployee").attr('href');
+                urlId = urlId.replace('__id__', lastSelectedEmployee.id);
+                $("#findEmployee").attr('href',urlId);
             }
             else {
-                $("#employeeInfo").text('');
+                $("#employeeInfo").text('الرجاء اختيار الموظف من القائمة');
                 $('#employeeInfo').css('color', '#26a969');
+                toastr.error("الرجاء اختيار الموظف من القائمة");
             }
         }
+
+        $(function () {
+
+            $("#findEmployee").click(function (event) {
+                var urlId = $("#findEmployee").attr('href');
+                if (urlId.search("__id__") >= 0) {
+                    event.preventDefault();
+                }
+                toastr.error("الرجاء اختيار الموظف من القائمة");
+            });
+
+        });
 
     </script>
 

@@ -140,5 +140,28 @@ namespace Sgs.Attendance.Reports.Controllers
                 return Json(new DataSourceResult() { Errors = ex.Message });
             }
         }
+
+        public async Task<ActionResult> EmployeesNamesJson()
+        {
+            IEnumerable<EmployeeInfoViewModel> results = await _erpManager.GetEmployeesInfo();
+            return Json(results.Select(e => e.Name).OrderBy(e => e).Distinct());
+        }
+
+        public async Task<JsonResult> GetEmployeeInfoJson(int employeeId)
+        {
+            try
+            {
+                IEnumerable<EmployeeInfoViewModel> results = await _erpManager.GetEmployeesInfo(new int[] { employeeId });
+                if(results == null || results.Count() <1 )
+                {
+                    return Json(new { errors = "لايمكن العثور على بيانات الموظف" });
+                }
+                return Json(results.FirstOrDefault());
+            }
+            catch (Exception)
+            {
+                return Json(new { errors="خطأ اثناء قراءة البيانات"});
+            }
+        }
     }
 }
