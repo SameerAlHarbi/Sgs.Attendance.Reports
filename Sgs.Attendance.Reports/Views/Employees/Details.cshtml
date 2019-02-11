@@ -7,24 +7,48 @@
 <div class="row">
     <div class="col">
         <div class="clearfix">
-            <h4 class="text-info float-right">تفاصيل</h4>
+            <h4 class="text-info float-right"><i class="far fa-address-card fa-flip-horizontal fa-lg"></i> تفاصيل الموظف</h4>
         </div>
         <hr />
-        @Model.EmployeeId
-        <br />
-        @Model.Name
-        <br />
-        @Model.DepartmentId
-        <br />
-        @Model.DepartmentName
-        <br />
-        @Model.AttendanceProofText
-        <br />
-        @Model.Note
+        <div class="row">
+            <div class="col-md-3 justify-content-center align-self-center text-center">
+                <img class="img-thumbnail" style="max-width:220px;max-height:230px" src="~/Images/EmployeePhotoEmpty.jpg" />
+            </div>
+            <div class="col-md-9">
+                <div class="row">
+                    <div class="col-md-6"><small class="text-info">الرقم الوظيفي</small><br />
+                    <span>@Model.EmployeeId</span></div>
+                    <div class="col-md-6"><small class="text-info">الاسم </small><br />
+                    <span>@Model.Name</span></div>
+                </div>
+                <hr />
+                <div class="row">
+                    <div class="col-md-6">
+                        <small class="text-info">الادارة - القسم</small><br />
+                        <span>@Model.DepartmentId - @Model.DepartmentName</span>
+                    </div>
+                    <div class="col-md-6">
+                        <small class="text-info">نوع البصمة</small><br />
+                        <span>@Model.AttendanceProofText</span>
+                    </div>
+                </div>
+                <hr />
+                <div class="row">
+                    <div class="col-md-12">
+                        <small class="text-info">ملاحظات</small><br />
+                        <span>@Model.Note</span>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
     </div>
+</div>
+<br>
+<div class="row">
     <div class="col">
         <div class="clearfix">
-            <h4 class="text-info float-right">الاستذان</h4>
+            <h4 class="text-info float-right"> <i class="fas fa-hourglass-half fa-lg"></i> الاستئذان</h4>
             <button class="btn btn-sm btn-outline-info float-left" style="width:150px" data-toggle="modal" data-target="#addExcuseModal"><i class="fa fa-plus"></i>  إضافة استئذان جديد </button>
         </div>
         <hr />
