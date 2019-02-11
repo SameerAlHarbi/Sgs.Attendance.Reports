@@ -40,11 +40,16 @@ namespace Sgs.Attendance.Reports
 
             services.AddAutoMapper();
 
+            services.AddHostedService<TimedHostedService>();
+            services.AddScoped<IScopedProcessingService, ScopedProcessingService>();
+
             services.AddMvc()
                 .SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Version_2_2)
                 .AddJsonOptions(options => options.SerializerSettings.ContractResolver = new DefaultContractResolver());
 
             services.AddKendo();
+
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
