@@ -5,3 +5,38 @@
 
 <h1>يتم العمل على الصفحة</h1>
 
+<div id="absentsData">
+
+</div>
+
+
+
+@section scripts{ 
+
+    <script>
+
+        $(function () {
+
+             var options = {
+                    url: "@Url.Action("AbsentsReport", "EmployeesDaysReports")",
+                    type: "Post",
+                    dataType: "html",
+                    success: function updateBalances(data) {
+                        $("#absentsData").html(data);
+                        $("#absentsData").fadeIn();
+                    },
+                 error: function () {
+                     $("#absentsData").text("error");
+                     $("#absentsData").fadeIn();
+                    }
+                };
+
+                $.ajax(options);
+
+
+        })
+
+    </script>
+
+}
+

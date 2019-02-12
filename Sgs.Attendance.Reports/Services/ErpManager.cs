@@ -59,7 +59,7 @@ namespace Sgs.Attendance.Reports.Services
             }
         }
 
-        public async Task<List<EmployeeInfoViewModel>> GetShortEmployeesInfo(IEnumerable<int> employeesIds = null, string employeeName = null)
+        public async Task<List<ShortEmployeeInfoViewModel>> GetShortEmployeesInfo(IEnumerable<int> employeesIds = null, string employeeName = null)
         {
             try
             {
@@ -82,7 +82,7 @@ namespace Sgs.Attendance.Reports.Services
                 if (response.IsSuccessStatusCode)
                 {
                     string content = await response.Content.ReadAsStringAsync();
-                    var results = JsonConvert.DeserializeObject<List<EmployeeInfoViewModel>>(content);
+                    var results = JsonConvert.DeserializeObject<List<ShortEmployeeInfoViewModel>>(content);
                     return results;
                 }
                 else if (response.StatusCode == HttpStatusCode.NotFound)

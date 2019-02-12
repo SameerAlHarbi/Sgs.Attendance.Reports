@@ -66,6 +66,11 @@ namespace Sgs.Attendance.Reports.Controllers
                 }
 
                 return PartialView(resultViewModels);
+
+                //return PartialView(new List<EmployeeDayReportViewModel>
+                //{
+                //    new EmployeeDayReportViewModel{ Id = 12}
+                //});
             }
             catch (Exception)
             {

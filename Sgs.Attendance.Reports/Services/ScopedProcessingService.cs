@@ -66,7 +66,7 @@ namespace Sgs.Attendance.Reports.Services
                     var employees = await _erpManager.GetShortEmployeesInfo(employeesIds);
                     var lastRequestEmployeeId = employees.Max(e => e.EmployeeId);
 
-                    if (fromDate > openProcessingRequest.ToDate && lastEmployeeId)
+                    if (fromDate > openProcessingRequest.ToDate)// && lastEmployeeId)
                     {
                         openProcessingRequest.Completed = true;
                         await _processingsRequestsManager.UpdateItemAsync(openProcessingRequest);
@@ -74,15 +74,15 @@ namespace Sgs.Attendance.Reports.Services
                     }
 
 
-                    if (lastDayReport == null)
-                    {
-                        employeesIds = employees.OrderBy(e => e.EmployeeId).Select(e => e.EmployeeId).Distinct().Take(10).ToList();
-                        return await processDaysReports(employeesIds, openProcessingRequest.FromDate, openProcessingRequest openProcessingRequest.ToDate);
-                    }
-                    else
-                    {
-                        employeesIds = employees.Where().OrderBy(e => e.EmployeeId).Select(e => e.EmployeeId).Distinct().Take(10).ToList();
-                    }  
+                    //if (lastDayReport == null)
+                    //{
+                    //    employeesIds = employees.OrderBy(e => e.EmployeeId).Select(e => e.EmployeeId).Distinct().Take(10).ToList();
+                    //    return await processDaysReports(employeesIds, openProcessingRequest.FromDate, openProcessingRequest openProcessingRequest.ToDate);
+                    //}
+                    //else
+                    //{
+                    //    employeesIds = employees.Where().OrderBy(e => e.EmployeeId).Select(e => e.EmployeeId).Distinct().Take(10).ToList();
+                    //}  
                 }
             }
             catch (Exception)
