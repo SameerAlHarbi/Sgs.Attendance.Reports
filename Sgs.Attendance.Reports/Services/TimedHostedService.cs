@@ -32,8 +32,10 @@ namespace Sgs.Attendance.Reports.Services
         bool locked = false;
         private async void DoWork(object state)
         {
-            if(locked)
+            _logger.LogInformation("Timed Background Service is working.");
+            if (locked)
             {
+                _logger.LogInformation("Timed Background Service is Locked !");
                 return;
             }
 
@@ -41,7 +43,7 @@ namespace Sgs.Attendance.Reports.Services
 
             try
             {
-                _logger.LogInformation("Timed Background Service is working.");
+                _logger.LogInformation("Timed Background Service is Started.");
 
                 using (var scope = _services.CreateScope())
                 {
@@ -50,16 +52,20 @@ namespace Sgs.Attendance.Reports.Services
                             .GetRequiredService<IScopedProcessingService>();
 
                    var result = await scopedProcessingService.DoWork();
-                    if(result)
+                    if(result || !result)
                     {
                         locked = false;
+                        _logger.LogInformation("Timed Background Service is Finished.");
                     }
                 }
             }
             catch (Exception ex)
             {
+                locked = false;
+                _logger.LogError(ex.Message);
+                _logger.LogInformation("Timed Background Service is Finished.");
             }
-            locked = false;
+            
         }
 
         public Task StopAsync(CancellationToken cancellationToken)

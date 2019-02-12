@@ -19,7 +19,7 @@ namespace Sgs.Attendance.Reports.ViewModels
 
         public bool Completed { get; set; }
 
-        public string Status => Completed ? "مكتمل" : "مفتوح";
+        public string Status => Completed ? "مكتمل" : "تحت المعالجة";
 
         public int UserId { get; set; }
     }

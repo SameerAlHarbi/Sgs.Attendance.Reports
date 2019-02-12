@@ -59,6 +59,47 @@ namespace Sgs.Attendance.Reports.Services
             }
         }
 
+        public async Task<List<EmployeeInfoViewModel>> GetShortEmployeesInfo(IEnumerable<int> employeesIds = null, string employeeName = null)
+        {
+            try
+            {
+                string url = "Employees/shortinfo";
+
+                if (employeesIds != null && employeesIds.Count() > 0)
+                {
+                    string employeesIdsString = string.Join(',', employeesIds);
+                    url += $"?employeesIds={employeesIdsString}";
+                }
+
+                if (employeeName != null)
+                {
+                    url += url.IndexOf('?') >= 0 ? "&" : "?";
+                    url += $"employeeName={employeeName}";
+                }
+
+                HttpResponseMessage response = await _client.GetAsync(url);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    string content = await response.Content.ReadAsStringAsync();
+                    var results = JsonConvert.DeserializeObject<List<EmployeeInfoViewModel>>(content);
+                    return results;
+                }
+                else if (response.StatusCode == HttpStatusCode.NotFound)
+                {
+                    throw new Exception("Data not found !!");
+                }
+                else //Else in case of BadRequest for not found data or InternalServerError
+                {
+                    throw new Exception("Internal Server Error");
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
         public async Task<List<EmployeeInfoViewModel>> GetDepartmentEmployeesInfo(string departmentCode)
         {
             try
