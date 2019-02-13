@@ -1,16 +1,23 @@
 ﻿@using System.DirectoryServices.AccountManagement
 
 
-<div class="header-top">
+<div class="header-top d-print-none">
+
+    <div class="header-logo">
+        <div style="text-align:right; margin:0px 30px;">
+            <h5 class="text-light" style="display:inline">نظام البصمة</h5>
+            <img style="max-width:60px; max-height:80px" src="~/Images/scan-fingerprint-icon.png" />
+        </div>
+    </div>
+
     <div class="header-title">
         @if (User.Identity.IsAuthenticated)
         {
             using (var context = new PrincipalContext(ContextType.Domain))
             {
                 UserPrincipal principal = UserPrincipal.FindByIdentity(context, User.Identity.Name);
-                <p style="color:#fff; margin:15px 30px;font-size:x-large;text-align:right;">@principal.Name</p>
+                <p style="color:#fff; margin:10px 30px;font-size:x-large;text-align:left;">@principal.Name</p>
             }
         }
     </div>
-    <div class="header-logo"></div>
 </div>
