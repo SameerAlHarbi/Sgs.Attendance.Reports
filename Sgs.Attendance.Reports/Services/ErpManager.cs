@@ -2,6 +2,7 @@
 using Sgs.Attendance.Reports.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -247,6 +248,148 @@ namespace Sgs.Attendance.Reports.Services
                         item.ChildDepartmentsList.AddRange(results.Where(d => d.ParentCode == item.Code));
                     }
 
+                    return results;
+                }
+                else if (response.StatusCode == HttpStatusCode.NotFound)
+                {
+                    throw new Exception("Data not found !!");
+                }
+                else //Else in case of BadRequest for not found data or InternalServerError
+                {
+                    throw new Exception("Internal Server Error");
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public async Task<List<VacationViewModel>> GetAllVacations(DateTime fromDate, DateTime toDate, IEnumerable<int> employeesIds = null)
+        {
+            try
+            {
+                string url = $"vacations?fromDate={fromDate.Date.ToString("yyyy-MM-dd", new CultureInfo("en-US"))}&toDate={toDate.Date.ToString("yyyy-MM-dd", new CultureInfo("en-US"))}";
+
+                if (employeesIds != null && employeesIds.Count() > 0)
+                {
+                    string employeesIdsString = string.Join(',', employeesIds);
+                    url += $"&employeesIds={employeesIdsString}";
+                }
+
+                HttpResponseMessage response = await _client.GetAsync(url);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    string content = await response.Content.ReadAsStringAsync();
+                    var results = JsonConvert.DeserializeObject<List<VacationViewModel>>(content);
+                    return results;
+                }
+                else if (response.StatusCode == HttpStatusCode.NotFound)
+                {
+                    throw new Exception("Data not found !!");
+                }
+                else //Else in case of BadRequest for not found data or InternalServerError
+                {
+                    throw new Exception("Internal Server Error");
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public async Task<List<AttendanceTransactionViewModel>> GetAllTransaction(DateTime fromDate, DateTime toDate, IEnumerable<int> employeesIds = null)
+        {
+            try
+            {
+                string url = $"RawAttendanceTransactions?fromDate={fromDate.Date.ToString("yyyy-MM-dd", new CultureInfo("en-US"))}&toDate={toDate.Date.ToString("yyyy-MM-dd", new CultureInfo("en-US"))}";
+
+                if (employeesIds != null && employeesIds.Count() > 0)
+                {
+                    string employeesIdsString = string.Join(',', employeesIds);
+                    url += $"&employeesids={employeesIdsString}";
+                }
+
+                HttpResponseMessage response = await _client.GetAsync(url);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    string content = await response.Content.ReadAsStringAsync();
+                    var results = JsonConvert.DeserializeObject<List<AttendanceTransactionViewModel>>(content);
+                    return results;
+                }
+                else if (response.StatusCode == HttpStatusCode.NotFound)
+                {
+                    throw new Exception("Data not found !!");
+                }
+                else //Else in case of BadRequest for not found data or InternalServerError
+                {
+                    throw new Exception("Internal Server Error");
+                }
+
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            
+        }
+
+        public async Task<List<VacationRequestViewModel>> GetAllOpenDelegations(DateTime fromDate, DateTime toDate, IEnumerable<int> employeesIds = null)
+        {
+            try
+            {
+                string url = $"delegations?fromDate={fromDate.Date.ToString("yyyy-MM-dd", new CultureInfo("en-US"))}&toDate={toDate.Date.ToString("yyyy-MM-dd", new CultureInfo("en-US"))}&requestStatus=0,1,2";
+
+                if (employeesIds != null && employeesIds.Count() > 0)
+                {
+                    string employeesIdsString = string.Join(',', employeesIds);
+                    url += $"&employeesIds={employeesIdsString}";
+                }
+
+                HttpResponseMessage response = await _client.GetAsync(url);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    string content = await response.Content.ReadAsStringAsync();
+                    var results = JsonConvert.DeserializeObject<List<VacationRequestViewModel>>(content);
+                    return results;
+                }
+                else if (response.StatusCode == HttpStatusCode.NotFound)
+                {
+                    throw new Exception("Data not found !!");
+                }
+                else //Else in case of BadRequest for not found data or InternalServerError
+                {
+                    throw new Exception("Internal Server Error");
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public async Task<List<VacationRequestViewModel>> GetAllOpenVacations(DateTime fromDate, DateTime toDate, IEnumerable<int> employeesIds = null)
+        {
+            try
+            {
+                string url = $"OpenVacationsRequests?fromDate={fromDate.Date.ToString("yyyy-MM-dd", new CultureInfo("en-US"))}&toDate={toDate.Date.ToString("yyyy-MM-dd", new CultureInfo("en-US"))}&requestStatus=0,1,2";
+
+                if (employeesIds != null && employeesIds.Count() > 0)
+                {
+                    string employeesIdsString = string.Join(',', employeesIds);
+                    url += $"&employeesIds={employeesIdsString}";
+                }
+
+                HttpResponseMessage response = await _client.GetAsync(url);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    string content = await response.Content.ReadAsStringAsync();
+                    var results = JsonConvert.DeserializeObject<List<VacationRequestViewModel>>(content);
                     return results;
                 }
                 else if (response.StatusCode == HttpStatusCode.NotFound)
