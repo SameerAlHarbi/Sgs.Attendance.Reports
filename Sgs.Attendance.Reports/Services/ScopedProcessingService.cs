@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Sameer.Shared;
 using Sgs.Attendance.Reports.Logic;
+using Sgs.Attendance.Reports.Models;
 using Sgs.Attendance.Reports.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -39,17 +40,71 @@ namespace Sgs.Attendance.Reports.Services
         {
             try
             {
-                //Prepare employees data
                 var employeesIds = employees.Select(e => e.EmployeeId).OrderBy(e => e).ToList();
 
                 //Get employees Calendars
                 var allEmployeesCalendars = await _employeesCalendarManager.GetAllAsNoTrackingListAsync(ec => employeesIds.Contains(ec.EmployeeId)
-                    && ec.EndDate == null || (ec.StartDate >= fromDate && ec.StartDate <= toDate) || (ec.StartDate <= fromDate && ec.EndDate >= fromDate));
+                    && (ec.StartDate <= fromDate && ec.EndDate == null) || (ec.StartDate >= fromDate && ec.StartDate <= toDate) || (ec.StartDate <= fromDate && ec.EndDate >= fromDate));
 
                 //Get employees excuses
                 var allEmployeesExcuses = await _employeesExcusesManager.GetAllAsNoTrackingListAsync(ex => employeesIds.Contains(ex.EmployeeId)
                     && ex.ExcueseDate >= fromDate && ex.ExcueseDate <= toDate);
 
+                //Get employees vacations
+                var allEmployeesVacations = await _erpManager.GetAllVacations(fromDate, toDate,employeesIds);
+
+                //Get employees open delegations requests
+                var allEmployeesOpenDelegationsRequests = await _erpManager.GetAllOpenDelegations(fromDate, toDate, employeesIds);
+
+                //Get employees Open vacations requests
+                var allEmployeesOpenVacationsRequests = await _erpManager.GetAllOpenVacations(fromDate, toDate, employeesIds);
+
+                //Get employees transactions
+                var allEmployeesTransactions = await _erpManager.GetAllTransaction(fromDate, toDate, employeesIds);
+
+                var resultsDaysReports = new List<EmployeeDayReport>();
+
+                while (fromDate <= toDate)
+                {
+                    var calendars = allEmployeesCalendars.Where(c => (c.StartDate <= fromDate && c.EndDate == null) 
+                    && (fromDate >= c.StartDate && fromDate <= c.EndDate)).ToList();
+                    var excuses = allEmployeesExcuses.Where(x => x.ExcueseDate.Date == fromDate);
+                    var vacations = allEmployeesVacations.Where(v => fromDate >= v.StartDate && fromDate <= v.EndDate).ToList();
+                    var openDelegationsRequest = allEmployeesOpenDelegationsRequests.Where(d => fromDate >= d.StartDate && fromDate <= d.EndDate).ToList();
+                    var openVacationsRequest = allEmployeesOpenVacationsRequests.Where(d => fromDate >= d.StartDate && fromDate <= d.EndDate).ToList();
+                    var transactions = allEmployeesTransactions.Where(t => t.TransactionDate.Date == fromDate).ToList();
+
+                    foreach (var employee in employees)
+                    {
+                        var newDayReport = new EmployeeDayReport
+                        {
+                            EmployeeId = employee.EmployeeId,
+                            DayDate = fromDate,
+                            ProcessingDate = DateTime.Now
+                        };
+
+                        var defaultCalendar = calendars.Where(c => c.EndDate == null)
+                            .OrderByDescending(c => c.StartDate).FirstOrDefault() ?? new EmployeeCalendar
+                            {
+                                StartDate = fromDate,
+                                AttendanceProof = AttendanceProof.RequiredInOut,
+                                EmployeeId = employee.EmployeeId,
+                                ContractWorkTime = ContractWorkTime.ShiftA
+                            };
+
+                        var limitedCalendar = calendars.Where(c => c.EndDate.HasValue).FirstOrDefault();
+
+                        var appliedCalendar = limitedCalendar ?? defaultCalendar;
+
+                        newDayReport.AttendanceProof = limitedCalendar.AttendanceProof;
+                        
+                        
+                        
+
+                    }
+
+                    fromDate = fromDate.AddDays(1);
+                }
 
 
                 return true;
@@ -124,5 +179,6 @@ namespace Sgs.Attendance.Reports.Services
 
             return true;
         }
+
     }
 }

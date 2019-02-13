@@ -17,5 +17,10 @@ namespace Sgs.Attendance.Reports.Data
         public DbSet<ProcessingRequest> ProcessingRequests { get; set; }
 
         public DbSet<EmployeeDayReport> EmployeeDaysReports { get; set; }
+
+        public DbSet<WorkCalendar> WorkCalendars { get; set; }
+
+        public DbSet<WorkShift> WorkShifts { get; set; }
+
     }
 }
