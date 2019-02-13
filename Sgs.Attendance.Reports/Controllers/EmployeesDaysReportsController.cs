@@ -38,7 +38,7 @@ namespace Sgs.Attendance.Reports.Controllers
                 startDate = startDate.Date;
                 endDate = endDate.Date;
 
-                var employeesIdsNumbers = employeesIds.TryParseToNumbers()?.Select(d => (int)d).ToList();
+                var employeesIdsNumbers = employeesIds.TryParseToNumbers()?.Select(d => (int)d).ToList() ?? new List<int>();
 
                 var resultsQuery =  _employeesDaysReportsManager
                     .GetAll(d => (employeesIdsNumbers.Count < 1 || employeesIdsNumbers.Contains(d.EmployeeId)) 
@@ -52,25 +52,23 @@ namespace Sgs.Attendance.Reports.Controllers
                 var resultsData = await resultsQuery.AsNoTracking().ToListAsync();
                 var resultViewModels = _mapper.Map<List<EmployeeDayReportViewModel>>(resultsData);
 
-                employeesIdsNumbers = resultViewModels.Select(d => d.EmployeeId).Distinct().ToList();
-
-                var erpEmployees = await _erpManager.GetEmployeesInfo(employeesIdsNumbers);
-
-                foreach (var erpEmp in erpEmployees)
+                if (resultViewModels.Count>0)
                 {
-                    foreach (var dayReport in resultViewModels.Where(d => d.EmployeeId==erpEmp.EmployeeId))
+                    employeesIdsNumbers = resultViewModels.Select(d => d.EmployeeId).Distinct().ToList();
+
+                    var erpEmployees = await _erpManager.GetEmployeesInfo(employeesIdsNumbers);
+
+                    foreach (var erpEmp in erpEmployees)
                     {
-                        dayReport.EmployeeName = erpEmp.Name;
-                        dayReport.DepartmentName = erpEmp.DepartmentName;
-                    }
+                        foreach (var dayReport in resultViewModels.Where(d => d.EmployeeId == erpEmp.EmployeeId))
+                        {
+                            dayReport.EmployeeName = erpEmp.Name;
+                            dayReport.DepartmentName = erpEmp.DepartmentName;
+                        }
+                    } 
                 }
 
                 return PartialView(resultViewModels);
-
-                //return PartialView(new List<EmployeeDayReportViewModel>
-                //{
-                //    new EmployeeDayReportViewModel{ Id = 12}
-                //});
             }
             catch (Exception)
             {

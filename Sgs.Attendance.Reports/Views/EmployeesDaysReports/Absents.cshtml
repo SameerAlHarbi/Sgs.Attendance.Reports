@@ -5,22 +5,44 @@
 
 <h1>يتم العمل على الصفحة</h1>
 
+<div class="form-inline">
+    <form>
+        <div class="form-group">
+            <label for="startDate" class="control-label" style="margin:0 20px"> من تاريخ :</label>
+            <kendo-datepicker min="new DateTime(2018,12,1)" name="startDate" id="startDate" value="DateTime.Today" format="yyyy-MM-dd" title="عرض من تاريخ" />
+        </div>
+        <div class="form-group">
+            <div class="form-group">
+                <label for="endDate" class="control-label" style="margin:0 20px"> إلى تاريخ :</label>
+                <kendo-datepicker min="new DateTime(2018,12,1)" name="endDate" id="endDate" value="DateTime.Today" format="yyyy-MM-dd" title="عرض الى تاريخ" />
+            </div>
+        </div>
+        <div class="form-group" style="margin: 0 30px">
+            <button type="submit" id="showAbsents" class="btn btn-primary"> عرض </button>
+        </div>
+    </form>
+</div>
+
 <div id="absentsData">
 
 </div>
 
 
 
-@section scripts{ 
-
-    <script>
+@section scripts{
+    <partial name="_ValidationScripts">
+        <script>
 
         $(function () {
 
-             var options = {
+              $('form').submit(function (e) {
+                if ($(this).valid()) {
+
+                    var options = {
                     url: "@Url.Action("AbsentsReport", "EmployeesDaysReports")",
                     type: "Post",
-                    dataType: "html",
+                 dataType: "html",
+                    data: { startDate: $("#startDate").val(), endDate: $("#endDate").val() },
                     success: function updateBalances(data) {
                         $("#absentsData").html(data);
                         $("#absentsData").fadeIn();
@@ -33,10 +55,15 @@
 
                 $.ajax(options);
 
+                }
+
+                e.preventDefault();
+            });
+
 
         })
 
-    </script>
+        </script>
 
 }
 
