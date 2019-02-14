@@ -5,7 +5,8 @@ namespace Sgs.Attendance.Reports.Logic
 {
     public class WorkShiftsManager : GeneralManager<WorkShift>
     {
-        public WorkShiftsManager(IRepository repo) : base(repo)
+        public WorkShiftsManager(IRepository repo) 
+            : base(repo)
         {
         }
     }

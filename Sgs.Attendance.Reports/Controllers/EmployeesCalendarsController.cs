@@ -41,7 +41,7 @@ namespace Sgs.Attendance.Reports.Controllers
                 currentData.StartDate = model.StartDate.Value.Date;
                 currentData.Note = model.Note;
 
-                if(User.Identity.IsAuthenticated)
+                if (User.Identity.IsAuthenticated)
                 {
                     currentData.UserId = User.Identity.Name.ConvertToInteger();
                 }

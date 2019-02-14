@@ -9,7 +9,10 @@ namespace Sgs.Attendance.Reports.Models
     {
         public int Id { get; set; }
 
-        public string Description { get; set; }
+        [Required(ErrorMessage = "Calendar name is required !")]
+        [Unique(ErrorMessage = "Calendar name is already exist !")]
+        [StringLength(100, ErrorMessage = "Calendar name can't be more than {1} characters !")]
+        public string Name { get; set; }
 
         public DateTime StartDate { get; set; }
 
@@ -19,18 +22,35 @@ namespace Sgs.Attendance.Reports.Models
 
         public List<WorkShift> WorkShifts { get; set; }
 
+        public bool IsVacationCalendar { get; set; }
+
+        public string VacationDescription { get; set; }
+
         public string Note { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            var result = new List<ValidationResult>();
+            var results = new List<ValidationResult>();
 
             if(EndDate.HasValue && StartDate.Date > EndDate.Value)
             {
-                result.Add(new ValidationResult("Start date can't be after end date !", new string[] { nameof(StartDate), nameof(EndDate) }));
+                results.Add(new ValidationResult("Start date can't be after end date !", new string[] { nameof(StartDate), nameof(EndDate) }));
             }
 
-            return result;
+            if (IsVacationCalendar)
+            {
+                if (string.IsNullOrWhiteSpace(VacationDescription))
+                {
+                    results.Add(new ValidationResult($"{nameof(VacationDescription)} is required !", new string[] { nameof(VacationDescription), nameof(IsVacationCalendar) })); 
+                }
+
+                if(!EndDate.HasValue)
+                {
+                    results.Add(new ValidationResult($"{nameof(EndDate)} is required for vacation caledar !", new string[] { nameof(EndDate), nameof(IsVacationCalendar) }));
+                }
+            }
+
+            return results;
         }
     }
 }
