@@ -50,6 +50,10 @@ namespace Sgs.Attendance.Reports.ViewModels
 
         public double ContractWorkDurationAvarage { get; set; }
 
+        public DateTime ProcessingDate { get; set; }
+
+        public int UserId { get; set; }
+
         public string Note { get; set; }
     }
 }
