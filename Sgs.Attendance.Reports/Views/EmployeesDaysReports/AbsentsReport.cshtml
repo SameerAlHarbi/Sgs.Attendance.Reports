@@ -1,5 +1,50 @@
 ﻿@model IEnumerable<EmployeeDayReportViewModel>
 
-ok  
+@{
+    ViewData["Title"] = "تقرير الغياب";
+}
 
+<div class="text-right" style="direction:rtl">
+    <div class="row justify-content-center align-self-center text-center">
+        <div class="col justify-content-center align-self-center text-center d-none d-print-block">
+            <h5>قسم عمليات الموارد البشرية</h5>
+            <h6>تقرير الغياب</h6>
+        </div>
+        <div class="col">
+            <div class="d-none d-print-block"><img width="190px" height="130px" src="~/Images/SGSLOGO.png" /></div>
+        </div>
+        <div class="col">
 
+        </div>
+    </div>
+    <br />
+    <div class="justify-content-center text-center d-none d-print-block">
+        @*<h6>تقرير الغياب من تاريخ 01-01-2019 الى 31-01-2019</h6>*@
+    </div>
+
+    <div>
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>الرقم الوظيفي</th>
+                    <th>اسم الموظف</th>
+                    <th>الادارة - القسم</th>
+                    <th>تاريخ الغياب</th>
+                    <th>ملاحظات</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var Absent in Model)
+                {
+                    <tr>
+                        <td>@Absent.EmployeeId</td>
+                        <td>@Absent.EmployeeName</td>
+                        <td>@Absent.DepartmentName</td>
+                        <td>@Absent.DayDate</td>
+                        <td>@(Absent.IsDelegationRequest ? "يوجد طلب انتداب" : "")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
