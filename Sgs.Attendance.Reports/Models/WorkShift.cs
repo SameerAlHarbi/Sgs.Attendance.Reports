@@ -26,7 +26,7 @@ namespace Sgs.Attendance.Reports.Models
 
         public bool IsDayOff { get; set; }
 
-        public bool IsDayOffInRamadan { get; set; }
+        public bool? IsDayOffInRamadan { get; set; }
 
         public int WorkCalendarId { get; set; }
 
