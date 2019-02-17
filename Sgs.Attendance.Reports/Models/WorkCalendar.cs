@@ -24,8 +24,6 @@ namespace Sgs.Attendance.Reports.Models
 
         public bool IsVacationCalendar { get; set; }
 
-        public string VacationDescription { get; set; }
-
         public string Note { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
@@ -37,17 +35,9 @@ namespace Sgs.Attendance.Reports.Models
                 results.Add(new ValidationResult("Start date can't be after end date !", new string[] { nameof(StartDate), nameof(EndDate) }));
             }
 
-            if (IsVacationCalendar)
+            if (IsVacationCalendar && !EndDate.HasValue)
             {
-                if (string.IsNullOrWhiteSpace(VacationDescription))
-                {
-                    results.Add(new ValidationResult($"{nameof(VacationDescription)} is required !", new string[] { nameof(VacationDescription), nameof(IsVacationCalendar) })); 
-                }
-
-                if(!EndDate.HasValue)
-                {
-                    results.Add(new ValidationResult($"{nameof(EndDate)} is required for vacation caledar !", new string[] { nameof(EndDate), nameof(IsVacationCalendar) }));
-                }
+                results.Add(new ValidationResult($"{nameof(EndDate)} is required for vacation caledar !", new string[] { nameof(EndDate), nameof(IsVacationCalendar) }));
             }
 
             return results;

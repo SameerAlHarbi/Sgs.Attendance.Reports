@@ -27,7 +27,7 @@ namespace Sgs.Attendance.Reports.ViewModels
 
         public bool IsVacationCalendar { get; set; }
 
-        public string VacationDescription { get; set; }
+        public string WorkCalendarType => !IsVacationCalendar ? "تقويم إجازة" : "تقويم عمل";
 
         public string Note { get; set; }
     }

@@ -2,5 +2,6 @@
     height: 60px;
     line-height: 60px;
     background: linear-gradient(110deg, #e6e6e6, #f0f0f0);
+    /*background: linear-gradient(110deg, #302f2f, #000000);*/
     box-shadow: 0px 0px 10px #808080;
 }

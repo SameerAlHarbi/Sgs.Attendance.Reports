@@ -4,6 +4,7 @@
     flex-direction: row-reverse;
     justify-content: flex-start;
     background: linear-gradient(110deg,#96d4dd, #1197aa);
+    /*background: linear-gradient(110deg, #302f2f, #000000);*/
 }
 
     .header-top > div {
