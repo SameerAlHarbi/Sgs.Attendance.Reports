@@ -117,9 +117,9 @@
                         <br />
                         <kendo-datepicker class="form-control" min="new DateTime(2018,12,1)" name="calendarEndDate" id="calendarEndDate" format="yyyy-MM-dd" title="تاريخ نهاية التقويم" />
                     </div>
-                    <div data-vacationCalendar class="form-group">
-                        <label for="vacationDescription" class="control-label"> وصف الاجازة </label>
-                        <input type="text" class="form-control" id="vacationDescription" name="vacationDescription" />
+                    <div class="form-group">
+                        <label for="calendarNote" class="control-label">ملاحظات</label>
+                        <textarea class="form-control" rows="3" id="calendarNote" name="calendarNote"></textarea>
                     </div>
 
                 </div>
@@ -213,6 +213,44 @@
                             var endDate = $("#calendarStartDate").data("kendoDatePicker").value();
                             $("#calendarEndDate").data("kendoDatePicker").value(endDate);
                         })
+                        
+                        $('#addCalendarModal').submit(function (e) {
+                                if ($(this).valid()) {
+
+                                    $("#addCalendarModal").modal("hide");
+
+                                    var options = {
+                                        url: "@Url.Action("AddWorkCalendar", "WorkCalendars")",
+                                        type: "Post",
+                                        data: {
+                                            employeeId: @Model.EmployeeId,
+                                            excuseDate: $("#excuseDate").val(),
+                                            note: $("#excuseNote").val(),
+                                            excuseType: $("input[name='ExcuseType']:checked").val(),
+                                            excuseHours: $("#ExcuseHours").val()
+                                        },
+                                        dataType: "json",
+                                        success: function (data) {
+                                            if (data.errors) {
+                                                toastr.error(data.errors[0]);
+                                                return;
+                                            }
+                                            toastr.success("تم حفظ تقويم الوردية بنجاح");
+                                        },
+                                        error: function () {
+                                            toastr.error("خطأ اثناء حفظ التقويم");
+                                        },
+                                        complete: function () {
+                                            updateWorkTimeInfo();
+                                        }
+                                    };
+
+                                    $.ajax(options);
+
+                                }
+
+                            e.preventDefault();
+                        });
 
                     });
 
