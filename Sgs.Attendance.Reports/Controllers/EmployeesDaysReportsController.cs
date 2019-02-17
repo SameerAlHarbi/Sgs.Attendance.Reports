@@ -72,7 +72,6 @@ namespace Sgs.Attendance.Reports.Controllers
             }
             catch (Exception)
             {
-
                 throw;
             }
         }
