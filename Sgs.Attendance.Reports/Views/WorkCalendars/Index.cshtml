@@ -50,18 +50,21 @@
                 .Title("تاريخ البداية")
                 .Columns(c =>
                 {
-                    c.Bound(m => m.StartDate).Title("ميلادي").Width(150);
-                    c.Bound(m => m.StartDateHijri).Title("هجري").Width(150);
+                    c.Bound(m => m.StartDate).Title("ميلادي").Format("{0:yyyy/MM/dd}").Width(200);
+                    c.Bound(m => m.StartDateHijri).Title("هجري").Width(200);
                 }));
             column.Group(g => g
                 .Title("تاريخ النهاية")
                 .Columns(c =>
                 {
-                    c.Bound(m => m.EndDate).Title("ميلادي").Width(150);
-                    c.Bound(m => m.EndDateHijri).Title("هجري").Width(150);
+                    c.Bound(m => m.EndDate).Title("ميلادي").Format("{0:yyyy/MM/dd}").Width(200);
+                    c.Bound(m => m.EndDateHijri).Title("هجري").Width(200);
                 }));
             column.Bound(c => c.WorkCalendarType).Title("نوع التقويم");
             column.Bound(c => c.Note).Title("ملاحظات");
+            column.Bound(c => c.Id).Title("تحكم").ClientTemplate(
+                "<a href='\\#addCalendarModal' data-toggle='modal' data-calendarId ='#= Id #' class='text-secondary' title='التقويم الافتراضي'><i class='fas fa-pencil-alt'></i> </a>" +
+                "<a href='\\#deleteModal' data-toggle='modal' data-calendarId='#= Id #' class='text-danger' title='حذف'><i class='fas fa-trash-alt'></i></a>");
         })
         .DataSource(d =>
             d.Ajax()
@@ -73,6 +76,9 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <form id="calendarsForm">
+
+                <input type="hidden" id="calendarId" name="calendarId" />
+
                 <div class="modal-header">
                     <h5 class="modal-title text-info" id="addCalendarLabel"><i class="fas fa-calendar-alt"></i> إضافة تقويم جديد</h5>
                 </div>
@@ -115,7 +121,7 @@
                     <div data-limitedCalendar class="form-group">
                         <label for="calendarEndDate" class="control-label">نهاية التقويم</label>
                         <br />
-                        <kendo-datepicker class="form-control" min="new DateTime(2018,12,1)" name="calendarEndDate" id="calendarEndDate" format="yyyy-MM-dd" title="تاريخ نهاية التقويم" />
+                        <kendo-datepicker class="form-control" min="new DateTime(2018,12,1)" name="calendarEndDate" id="calendarEndDate" value="DateTime.Today" format="yyyy-MM-dd" title="تاريخ نهاية التقويم" />
                     </div>
                     <div class="form-group">
                         <label for="calendarNote" class="control-label">ملاحظات</label>
@@ -210,29 +216,83 @@
                         });
 
                         $('#addCalendarModal').on('show.bs.modal', function (event) {
-                            var endDate = $("#calendarStartDate").data("kendoDatePicker").value();
-                            $("#calendarEndDate").data("kendoDatePicker").value(endDate);
-                        })
-                        
-                        $('#addCalendarModal').submit(function (e) {
-                                if ($(this).valid()) {
+                            var button = $(event.relatedTarget) // Button that triggered the modal
+                            var calendarId = button.data('calendarid') // Extract info from data-* attributes
 
-                                    $("#addCalendarModal").modal("hide");
+                            if (!calendarId) {
+                                calendarId = 0;
+                            }
+                            else {
 
-                                    var options = {
-                                        url: "@Url.Action("AddWorkCalendar", "WorkCalendars")",
-                                        type: "Post",
+                                var options = {
+                                        url: "@Url.Action("GetDataByIdJson", "WorkCalendars")",
+                                        type: "Get",
                                         data: {
-                                            employeeId: @Model.EmployeeId,
-                                            excuseDate: $("#excuseDate").val(),
-                                            note: $("#excuseNote").val(),
-                                            excuseType: $("input[name='ExcuseType']:checked").val(),
-                                            excuseHours: $("#ExcuseHours").val()
+                                            id: calendarId
                                         },
                                         dataType: "json",
                                         success: function (data) {
                                             if (data.errors) {
                                                 toastr.error(data.errors[0]);
+                                                event.preventDefault();
+                                                return;
+                                            }
+                                            $("#calendarName").val(data.Name);
+
+                                            if (data.IsVacationCalendar) {
+                                                $('#vacationCalendar').prop('checked', true);
+                                            }
+                                            else {
+                                                $('#workCalendar').prop('checked', true);
+                                            }
+
+                                            if (data.IsOpenDuration) {
+                                                $('#openCalendar').prop('checked', true);
+                                            }
+                                            else {
+                                                $('#limitedCalendar').prop('checked', true);
+                                            }
+
+                                            $("#calendarStartDate").data("kendoDatePicker").value(data.StartDate);
+                                            $("#calendarEndDate").data("kendoDatePicker").value(data.EndDate);
+                                            $("#calendarNote").val(data.Note);
+                                        },
+                                    error: function () {
+                                        toastr.error("خطأ اثناء قراءة معلومات التقويم");
+                                        event.preventDefault();
+                                        }
+                                    };
+
+                                    $.ajax(options);
+
+                            }
+
+                            $("#calendarId").val(calendarId);
+                        })
+                        
+                        $('#calendarsForm').submit(function (e) {
+                                if ($(this).valid()) {
+
+                                    $("#addCalendarModal").modal("hide");
+
+                                    var options = {
+                                        url: "@Url.Action("UpdateCalendarsInfo", "WorkCalendars")",
+                                        type: "Post",
+                                        data: {
+                                            id: $("#calendarId").val(),
+                                            name: $("#calendarName").val(),
+                                            startDate: $("#calendarStartDate").val(),
+                                            endDate: $("#calendarEndDate").val(),
+                                            contractWorkTime: $("input[name='ContractWorkTime']:checked").val(),
+                                            isVacationCalendar: $("input[name='workType']:checked").val() == "vacation",
+                                            IsOpenDuration: $("input[name='durationType']:checked").val() == "open",
+                                            note: $("#calendarNote").val()
+                                        },
+                                        dataType: "json",
+                                        success: function (data) {
+                                            if (data.errors) {
+                                                toastr.error(data.errors[0]);
+                                                
                                                 return;
                                             }
                                             toastr.success("تم حفظ تقويم الوردية بنجاح");
@@ -246,6 +306,7 @@
                                     };
 
                                     $.ajax(options);
+
 
                                 }
 

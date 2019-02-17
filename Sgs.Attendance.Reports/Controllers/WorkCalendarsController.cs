@@ -19,6 +19,18 @@ namespace Sgs.Attendance.Reports.Controllers
         {
         }
 
+        protected override async Task<WorkCalendarViewModel> fillMissingItemData(WorkCalendarViewModel dataItem)
+        {
+            var result = await base.fillMissingItemData(dataItem);
+
+            if (!dataItem.IsVacationCalendar && !dataItem.EndDate.HasValue)
+            {
+                result.IsOpenDuration = true;
+            }
+
+            return result;
+        }
+
         public async Task<IActionResult> GetAllCalendarsByWorkTimeJsonForKendo([DataSourceRequest] DataSourceRequest request
            , ContractWorkTime contractWorkTime)
         {
@@ -36,7 +48,15 @@ namespace Sgs.Attendance.Reports.Controllers
             {
                 if (ModelState.IsValid)
                 {
+                    var newCalendar = _mapper.Map<WorkCalendar>(model);
+                    if(model.IsOpenDuration && !model.IsVacationCalendar)
+                    {
+                        newCalendar.EndDate = null;
+                    }
 
+                    var manager = _dataManager as WorkCalendarsManager;
+                    await manager.InsertNewAsync(newCalendar);
+                    return Json("Ok");
                 }
 
                 var errors = new List<string>();
@@ -44,10 +64,15 @@ namespace Sgs.Attendance.Reports.Controllers
                 {
                     foreach (var error in modelState.Errors)
                     {
-                        errors.Add(error.ErrorMessage);
+                        if (!string.IsNullOrWhiteSpace(error.ErrorMessage))
+                        {
+                            errors.Add(error.ErrorMessage);
+                        }
                     }
                 }
 
+                if (errors.Count < 1)
+                    errors.Add("خطأ الرجاء المحاولة لاحقاً");
                 return Json(new { errors = errors.ToArray() });
                 
             }

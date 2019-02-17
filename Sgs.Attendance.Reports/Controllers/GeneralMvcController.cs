@@ -222,6 +222,19 @@ namespace Sgs.Attendance.Reports.Controllers
             return Json(await getAllViewModelsDataCollection(fieldName,fieldValue));
         }
 
+        [HttpGet]
+        public virtual async Task<IActionResult> GetDataByIdJson(int id)
+        {
+            try
+            {
+                return Json(await getDataViewModelById(id));
+            }
+            catch (Exception)
+            {
+                return Json(new { errors = new string[] { "خطأ أثناء قراءة البيانات" } });
+            }
+        }
+
         public virtual async Task<IActionResult> GetAllDataJsonForKendo([DataSourceRequest] DataSourceRequest request)
         {
             var resultDataModelList = await getAllViewModelsDataCollection();

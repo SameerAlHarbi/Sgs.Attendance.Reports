@@ -15,6 +15,8 @@ namespace Sgs.Attendance.Reports.ViewModels
             CreateMap<ProcessingRequest, ProcessingRequestViewModel>().ReverseMap();
 
             CreateMap<EmployeeDayReport, EmployeeDayReportViewModel>().ReverseMap();
+
+            CreateMap<WorkCalendar, WorkCalendarViewModel>().ReverseMap();
         }
     }
 }
