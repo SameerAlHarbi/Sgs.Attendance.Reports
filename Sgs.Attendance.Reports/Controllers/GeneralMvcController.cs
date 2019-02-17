@@ -153,11 +153,11 @@ namespace Sgs.Attendance.Reports.Controllers
             return View();
         }
 
-        protected virtual async Task<IEnumerable<M>> getAllModelsDataCollection()
+        protected virtual async Task<IEnumerable<M>> getAllModelsDataCollection(string fieldName = null, string fieldValue = null)
         {
             try
             {
-                return await _dataManager.GetAllDataList();
+                return await _dataManager.GetAllDataList(fieldName, fieldValue);
             }
             catch (Exception)
             {
@@ -188,11 +188,11 @@ namespace Sgs.Attendance.Reports.Controllers
             return resultDataItem.First();
         }
 
-        protected virtual async Task<IEnumerable<VM>> getAllViewModelsDataCollection()
+        protected virtual async Task<IEnumerable<VM>> getAllViewModelsDataCollection(string fieldName = null, string fieldValue = null)
         {
             try
             {
-                var allModelsDataList = await getAllModelsDataCollection();
+                var allModelsDataList = await getAllModelsDataCollection(fieldName,fieldValue);
                 var allViewModelsDataCollection = await mapToViewModelsDataCollection(allModelsDataList);
                 return await fillMissingItemsData(allViewModelsDataCollection);
             }
@@ -217,14 +217,21 @@ namespace Sgs.Attendance.Reports.Controllers
         }
 
         [HttpGet]
-        public virtual async Task<IActionResult> GetAllDataJson()
+        public virtual async Task<IActionResult> GetAllDataJson(string fieldName = null, string fieldValue = null)
         {
-            return Json(await getAllViewModelsDataCollection());
+            return Json(await getAllViewModelsDataCollection(fieldName,fieldValue));
         }
 
         public virtual async Task<IActionResult> GetAllDataJsonForKendo([DataSourceRequest] DataSourceRequest request)
         {
             var resultDataModelList = await getAllViewModelsDataCollection();
+            return Json(resultDataModelList.ToDataSourceResult(request));
+        }
+
+        public virtual async Task<IActionResult> GetAllDataByFilterJsonForKendo([DataSourceRequest] DataSourceRequest request
+            , string fieldName, string fieldValue)
+        {
+            var resultDataModelList = await getAllViewModelsDataCollection(fieldName,fieldValue);
             return Json(resultDataModelList.ToDataSourceResult(request));
         }
 
@@ -245,13 +252,6 @@ namespace Sgs.Attendance.Reports.Controllers
         //        return Json(exceptionMessage);
         //    }
         //}
-
-        public virtual async Task<IActionResult> GetAllDataByFilterJsonForKendo([DataSourceRequest] DataSourceRequest request,string filterField,int filterValue)
-        {
-            var allDataList = await _dataManager.GetAllDataList(filterField,filterValue);
-            var resultDataModelList = await fillMissingItemsData(_mapper.Map<List<VM>>(allDataList));
-            return Json(resultDataModelList.ToDataSourceResult(request));
-        }
 
         protected virtual async Task<M> getDataById(int id)
         {
@@ -275,7 +275,7 @@ namespace Sgs.Attendance.Reports.Controllers
         {
             try
             {
-                var currentData =  await getDataById(id);
+                var currentData =  await getDataByIdResult(await getDataById(id));
 
                 if(currentData==null)
                 {
@@ -421,7 +421,7 @@ namespace Sgs.Attendance.Reports.Controllers
 
         protected virtual async Task<IActionResult> createSucceededResult(M newData)
         {
-            return RedirectToAction(nameof(Details), new { id = newData.Id });
+            return await Task.FromResult(RedirectToAction(nameof(Details), new { id = newData.Id }));
         }
 
         protected virtual IActionResult editView(VM currentData)

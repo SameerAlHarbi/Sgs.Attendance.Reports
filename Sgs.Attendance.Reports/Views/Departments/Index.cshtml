@@ -9,20 +9,20 @@
         <h5 class="text-info">الادارات والاقسام</h5>
         <br />
         @(
-                                                    Html.Kendo().TreeView()
-                                                        .Name("departmentsTree")
-                                                        .Events(events => events
-                                                                .Select("onDepartmentSelect"))
-                                                        .BindTo(Model, (NavigationBindingFactory<TreeViewItem> mappings) =>
-                                                        {
-                                                            mappings.For<DepartmentInfoViewModel>(binding => binding.ItemDataBound((item, dept) =>
-                                                            {
-                                                                item.Text = dept.Name;
-                                                                item.Id = dept.Code;
-                                                        //item.Expanded = true;
-                                                    })
-                                                                .Children(dept => dept.ChildDepartmentsList));
-                                                        })
+            Html.Kendo().TreeView()
+                .Name("departmentsTree")
+                .Events(events => events
+                .Select("onDepartmentSelect"))
+                .BindTo(Model, (NavigationBindingFactory<TreeViewItem> mappings) =>
+                {
+                    mappings.For<DepartmentInfoViewModel>(binding => binding.ItemDataBound((item, dept) =>
+                {
+                item.Text = dept.Name;
+                item.Id = dept.Code;
+                //item.Expanded = true;
+                })
+                .Children(dept => dept.ChildDepartmentsList));
+                })
         )
     </div>
     <div class="col">
