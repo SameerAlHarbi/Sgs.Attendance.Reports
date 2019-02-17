@@ -1,9 +1,8 @@
-﻿@model IEnumerable<EmployeeDayReportViewModel>
+﻿@model IEnumerable<EmployeeMonthReportViewModel>
 
 @{
-    ViewData["Title"] = "تقرير الغياب";
+    ViewData["Title"] = "تقرير التقصير";
 }
-
 
 <table class="report-container" style="width:100%">
     <thead class="report-header">
@@ -13,7 +12,7 @@
                     <div id="header-info" class="row justify-content-center align-self-center text-center">
                         <div class="col justify-content-center align-self-center text-center d-none d-print-block">
                             <h5>قسم عمليات الموارد البشرية</h5>
-                            <h6>تقرير الغياب</h6>
+                            <h6>التقرير التقصير</h6>
                         </div>
                         <div class="col">
                             <div class="d-none d-print-block"><img width="190px" height="130px" src="~/Images/SGSLOGO.png" /></div>
@@ -47,19 +46,23 @@
                                 <th>الرقم الوظيفي</th>
                                 <th>اسم الموظف</th>
                                 <th>الادارة - القسم</th>
-                                <th>تاريخ الغياب</th>
-                                <th>ملاحظات</th>
+                                <th>من تاريخ</th>
+                                <th>الى تاريخ</th>
+                                <th class="d-print-none">ايام الغياب</th>
+                                <th>ايام التقصير</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var Absent in Model)
+                            @foreach (var empMonthReport in Model)
                             {
                                 <tr>
-                                    <td>@Absent.EmployeeId</td>
-                                    <td>@Absent.EmployeeName</td>
-                                    <td>@Absent.DepartmentName</td>
-                                    <td>@Absent.DayDate</td>
-                                    <td>@(Absent.IsDelegationRequest ? "يوجد طلب انتداب" : "")</td>
+                                    <td>@empMonthReport.EmployeeId</td>
+                                    <td>@empMonthReport.EmployeeName</td>
+                                    <td>@empMonthReport.DepartmentName</td>
+                                    <td>@empMonthReport.StartDate.ToShortDateString()</td>
+                                    <td>@empMonthReport.ToDate.ToShortDateString()</td>
+                                    <td class="d-print-none">@empMonthReport.TotalAbsentsDays</td>
+                                    <td>@empMonthReport.TotalWasteDays</td>
                                 </tr>
                             }
                         </tbody>

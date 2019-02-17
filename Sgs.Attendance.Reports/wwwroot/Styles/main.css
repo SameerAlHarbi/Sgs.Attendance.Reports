@@ -27,3 +27,60 @@ main {
     margin-left: 40px;
     text-align: right;
 }
+
+@media print{
+    main {
+        margin: 0px;
+        padding: 0px;
+    }
+
+    table.table-bordered {
+        border: 2px solid gray;
+    }
+
+    table.table-bordered thead {
+        border: 2px solid gray;
+    }
+    table.table-bordered thead tr{
+        border: 2px solid gray;
+    }
+    table.table-bordered thead tr th {
+        background-color: #bbe3e8;
+        border: 2px solid gray;
+    }
+
+    table.table-bordered  tbody{
+        border: 2px solid gray;
+    }
+    table.table-bordered tbody tr {
+        border: 2px solid gray;
+    }
+    table.table-bordered tbody tr td {
+        border: 2px solid gray;
+    }
+
+    table.report-container {
+        page-break-after: always;
+    }
+
+    thead.report-header {
+        display: table-header-group;
+    }
+
+    tfoot.report-footer {
+        display: table-footer-group;
+    }
+
+    #header-info{
+        padding-top:1.5cm;
+    }
+}
+
+@page {
+    margin-top: 0cm;
+    margin-bottom: 1.5cm;
+}
+
+
+
+
