@@ -1,0 +1,33 @@
+﻿
+
+<script id="workShiftsTemplate" type="text/kendo-tmpl">
+
+    <div style="min-height:300px;margin:10px">
+
+        @(Html.Kendo().TabStrip()
+                      .Name("tabStrip_#=Id#")
+                      .SelectedIndex(0)
+                      .Animation(animation => animation.Open(open => open.Fade(FadeDirection.In)))
+                      .Items(items =>
+                      {
+                          items.Add().Text("ترتيب الورديات").Content(@<text> 
+
+                                <div style="min-height:400px">
+
+                                </div>
+        
+                            </text>);
+                          items.Add().Text("جدول الورديات").Content(@<text>
+                            
+                                <div style="min-height:400px">
+
+                                </div>  
+
+                            </text>);
+                      }).ToClientTemplate()
+                                                              
+        )
+
+    </div>
+
+</script>

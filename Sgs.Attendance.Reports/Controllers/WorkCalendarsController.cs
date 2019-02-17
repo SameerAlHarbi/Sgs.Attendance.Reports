@@ -48,14 +48,36 @@ namespace Sgs.Attendance.Reports.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    var newCalendar = _mapper.Map<WorkCalendar>(model);
-                    if(model.IsOpenDuration && !model.IsVacationCalendar)
+                    var manager = _dataManager as WorkCalendarsManager;
+
+                    if(!model.IsVacationCalendar && model.IsOpenDuration)
                     {
-                        newCalendar.EndDate = null;
+                        model.EndDate = null;
                     }
 
-                    var manager = _dataManager as WorkCalendarsManager;
-                    await manager.InsertNewAsync(newCalendar);
+                    if (model.Id == 0)
+                    {
+                        var newCalendar = _mapper.Map<WorkCalendar>(model);
+                        if (model.IsOpenDuration && !model.IsVacationCalendar)
+                        {
+                            newCalendar.EndDate = null;
+                        }
+
+                        await manager.InsertNewAsync(newCalendar); 
+                    }
+                    else
+                    {
+                        var currentCalendar = await manager.GetByIdAsync(model.Id);
+
+                        if(currentCalendar==null)
+                        {
+                            return Json(new { errors = new string[] { "لايمكن العثور على بيانات الوردية" } });
+                        }
+
+                        _mapper.Map(model, currentCalendar);
+
+                        await manager.UpdateItemAsync(currentCalendar);
+                    }
                     return Json("Ok");
                 }
 

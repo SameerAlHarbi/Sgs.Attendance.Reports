@@ -41,36 +41,38 @@
 <hr />
 
 @(Html.Kendo()
-        .Grid<WorkCalendarViewModel>()
-        .Name("grdWorkCalendars")
-        .AutoBind(false)
-        .Columns(column => {
-            column.Bound(c => c.Name).Title("اسم التقويم");
-            column.Group(g => g
-                .Title("تاريخ البداية")
-                .Columns(c =>
-                {
-                    c.Bound(m => m.StartDate).Title("ميلادي").Format("{0:yyyy/MM/dd}").Width(200);
-                    c.Bound(m => m.StartDateHijri).Title("هجري").Width(200);
-                }));
-            column.Group(g => g
-                .Title("تاريخ النهاية")
-                .Columns(c =>
-                {
-                    c.Bound(m => m.EndDate).Title("ميلادي").Format("{0:yyyy/MM/dd}").Width(200);
-                    c.Bound(m => m.EndDateHijri).Title("هجري").Width(200);
-                }));
-            column.Bound(c => c.WorkCalendarType).Title("نوع التقويم");
-            column.Bound(c => c.Note).Title("ملاحظات");
-            column.Bound(c => c.Id).Title("تحكم").ClientTemplate(
-                "<a href='\\#addCalendarModal' data-toggle='modal' data-calendarId ='#= Id #' class='text-secondary' title='التقويم الافتراضي'><i class='fas fa-pencil-alt'></i> </a>" +
-                "<a href='\\#deleteModal' data-toggle='modal' data-calendarId='#= Id #' class='text-danger' title='حذف'><i class='fas fa-trash-alt'></i></a>");
-        })
-        .DataSource(d =>
-            d.Ajax()
-           .ServerOperation(false)
-           .Read(read=> read.Action("GetAllCalendarsByWorkTimeJsonForKendo", "WorkCalendars").Data("readCalendarsData")))
-  )
+            .Grid<WorkCalendarViewModel>()
+            .Name("grdWorkCalendars")
+            .AutoBind(false)
+            .Columns(column =>
+            {
+                column.Bound(c => c.Name).Title("اسم التقويم");
+                column.Group(g => g
+                    .Title("تاريخ البداية")
+                    .Columns(c =>
+                    {
+                        c.Bound(m => m.StartDate).Title("ميلادي").Format("{0:yyyy/MM/dd}").Width(200);
+                        c.Bound(m => m.StartDateHijri).Title("هجري").Width(200);
+                    }));
+                column.Group(g => g
+                    .Title("تاريخ النهاية")
+                    .Columns(c =>
+                    {
+                        c.Bound(m => m.EndDate).Title("ميلادي").Format("{0:yyyy/MM/dd}").Width(200);
+                        c.Bound(m => m.EndDateHijri).Title("هجري").Width(200);
+                    }));
+                column.Bound(c => c.WorkCalendarType).Title("نوع التقويم");
+                column.Bound(c => c.Note).Title("ملاحظات");
+                column.Bound(c => c.Id).Title("تحكم").ClientTemplate(
+                    "<a href='\\#addCalendarModal' data-toggle='modal' data-calendarId ='#= Id #' class='text-secondary' title='التقويم الافتراضي'><i class='fas fa-pencil-alt'></i> </a>" +
+                    "<a href='\\#deleteModal' data-toggle='modal' data-calendarId='#= Id #' class='text-danger' title='حذف'><i class='fas fa-trash-alt'></i></a>");
+            })
+            .DataSource(d =>
+                d.Ajax()
+               .ServerOperation(false)
+               .Read(read => read.Action("GetAllCalendarsByWorkTimeJsonForKendo", "WorkCalendars").Data("readCalendarsData")))
+               .ClientDetailTemplateId("workShiftsTemplate")
+)
 
 <div id="addCalendarModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="addCalendarLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -135,22 +137,43 @@
                 </div>
             </form>
         </div>
-     </div>
+    </div>
 </div>
 
+<div id="deleteModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="deleteLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger" id="deleteLabel"> هل آنت متأكد من الحذف ؟</h5>
+            </div>
+            <div class="modal-body">
 
-        @section header{
-            <style>
-                .k-grid-header .k-grid-header-wrap th.k-header {
-                    text-align: center;
-                    vertical-align: middle;
-                }
-            </style>
+            </div>
+            <div class="modal-footer">
+                <button onclick="deleteConfiremd()" class="btn btn-primary" data-dismiss="modal">نعم</button>
+                <button onclick="toastr.warning('تم الغاء الأمر')" class="btn btn-secondary" style="margin-right:10px;" data-dismiss="modal">إلغاء الأمر</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<partial name="_WorkShifts" />
+
+
+@section header{
+    <style>
+
+        .k-grid-header .k-grid-header-wrap th.k-header {
+            text-align: center;
+            vertical-align: middle;
         }
 
-        @section scripts{
-            <partial name="_ValidationScripts">
-                <script>
+    </style>
+}
+
+@section scripts{
+    <partial name="_ValidationScripts">
+        <script>
 
                     var calendarsGrid;
                     var selectedWorkTime;
@@ -187,10 +210,60 @@
                             $("[data-limitedCalendar]").fadeIn();
                             $("[data-vacationCalendar]").fadeIn();
                         }
-                        
+
                     }
 
-                    $(function () {
+                    var deleteMode;
+
+                    function deleteConfiremd() {
+
+                        $("#deleteModal").modal("hide");
+
+                        if (!deleteMode) {
+                            return;
+                        }
+
+                        if (deleteMode == 'calendar') {
+                            deleteCalendar();
+                        }
+                    }
+
+                    var selectedCalendar;
+
+                    function deleteCalendar() {
+
+                        if (!selectedCalendar) {
+                            return;
+                        }
+
+                        var options = {
+                            url: "@Url.Action("DeleteItemJson", "WorkCalendars")",
+                            type: "Post",
+                            data: {
+                                id: selectedCalendar
+                            },
+                            dataType: "json",
+                            success: function (data) {
+                                if (data.errors) {
+                                    toastr.error(data.errors[0]);
+                                    return;
+                                }
+                                toastr.success("تم حذف تقويم الورديات بنجاح");
+                            },
+                            error: function () {
+                                toastr.error("خطأ الرجاء المحاولة لاحقاً");
+                                return;
+                            },
+                            complete: function () {
+                                updateWorkTimeInfo();
+                            }
+                        };
+
+                        $.ajax(options);
+
+                    }
+
+            $(function () {
 
                         //$(".k-grid-header tr th").eq(1).css("text-align", "center");
                         //$(".k-grid-header tr th").eq(2).css("text-align", "center");
@@ -203,7 +276,7 @@
                         $("#ShiftA").prop("checked", true);
                         $("#workCalendar").prop("checked", true);
                         $("#openCalendar").prop("checked", true);
-                        
+
                         updateWorkTimeInfo();
                         updateNewCalendarInfo();
 
@@ -256,6 +329,7 @@
                                             $("#calendarStartDate").data("kendoDatePicker").value(data.StartDate);
                                             $("#calendarEndDate").data("kendoDatePicker").value(data.EndDate);
                                             $("#calendarNote").val(data.Note);
+                                            updateNewCalendarInfo();
                                         },
                                     error: function () {
                                         toastr.error("خطأ اثناء قراءة معلومات التقويم");
@@ -269,7 +343,7 @@
 
                             $("#calendarId").val(calendarId);
                         })
-                        
+
                         $('#calendarsForm').submit(function (e) {
                                 if ($(this).valid()) {
 
@@ -292,7 +366,7 @@
                                         success: function (data) {
                                             if (data.errors) {
                                                 toastr.error(data.errors[0]);
-                                                
+
                                                 return;
                                             }
                                             toastr.success("تم حفظ تقويم الوردية بنجاح");
@@ -313,10 +387,19 @@
                             e.preventDefault();
                         });
 
+                        $('#deleteModal').on('show.bs.modal', function (event) {
+                            var button = $(event.relatedTarget) // Button that triggered the modal
+                            selectedCalendar = button.data('calendarid') // Extract info from data-* attributes
+                            if (selectedCalendar) {
+                                $('#deleteLabel').text('هل انت متأكد من حذف التقويم ؟');
+                                deleteMode = 'calendar';
+                            }
+                        })
+
                     });
 
-                </script>
-        }
+        </script>
+}
 
 
 

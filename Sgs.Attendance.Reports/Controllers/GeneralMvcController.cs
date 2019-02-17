@@ -627,5 +627,60 @@ namespace Sgs.Attendance.Reports.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        public async Task<IActionResult> DeleteItemJson(int id)
+        {
+            try
+            {
+                _logger.LogInformation(getDeletingDataMessage(id));
+
+                using (_dataManager)
+                {
+                    var currentData = await _dataManager.GetDataById(id);
+                    if (currentData == null)
+                    {
+                        _logger.LogWarning(getDataNotFoundMessage(id));
+                        return Json(new { errors= new string[] { "NotFound" } });
+                    }
+
+                    var validationResults = await checkDeleteData(currentData);
+                    if (validationResults.Any())
+                    {
+                        foreach (var vr in validationResults)
+                        {
+                            foreach (var mn in vr.MemberNames)
+                            {
+                                _logger.LogWarning($"validation exception while deleting {_objectTypeName} :member name : {mn} error : {vr.ErrorMessage}");
+                            }
+                        }
+                        return Json(new { errors = new string[] { validationResults.First().ErrorMessage } });
+                    }
+                    else
+                    {
+                        var deleteResult = await _dataManager.DeleteDataItem(currentData.Id);
+                        if (deleteResult.Status == RepositoryActionStatus.Deleted)
+                        {
+                            _logger.LogInformation(deletingDataSuccessfullMessage);
+                            return Json("Ok");
+                        }
+                        else
+                        {
+                            _logger.LogWarning(deletingDataFailMessage);
+                            return Json(new { errors = new string[] { "Error while deleting the data" } });
+                        }
+                    }
+                }
+            }
+            catch (ValidationException ex)
+            {
+                _logger.LogWarning($"validation exception while delete {_objectTypeName} : {ex.ValidationResult.ErrorMessage}");
+                return Json(new { errors = new string[] { ex.ValidationResult.ErrorMessage } });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Throw exception while delete {_objectTypeName} : {ex}");
+                return Json(new { errors = new string[] { ex.Message } });
+            }
+        }
+
     }
 }
