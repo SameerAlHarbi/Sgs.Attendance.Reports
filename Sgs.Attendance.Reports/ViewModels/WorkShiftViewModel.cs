@@ -7,6 +7,22 @@ namespace Sgs.Attendance.Reports.ViewModels
     {
         public int Id { get; set; }
 
+        public string ShiftType => !IsDayOff ? "عمل" : "إجازة";
+        public string ShiftTypeInRamadan
+        {
+            get
+            {
+                if(!IsDayOffInRamadan.HasValue)
+                {
+                    return ShiftType;
+                }
+                else
+                {
+                    return !IsDayOffInRamadan.Value ? "عمل" : "إجازة";
+                }
+            }
+        }
+
         public int ShiftOrder { get; set; }
 
         public bool ShiftRepeat { get; set; }
