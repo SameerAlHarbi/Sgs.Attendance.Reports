@@ -15,7 +15,8 @@
                             <div style="min-height:400px;padding-top:20px">
 
                                 <div class="clearfix">
-                                    <button id="ramadanOrder" onclick="toggleRamadan('#=Id#')"  class="btn btn-outline-info float-left" data-toggle="button" aria-pressed="false" autocomplete="off"> خارج رمضان <i class="far fa-moon"></i></button>
+                                    <button id="ramadanOrder_#=Id#" onclick="toggleRamadan('#=Id#')" class="btn btn-sm btn-outline-info" data-toggle="button" aria-pressed="false" autocomplete="off"> رمضان <i class="far fa-moon"></i></button>
+                                    <button class="btn btn-sm btn-outline-info float-left" data-calendarId="#=Id#" data-toggle="modal" data-target="\\#addShiftModal"><i class="fa fa-plus"></i> اضافة وردية جديدة </button>
                                 </div>
 
                                 <br />
@@ -30,10 +31,13 @@
                                               .Title("نوع الوردية").ClientHeaderTemplate("نوع الوردية <i class='far fa-moon'></i>");
                                             columns.Bound(c => c.ShiftStartTime).Title("بداية الوردية");
                                             columns.Bound(c => c.ShiftEndTime).Title("نهاية الوردية");
+                                            columns.Bound(c => c.ShiftDurationTime).Title("مدة الوردية");
                                             columns.Bound(c => c.StartTimeInRamadan).Title("بداية الوردية").Hidden(true)
                                                 .ClientHeaderTemplate("بداية الوردية <i class='far fa-moon'></i>");
                                             columns.Bound(c => c.EndTimeInRamadan).Title("نهاية الوردية").Hidden(true)
                                                 .ClientHeaderTemplate("نهاية الوردية <i class='far fa-moon'></i>");
+                                            columns.Bound(c => c.ShiftDurationTimeInRamadan).Title("مدة الوردية").Hidden(true)
+                                                .ClientHeaderTemplate("مدة الوردية <i class='far fa-moon'></i>");
                                             columns.Bound(c => c.DayOffDescription).Title("وصف الإجازة");
                                             columns.Bound(c => c.DayOffDescriptionInRamadan).Title("وصف الإجازة").Hidden(true)
                                                 .ClientHeaderTemplate("وصف الإجازة <i class='far fa-moon'></i>");
@@ -55,37 +59,5 @@
         )
 
     </div>
-
-</script>
-
-<script>
-
-    function toggleRamadan(calendarName) {
-        var me = event.target;
-
-        var shiftsOrderGrid = $("#grd_" + calendarName).data("kendoGrid");
-        if ($("#ramadanOrder").hasClass('active')) {
-            $("#ramadanOrder").html("خارج رمضان <i class='far fa-moon'></i>");
-            shiftsOrderGrid.columns.forEach(function (col) {
-                if (col.field.toLowerCase().indexOf("ramadan") >= 0) {
-                    shiftsOrderGrid.hideColumn(col);
-                }
-                else {
-                    shiftsOrderGrid.showColumn(col);
-                }
-            });
-        }
-        else {
-            $("#ramadanOrder").html("رمضان <i class='fas fa-moon'></i>");
-            shiftsOrderGrid.columns.forEach(function (col) {
-                if (col.field.toLowerCase().indexOf("ramadan") >= 0) {
-                    shiftsOrderGrid.showColumn(col);
-                }
-                else {
-                    shiftsOrderGrid.hideColumn(col);
-                }
-            });
-        }
-    }
 
 </script>
