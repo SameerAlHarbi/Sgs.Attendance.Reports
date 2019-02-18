@@ -84,6 +84,8 @@ namespace Sgs.Attendance.Reports.ViewModels
 
         public double? ShiftStartInRamadan { get; set; }
 
+        public double? StartInRamadan => ShiftStartInRamadan ?? ShiftStart;
+
         public TimeSpan? ShiftStartTimeInRamadan
         {
             get
@@ -96,7 +98,11 @@ namespace Sgs.Attendance.Reports.ViewModels
             }
         }
 
+        public TimeSpan? StartTimeInRamadan => ShiftStartTimeInRamadan ?? ShiftStartTime;
+
         public double? ShiftEndInRamadan { get; set; }
+
+        public double? EndInRamadan => ShiftEndInRamadan ?? ShiftEnd;
 
         public TimeSpan? ShiftEndTimeInRamadan
         {
@@ -109,6 +115,8 @@ namespace Sgs.Attendance.Reports.ViewModels
                 ShiftEndInRamadan = value.HasValue ? value.Value.ConvertToDouble() : default(double?);
             }
         }
+
+        public TimeSpan? EndTimeInRamadan => ShiftEndTimeInRamadan ?? ShiftEndTime;
 
         public double? ShiftDurationInRamadan
         {
