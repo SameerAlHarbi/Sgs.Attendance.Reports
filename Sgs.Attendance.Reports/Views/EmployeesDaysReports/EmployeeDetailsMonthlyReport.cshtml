@@ -1,0 +1,108 @@
+﻿@using Sameer.Shared.Data;
+@model IEnumerable<EmployeeDayReportViewModel>
+
+@{
+    ViewData["Title"] = "تقرير الموظف";
+}
+
+<table class="report-container" style="width:100%">
+    <thead class="report-header">
+        <tr>
+            <th class="report-header-cell">
+                <div class="header-info">
+                    <div id="header-info" class="row justify-content-center align-self-center text-center">
+                        <div class="col justify-content-center align-self-center text-center d-none d-print-block">
+                            <h5>قسم عمليات الموارد البشرية</h5>
+                            <h6>تقرير الموظف</h6>
+                        </div>
+                        <div class="col">
+                            <div class="d-none d-print-block"><img width="190px" height="130px" src="~/Images/SGSLOGO.png" /></div>
+                        </div>
+                        <div class="col justify-content-center align-self-center text-center d-none d-print-block">
+                            <img style="max-width:70px; max-height:90px" src="~/Images/scan-fingerprint-icon.png" />
+                            <h5 class="text-info" style="display:inline">نظام البصمة</h5>
+                        </div>
+                    </div>
+                    <div id="employee-info" class="row">
+                        <div class="col d-none d-print-block" style="text-align:right">
+                            <span>اسم الموظف : </span><span class="text-info">1143 - اسامه محمد نجار</span>
+                        </div>
+                        <div class="col d-none d-print-block" style="text-align:left">
+                            <span>الادارة - القسم : </span><span class="text-info">وحدة هندسة وتطوير البرامج</span> 
+                        </div>
+                    </div>
+                </div>
+            </th>
+        </tr>
+    </thead>
+    <tfoot class="report-footer">
+        <tr>
+            <td class="report-footer-cell">
+                <div class="footer-info">
+                    <div class="row" style="border: 2px solid gray; margin-left:0.50px;margin-right:0.50px; height:40px">
+                        <div class="col justify-content-center align-self-center text-center text-danger">ايام الاجازة : 6</div>
+                        <div class="col justify-content-center align-self-center text-center text-danger">ايام الغياب : 4</div>
+                        <div class="col justify-content-center align-self-center text-center text-danger">ايام التقصير : 0</div>
+                        <div class="col justify-content-center align-self-center text-center text-danger">ساعات التقصير : 05:23:00</div>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </tfoot>
+    <tbody class="report-content">
+        <tr>
+            <td class="report-content-cell">
+                <div>
+                    <div class="d-print-none" style="margin-bottom:5px;">
+                        <button class="btn btn-outline-secondary d-print-none" onclick="window.print()">
+                            <i class="fas fa-print"></i> طباعة
+                        </button>
+                        <br />
+                    </div>
+
+                    <table class="table table-bordered table-striped">
+                        <thead style="background-color:#bbe3e8 ; text-align:center">
+                            <tr>
+                                <th>التاريخ</th>
+                                <th>الدخول</th>
+                                <th>الخروج</th>
+                                <th>التقصير</th>
+                                <th>الغياب</th>
+                                <th>الاجازة</th>
+                                <th>ملاحظات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var Absent in Model)
+                            {
+                                <tr style="text-align:center">
+                                    <td>
+                                        <div class="row">
+                                            <div class="col-3" style="text-align:left;">@Absent.DayDate.GetDayName(true)</div>
+                                            <div class="col-9" style="text-align:right;">@Absent.DayDate.ToString("yyyy-MM-dd")</div>
+                                        </div>
+                                        
+                                    </td>
+                                    <td class=@(Absent.IsLate?"text-danger":"text-primary")>
+                                        @(Absent.ActualCheckInDateTime.HasValue? Absent.ActualCheckInDateTime.Value.ToShortTimeString() : "")
+                                    </td>
+                                    <td class=@(Absent.IsEarly?"text-danger":"text-primary")>
+                                        @(Absent.ActualCheckOutDateTime.HasValue? Absent.ActualCheckOutDateTime.Value.ToShortTimeString() : "")
+                                    </td>
+                                    <td class=@(Absent.IsLate || Absent.IsEarly || Absent.IsAbsentEmployee?"text-danger":"text-primary")>
+                                        @Absent.CheckInLateDurationTime
+                                    </td>
+                                    <td class=@(Absent.IsAbsentEmployee && Absent.IsDelegationRequest ? "text-secondary" : "text-danger")>
+                                        @(Absent.IsAbsentEmployee? "غائب" : "")
+                                    </td>
+                                    <td class="text-success">@Absent.VacationTypeName</td>
+                                    <td>@(Absent.IsDelegationRequest ? "يوجد طلب انتداب" : "")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </td>
+        </tr>
+    </tbody>
+</table>
