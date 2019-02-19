@@ -155,6 +155,9 @@ namespace Sgs.Attendance.Reports.ViewModels
 
         public bool? IsDayOffInRamadan { get; set; }
 
+        public bool dayOffInRamadan => IsDayOffInRamadan.HasValue ?
+            IsDayOffInRamadan.Value : IsDayOff;
+
         public string DayOffDescriptionInRamadan { get; set; }
 
         public int WorkCalendarId { get; set; }

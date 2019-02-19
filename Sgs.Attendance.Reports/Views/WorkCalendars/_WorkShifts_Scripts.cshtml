@@ -3,6 +3,7 @@
         <div class="modal-content">
             <form id="shiftsForm">
 
+                <input type="hidden" id="shiftCalendarId" name="shiftCalendarId" />
                 <input type="hidden" id="shiftId" name="shiftId" />
 
                 <div class="modal-header">
@@ -123,7 +124,7 @@
             });
         }
         else {
-            $("#ramadanOrder_").html(" رمضان <i class='fas fa-moon'></i>");
+            $(buttonName).html(" رمضان <i class='fas fa-moon'></i>");
             shiftsOrderGrid.columns.forEach(function (col) {
                 if (col.field.toLowerCase().indexOf("ramadan") >= 0) {
                     shiftsOrderGrid.showColumn(col);
@@ -166,10 +167,113 @@
         updateNewShiftInfo();
 
         $('input[type=radio][name=shiftType] , input[type=radio][name=shiftTypeRamadan]').change(function () {
-
             updateNewShiftInfo();
-
         });
+
+        $('#addShiftModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget) // Button that triggered the modal
+            var calendarId = button.data('calendarid') // Extract info from data-* attributes
+            var shiftId = button.data('shiftid') // Extract info from data-* attributes
+
+            if (!shiftId) {
+                shiftId = 0;
+            }
+            @*else {
+
+                var options = {
+                    url: "@Url.Action("GetDataByIdJson", "WorkCalendars")",
+                    type: "Get",
+                    data: {
+                        id: calendarId
+                    },
+                    dataType: "json",
+                    success: function (data) {
+                        if (data.errors) {
+                            toastr.error(data.errors[0]);
+                            event.preventDefault();
+                            return;
+                        }
+                        $("#calendarName").val(data.Name);
+
+                        if (data.IsVacationCalendar) {
+                            $('#vacationCalendar').prop('checked', true);
+                        }
+                        else {
+                            $('#workCalendar').prop('checked', true);
+                        }
+
+                        if (data.IsOpenDuration) {
+                            $('#openCalendar').prop('checked', true);
+                        }
+                        else {
+                            $('#limitedCalendar').prop('checked', true);
+                        }
+
+                        $("#calendarStartDate").data("kendoDatePicker").value(data.StartDate);
+                        $("#calendarEndDate").data("kendoDatePicker").value(data.EndDate);
+                        $("#calendarNote").val(data.Note);
+                        updateNewCalendarInfo();
+                    },
+                    error: function () {
+                        toastr.error("خطأ اثناء قراءة معلومات التقويم");
+                        event.preventDefault();
+                    }
+                };
+
+                $.ajax(options);
+
+            }*@
+
+            $("#shiftCalendarId").val(calendarId);
+            $("#shiftId").val(shiftId);
+        })
+
+        $("#shiftsForm").submit(function (e) {
+
+            if ($(this).valid()) {
+
+                $("#addShiftModal").modal("hide");
+
+                var options = {
+                                        url: "@Url.Action("UpdateWorkShiftInfo", "WorkShifts")",
+                                        type: "Post",
+                                        data: {
+                                            id: $("#shiftId").val(),
+                                            workCalendarId: $("#shiftCalendarId").val(),
+                                            shiftRepeat: $("#shiftRepeat").val(),
+                                            shiftStartTime: $("#calendarStartDate").val(),
+                                            shiftEndTime: $("#calendarEndDate").val(),
+                                            shiftStartTimeInRamadan: $("input[name='ContractWorkTime']:checked").val(),
+                                            shiftEndTimeInRamadan: $("input[name='workType']:checked").val() == "vacation",
+                                            isDayOff: $("input[name='durationType']:checked").val() == "open",
+                                            dayOffDescription: $("input[name='durationType']:checked").val() == "open",
+                                            isDayOffInRamadan: $("#calendarNote").val(),
+                                            dayOffDescriptionInRamadan: $("#calendarNote").val()
+                                        },
+                                        dataType: "json",
+                                        success: function (data) {
+                                            if (data.errors) {
+                                                toastr.error(data.errors[0]);
+
+                                                return;
+                                            }
+                                            toastr.success("تم حفظ تقويم الوردية بنجاح");
+                                        },
+                                        error: function () {
+                                            toastr.error("خطأ اثناء حفظ التقويم");
+                                        },
+                                        complete: function () {
+                                            updateWorkTimeInfo();
+                                        }
+                                    };
+
+                                    $.ajax(options);
+            }
+
+            e.preventDefault();
+        }
+
+        );
 
     });
 

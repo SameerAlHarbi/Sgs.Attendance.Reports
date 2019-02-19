@@ -173,5 +173,6 @@ namespace Sgs.Attendance.Reports.Models
 
             return results;
         }
+
     }
 }

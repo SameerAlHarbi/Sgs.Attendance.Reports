@@ -26,6 +26,7 @@
                                         .Columns(columns =>
                                         {
 
+                                            columns.Bound(c => c.ShiftOrder).Title("الترتيب");
                                             columns.Bound(c => c.ShiftType).Title("نوع الوردية");
                                             columns.Bound(c => c.ShiftTypeInRamadan).Hidden(true)
                                               .Title("نوع الوردية").ClientHeaderTemplate("نوع الوردية <i class='far fa-moon'></i>");
@@ -43,6 +44,7 @@
                                                 .ClientHeaderTemplate("وصف الإجازة <i class='far fa-moon'></i>");
 
                                         }).ToClientTemplate()
+
                                 )
 
                             </div>
