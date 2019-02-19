@@ -14,17 +14,17 @@ namespace Sgs.Attendance.Reports.Models
         public int ShiftOrder { get; set; }
 
         [Range(1, 31, ErrorMessage = "Shift repeat count must be between 1 and 31")]
-        public bool ShiftRepeat { get; set; }
+        public int ShiftRepeat { get; set; }
 
         [Range(0, 23.99, ErrorMessage = "{0} must be between {2} And {1}")]
         public double? ShiftStart { get; set; }
 
-        public TimeSpan? ShiftStartTime => ShiftStart.HasValue ? ShiftStart.Value.ConvertToTime() : default(TimeSpan);
+        //public TimeSpan? ShiftStartTime => ShiftStart.HasValue ? ShiftStart.Value.ConvertToTime() : default(TimeSpan);
 
         [Range(0, 23.99, ErrorMessage = "{0} must be between {2} And {1}")]
         public double? ShiftEnd { get; set; }
 
-        public TimeSpan? ShiftEndTime => ShiftEnd.HasValue ? ShiftEnd.Value.ConvertToTime() : default(TimeSpan);
+        //public TimeSpan? ShiftEndTime => ShiftEnd.HasValue ? ShiftEnd.Value.ConvertToTime() : default(TimeSpan);
 
         public double? ShiftDuration
         {
@@ -50,20 +50,20 @@ namespace Sgs.Attendance.Reports.Models
             }
         }
 
-        public TimeSpan? ShiftDurationTime => ShiftDuration.HasValue ?
-            ShiftDuration.Value.ConvertToTime() : default(TimeSpan?);
+        //public TimeSpan? ShiftDurationTime => ShiftDuration.HasValue ?
+        //    ShiftDuration.Value.ConvertToTime() : default(TimeSpan?);
 
         [Range(0, 23.99, ErrorMessage = "{0} must be between {2} And {1}")]
         public double? ShiftStartInRamadan { get; set; }
 
-        public TimeSpan? ShiftStartTimeInRamadan => ShiftStartInRamadan.HasValue ? 
-            ShiftStartInRamadan.Value.ConvertToTime() : default(TimeSpan);
+        //public TimeSpan? ShiftStartTimeInRamadan => ShiftStartInRamadan.HasValue ? 
+        //    ShiftStartInRamadan.Value.ConvertToTime() : default(TimeSpan);
 
         [Range(0, 23.99, ErrorMessage = "{0} must be between {2} And {1}")]
         public double? ShiftEndInRamadan { get; set; }
 
-        public TimeSpan? ShiftEndTimeInRamadan => ShiftEndInRamadan.HasValue ? 
-            ShiftEndInRamadan.Value.ConvertToTime() : default(TimeSpan);
+        //public TimeSpan? ShiftEndTimeInRamadan => ShiftEndInRamadan.HasValue ? 
+        //    ShiftEndInRamadan.Value.ConvertToTime() : default(TimeSpan);
 
         public double? ShiftDurationInRamadan
         {
@@ -93,8 +93,8 @@ namespace Sgs.Attendance.Reports.Models
             }
         }
 
-        public TimeSpan? ShiftDurationTimeInRamadan => ShiftDurationInRamadan.HasValue ? 
-            ShiftDurationInRamadan.Value.ConvertToTime() : default(TimeSpan?);
+        //public TimeSpan? ShiftDurationTimeInRamadan => ShiftDurationInRamadan.HasValue ? 
+        //    ShiftDurationInRamadan.Value.ConvertToTime() : default(TimeSpan?);
 
         public bool IsDayOff { get; set; }
 
