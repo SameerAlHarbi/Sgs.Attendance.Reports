@@ -10,7 +10,7 @@ namespace Sgs.Attendance.Reports.Models
         public int Id { get; set; }
 
         [Required(ErrorMessage = "Calendar name is required !")]
-        [Unique(ErrorMessage = "Calendar name is already exist !")]
+        [Unique(nameof(ContractWorkTime),ErrorMessage = "Calendar name is already exist !")]
         [StringLength(100, ErrorMessage = "Calendar name can't be more than {1} characters !")]
         public string Name { get; set; }
 
