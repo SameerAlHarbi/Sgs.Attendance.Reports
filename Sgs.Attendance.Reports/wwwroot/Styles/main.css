@@ -75,12 +75,20 @@ main {
 
     #header-info{
         padding-top:1.5cm;
+        margin-bottom:1px;
+    }
+
+    #employee-info {
+        margin-top: 6px;
+        margin-bottom: 3px;
     }
 }
 
 @page {
     margin-top: 0cm;
     margin-bottom: 1.5cm;
+    margin-left: 1.25cm;
+    margin-right: 1.25cm;
 }
 
 

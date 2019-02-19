@@ -56,9 +56,13 @@ namespace Sgs.Attendance.Reports.ViewModels
 
         public double CheckInLateDuration { get; set; }
 
+        public bool IsLate => CheckInLateDuration > 0;
+
         public TimeSpan CheckOutEarlyDurationTime { get; set; }
 
         public double CheckOutEarlyDuration { get; set; }
+
+        public bool IsEarly => CheckOutEarlyDuration > 0;
 
         public TimeSpan WasteDurationTime { get; set; }
 
