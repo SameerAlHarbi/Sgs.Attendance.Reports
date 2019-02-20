@@ -1,5 +1,6 @@
 ﻿using Sameer.Shared;
 using System;
+using System.Globalization;
 
 namespace Sgs.Attendance.Reports.ViewModels
 {
@@ -41,6 +42,9 @@ namespace Sgs.Attendance.Reports.ViewModels
             }
         }
 
+        public string ShiftStartTimeString => ShiftStartTime.HasValue && !IsDayOff ? 
+            new DateTime().Add(ShiftStartTime.Value).ToString("hh:mm tt",new CultureInfo("ar-SA")) : "";
+
         public double? ShiftEnd { get; set; }
 
         public TimeSpan? ShiftEndTime
@@ -54,6 +58,9 @@ namespace Sgs.Attendance.Reports.ViewModels
                 ShiftEnd = value.HasValue ? value.Value.ConvertToDouble() : default(double?);
             }
         }
+
+        public string ShiftEndTimeString => ShiftEndTime.HasValue && !IsDayOff ?
+            new DateTime().Add(ShiftEndTime.Value).ToString("hh:mm tt", new CultureInfo("ar-SA")) : "";
 
         public double? ShiftDuration
         {
@@ -82,6 +89,9 @@ namespace Sgs.Attendance.Reports.ViewModels
         public TimeSpan? ShiftDurationTime => ShiftDuration.HasValue ?
             ShiftDuration.Value.ConvertToTime() : new TimeSpan(0,0,0);
 
+        public string ShiftDurationTimeString => ShiftDurationTime.HasValue && !IsDayOff ?
+            new DateTime().Add(ShiftDurationTime.Value).ToString("hh:mm:ss") : "";
+
         public double? ShiftStartInRamadan { get; set; }
 
         public double? StartInRamadan => ShiftStartInRamadan ?? ShiftStart;
@@ -100,6 +110,9 @@ namespace Sgs.Attendance.Reports.ViewModels
 
         public TimeSpan? StartTimeInRamadan => ShiftStartTimeInRamadan ?? ShiftStartTime;
 
+        public string StartTimeInRamadanString => StartTimeInRamadan.HasValue && !dayOffInRamadan ?
+            new DateTime().Add(StartTimeInRamadan.Value).ToString("hh:mm tt", new CultureInfo("ar-SA")) : "";
+
         public double? ShiftEndInRamadan { get; set; }
 
         public double? EndInRamadan => ShiftEndInRamadan ?? ShiftEnd;
@@ -117,6 +130,9 @@ namespace Sgs.Attendance.Reports.ViewModels
         }
 
         public TimeSpan? EndTimeInRamadan => ShiftEndTimeInRamadan ?? ShiftEndTime;
+
+        public string EndTimeInRamadanString => EndTimeInRamadan.HasValue && !dayOffInRamadan ?
+            new DateTime().Add(EndTimeInRamadan.Value).ToString("hh:mm tt", new CultureInfo("ar-SA")) : "";
 
         public double? ShiftDurationInRamadan
         {
@@ -148,6 +164,9 @@ namespace Sgs.Attendance.Reports.ViewModels
 
         public TimeSpan? ShiftDurationTimeInRamadan => ShiftDurationInRamadan.HasValue ?
             ShiftDurationInRamadan.Value.ConvertToTime() : new TimeSpan(0, 0, 0);
+
+        public string ShiftDurationTimeInRamadanString => ShiftDurationTimeInRamadan.HasValue && !dayOffInRamadan ?
+            new DateTime().Add(ShiftDurationTimeInRamadan.Value).ToString("hh:mm:ss") : "";
 
         public bool IsDayOff { get; set; }
 

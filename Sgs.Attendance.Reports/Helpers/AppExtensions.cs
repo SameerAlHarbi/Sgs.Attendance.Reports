@@ -21,14 +21,16 @@ namespace Sgs.Attendance.Reports.Helpers
         {
             switch (contractWorkTime)
             {
+                case ContractWorkTime.ShiftA:
+                    return "المجموعة أ";
                 case ContractWorkTime.ShiftB:
-                    return "الوردية ب";
+                    return "المجموعة ب";
                 case ContractWorkTime.ShiftC:
-                    return "الوردية ج";
+                    return "المجموعة ج";
                 case ContractWorkTime.ShiftD:
-                    return "الوردية د";
-                case ContractWorkTime.ShiftE:
-                    return "الوردية هـ";
+                    return "المجموعة د";
+                case ContractWorkTime.ShiftH:
+                    return "المجموعة هـ";
                 default:
                     return "موظفي الصباح";
             }

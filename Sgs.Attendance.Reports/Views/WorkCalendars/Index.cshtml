@@ -6,26 +6,30 @@
 <div class="row">
 
     <div class="col" style="margin-top:5px; text-align:center">
-        @*<label for="ShiftA" class="form-check-label" weight:bold"> الورديات المسجلة </label>*@
+        @*<label for="Default" class="form-check-label" weight:bold"> الورديات المسجلة </label>*@
         <div class="form-check form-check-inline" data-toggle="tooltip" data-placement="top" title="دوام صباحي ٧:٣٠ ص - ٢:٣٠ م">
+            <input style="margin-left:5px" class="form-check-input" type="radio" id="Default" name="ContractWorkTime" value="Default">
+            <label for="Default" class="form-check-label" weight:bold"> الصباح  </label>
+        </div>
+        <div class="form-check form-check-inline" data-toggle="tooltip" data-placement="top" title="@ContractWorkTime.ShiftA.GetText()">
             <input style="margin-left:5px" class="form-check-input" type="radio" id="ShiftA" name="ContractWorkTime" value="ShiftA">
-            <label for="ShiftA" class="form-check-label" weight:bold"> المجوعة أ </label>
+            <label for="ShiftA" class="form-check-label"> أ-A </label>
         </div>
-        <div class="form-check form-check-inline" data-toggle="tooltip" data-placement="top" title="وردية صباحية ٧:٣٠ ص - ٣:٣٠ م">
+        <div class="form-check form-check-inline" data-toggle="tooltip" data-placement="top" title="@ContractWorkTime.ShiftB.GetText()">
             <input style="margin-left:5px" class="form-check-input" type="radio" id="ShiftB" name="ContractWorkTime" value="ShiftB">
-            <label for="ShiftB" class="form-check-label"> المجوعة ب </label>
+            <label for="ShiftB" class="form-check-label"> ب-B </label>
         </div>
-        <div class="form-check form-check-inline" data-toggle="tooltip" data-placement="top" title="وردية مسائية ٣:٣٠ م - ١١:٣٠ م">
+        <div class="form-check form-check-inline" data-toggle="tooltip" data-placement="top" title="@ContractWorkTime.ShiftC.GetText()">
             <input style="margin-left:5px" class="form-check-input" type="radio" id="ShiftC" name="ContractWorkTime" value="ShiftC">
-            <label for="ShiftC" class="form-check-label"> المجوعة ج </label>
+            <label for="ShiftC" class="form-check-label"> ج-C </label>
         </div>
-        <div class="form-check form-check-inline" data-toggle="tooltip" data-placement="top" title="وردية ليلية ١١:٣٠ م - ٧:٣٠ ص">
+        <div class="form-check form-check-inline" data-toggle="tooltip" data-placement="top" title="@ContractWorkTime.ShiftD.GetText()">
             <input style="margin-left:5px" class="form-check-input" type="radio" id="ShiftD" name="ContractWorkTime" value="ShiftD">
-            <label for="ShiftD" class="form-check-label"> المجوعة د </label>
+            <label for="ShiftD" class="form-check-label"> د-D </label>
         </div>
-        <div class="form-check form-check-inline" data-toggle="tooltip" data-placement="top" title="إجازة نهاية الوردية">
-            <input style="margin-left:5px" class="form-check-input" type="radio" id="ShiftE" name="ContractWorkTime" value="ShiftE">
-            <label for="ShiftE" class="form-check-label">المجوعة هـ </label>
+        <div class="form-check form-check-inline" data-toggle="tooltip" data-placement="top" title="@ContractWorkTime.ShiftH.GetText()">
+            <input style="margin-left:5px" class="form-check-input" type="radio" id="ShiftH" name="ContractWorkTime" value="ShiftH">
+            <label for="ShiftH" class="form-check-label"> هـ-H </label>
         </div>
         @*<small id="emailHelp" class="form-text text-muted text-center"> الرجاء تحديد الورية</small>*@
     </div>
@@ -46,7 +50,7 @@
             .AutoBind(false)
             .Columns(column =>
             {
-                column.Bound(c => c.Name).Title("اسم التقويم");
+                column.Bound(c => c.Name).Width(300).Title("اسم التقويم");
                 column.Group(g => g
                     .Title("تاريخ البداية")
                     .Columns(c =>
@@ -229,6 +233,10 @@
                         if (deleteMode == 'calendar') {
                             deleteCalendar();
                         }
+
+                        else if(deleteMode == 'shift'){
+                            deleteShift();
+                        }
                     }
 
                     var selectedCalendar;
@@ -264,7 +272,40 @@
 
                         $.ajax(options);
 
-                    }
+            }
+
+            var selectedShift;
+
+            function deleteShift() {
+                if (!selectedShift) {
+                            return;
+                        }
+
+                        var options = {
+                            url: "@Url.Action("DeleteItemJson", "WorkShifts")",
+                            type: "Post",
+                            data: {
+                                id: selectedShift
+                            },
+                            dataType: "json",
+                            success: function (data) {
+                                if (data.errors) {
+                                    toastr.error(data.errors[0]);
+                                    return;
+                                }
+                                toastr.success("تم حذف الوردية بنجاح");
+                            },
+                            error: function () {
+                                toastr.error("خطأ الرجاء المحاولة لاحقاً");
+                                return;
+                            },
+                            complete: function () {
+                                updateShiftsInfo(selectedCalendar);
+                            }
+                        };
+
+                        $.ajax(options);
+            }
 
             $(function () {
 
@@ -276,7 +317,7 @@
                         calendarsGrid = $("#grdWorkCalendars").data("kendoGrid");
 
                         //Initialize all radio buttons
-                        $("#ShiftA").prop("checked", true);
+                        $("#Default").prop("checked", true);
                         $("#workCalendar").prop("checked", true);
                         $("#openCalendar").prop("checked", true);
 
@@ -393,8 +434,14 @@
                         $('#deleteModal').on('show.bs.modal', function (event) {
                             var button = $(event.relatedTarget) // Button that triggered the modal
                             selectedCalendar = button.data('calendarid') // Extract info from data-* attributes
-                            if (selectedCalendar) {
-                                $('#deleteLabel').text('هل انت متأكد من حذف التقويم ؟');
+                            selectedShift = button.data('shiftid') // Extract info from data-* attributes
+                            
+                            if(selectedShift) {
+                                $('#deleteLabel').text('هل انت متأكد من حذف الوردية ؟');
+                                deleteMode = 'shift';
+                            }
+                            else if(selectedCalendar) {
+                                $('#deleteLabel').text('هل انت متأكد من حذف تقويم الورديات ؟');
                                 deleteMode = 'calendar';
                             }
                         })

@@ -5,6 +5,7 @@
 
                 <input type="hidden" id="shiftCalendarId" name="shiftCalendarId" />
                 <input type="hidden" id="shiftId" name="shiftId" />
+                <input type="hidden" id="shiftOrder" name="shiftOrder" />
 
                 <div class="modal-header">
                     <h5 class="modal-title text-info" id="addShiftLabel"><i class="far fa-clock fa-lg"></i> إضافة وردية جديدة</h5>
@@ -108,12 +109,6 @@
 
 <script>
 
-    function readShiftsData() {
-        return {
-            calendarId: 1,
-        }
-    }
-
     function toggleRamadan(calendarId) {
         var me = event.target;
 
@@ -145,6 +140,7 @@
 
         shiftsOrderGrid.showColumn("ShiftOrder");
         shiftsOrderGrid.showColumn("ShiftRepeat");
+        shiftsOrderGrid.showColumn("Id");
 
     }
 
@@ -171,6 +167,11 @@
         }
     }
 
+    function updateShiftsInfo(calendarId) {
+        var shiftsOrderGrid = $("#grd_" + calendarId).data("kendoGrid");
+        shiftsOrderGrid.dataSource.read();
+    }
+
     $(function () {
 
         $("#workShift").prop("checked", true);
@@ -186,17 +187,18 @@
             var button = $(event.relatedTarget) // Button that triggered the modal
             var calendarId = button.data('calendarid') // Extract info from data-* attributes
             var shiftId = button.data('shiftid') // Extract info from data-* attributes
+            var shiftOrderNumber = 1;
 
             if (!shiftId) {
                 shiftId = 0;
             }
-            @*else {
+            else {
 
                 var options = {
-                    url: "@Url.Action("GetDataByIdJson", "WorkCalendars")",
+                    url: "@Url.Action("GetDataByIdJson", "WorkShifts")",
                     type: "Get",
                     data: {
-                        id: calendarId
+                        id: shiftId
                     },
                     dataType: "json",
                     success: function (data) {
@@ -205,37 +207,50 @@
                             event.preventDefault();
                             return;
                         }
-                        $("#calendarName").val(data.Name);
 
-                        if (data.IsVacationCalendar) {
-                            $('#vacationCalendar').prop('checked', true);
+                        $("#shiftRepeat").data("kendoNumericTextBox").value(data.ShiftRepeat);
+
+                        if (!data.IsDayOff) {
+                            $('#workShift').prop('checked', true);
                         }
                         else {
-                            $('#workCalendar').prop('checked', true);
+                            $('#vacationShift').prop('checked', true);
                         }
 
-                        if (data.IsOpenDuration) {
-                            $('#openCalendar').prop('checked', true);
+                        if (!data.IsDayOffInRamadan) {
+                            $('#workShiftRamadan').prop('checked', true);
                         }
                         else {
-                            $('#limitedCalendar').prop('checked', true);
+                            $('#vacationShiftRamadan').prop('checked', true);
                         }
 
-                        $("#calendarStartDate").data("kendoDatePicker").value(data.StartDate);
-                        $("#calendarEndDate").data("kendoDatePicker").value(data.EndDate);
-                        $("#calendarNote").val(data.Note);
-                        updateNewCalendarInfo();
+                        shiftOrderNumber = data.ShiftOrder;
+
+                        
+
+
+                        $("#vacationName").val(data.DayOffDescription);
+                        $("#vacationNameRamadan").val(data.DayOffDescriptionInRamadan);
+
+                        $("#startTime").data("kendoTimePicker").value(kendo.parseDate(data.ShiftStartTime));
+                        $("#endTime").data("kendoTimePicker").value(kendo.parseDate(data.ShiftEndTime));
+
+                        $("#startTimeRamadan").data("kendoTimePicker").value(kendo.parseDate(data.ShiftStartTimeInRamadan));
+                        $("#endTimeRamadan").data("kendoTimePicker").value(kendo.parseDate(data.ShiftEndTimeInRamadan));
+
+                        updateNewShiftInfo();
                     },
                     error: function () {
-                        toastr.error("خطأ اثناء قراءة معلومات التقويم");
+                        toastr.error("خطأ اثناء قراءة معلومات الوردية");
                         event.preventDefault();
                     }
                 };
 
                 $.ajax(options);
 
-            }*@
+            }
 
+            $("#shiftOrder").val(shiftOrderNumber);
             $("#shiftCalendarId").val(calendarId);
             $("#shiftId").val(shiftId);
         })
@@ -259,6 +274,7 @@
                                             id: $("#shiftId").val(),
                                             workCalendarId: $("#shiftCalendarId").val(),
                                             shiftRepeat: $("#shiftRepeat").val(),
+                                            shiftOrder: $("#shiftOrder").val(),
                                             shiftStartTime: kendo.toString(kendo.parseDate(startTime.value()), 'HH:mm'),
                                             shiftEndTime: kendo.toString(kendo.parseDate(endTime.value()), 'HH:mm'),
                                             shiftStartTimeInRamadan: kendo.toString(kendo.parseDate(startTimeRamadan.value()), 'HH:mm'),
@@ -278,10 +294,10 @@
                                             toastr.success("تم حفظ تقويم الوردية بنجاح");
                                         },
                                         error: function () {
-                                            toastr.error("خطأ اثناء حفظ التقويم");
+                                            toastr.error("خطأ اثناء حفظ الوردية");
                                         },
                                         complete: function () {
-                                            updateWorkTimeInfo();
+                                            updateShiftsInfo($("#shiftCalendarId").val());
                                         }
                                     };
 

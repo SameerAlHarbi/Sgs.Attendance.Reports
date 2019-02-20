@@ -31,31 +31,34 @@
                                             columns.Bound(c => c.ShiftType).Title("نوع الوردية");
                                             columns.Bound(c => c.ShiftTypeInRamadan).Hidden(true)
                                               .Title("نوع الوردية").ClientHeaderTemplate("نوع الوردية <i class='far fa-moon'></i>");
-                                            columns.Bound(c => c.ShiftStartTime).Title("بداية الوردية");
-                                            columns.Bound(c => c.ShiftEndTime).Title("نهاية الوردية");
-                                            columns.Bound(c => c.ShiftDurationTime).Title("مدة الوردية");
-                                            columns.Bound(c => c.StartTimeInRamadan).Title("بداية الوردية").Hidden(true)
+                                            columns.Bound(c => c.ShiftStartTimeString).Title("بداية الوردية");
+                                            columns.Bound(c => c.ShiftEndTimeString).Title("نهاية الوردية");
+                                            columns.Bound(c => c.ShiftDurationTimeString).Title("مدة الوردية");
+                                            columns.Bound(c => c.StartTimeInRamadanString).Title("بداية الوردية").Hidden(true)
                                                 .ClientHeaderTemplate("بداية الوردية <i class='far fa-moon'></i>");
-                                            columns.Bound(c => c.EndTimeInRamadan).Title("نهاية الوردية").Hidden(true)
+                                            columns.Bound(c => c.EndTimeInRamadanString).Title("نهاية الوردية").Hidden(true)
                                                 .ClientHeaderTemplate("نهاية الوردية <i class='far fa-moon'></i>");
-                                            columns.Bound(c => c.ShiftDurationTimeInRamadan).Title("مدة الوردية").Hidden(true)
+                                            columns.Bound(c => c.ShiftDurationTimeInRamadanString).Title("مدة الوردية").Hidden(true)
                                                 .ClientHeaderTemplate("مدة الوردية <i class='far fa-moon'></i>");
                                             columns.Bound(c => c.DayOffDescription).Title("وصف الإجازة");
                                             columns.Bound(c => c.OffDescriptionInRamadan).Title("وصف الإجازة").Hidden(true)
                                                 .ClientHeaderTemplate("وصف الإجازة <i class='far fa-moon'></i>");
-
+                                            columns.Bound(c => c.Id).Title("تحكم").ClientTemplate(
+                                                @"<a href='\\\\#addShiftModal' data-calendarId='#= Id #' data-shiftId='\\#= Id \\#' data-toggle='modal'  class='text-secondary' title='تعديل الوردية'><i class='fas fa-pencil-alt'></i> </a>" +
+                                                @"<a href='\\\\#deleteModal' data-toggle='modal' data-calendarId='#= Id #' data-shiftId='\\#= Id \\#' class='text-danger' title='حذف'><i class='fas fa-trash-alt'></i></a>");
                                         })
                                         .DataSource(d =>
                                             d.Ajax()
                                             .ServerOperation(false)
-                                            .Read(read => read.Action("GetAllShiftsByCalendarIdJsonForKendo", "WorkShifts").Data("readShiftsData"))
+                                            .Read(read => read.Action("GetAllShiftsByCalendarIdJsonForKendo", "WorkShifts",new { calendarId ="#=Id#"}))
                                            )
                                         .ToClientTemplate()
 
                                 )
 
                             </div>
-        
+
+
                             </text>);
                           items.Add().Text("جدول الورديات").Content(@<text>
                             

@@ -48,7 +48,7 @@ namespace Sgs.Attendance.Reports.Controllers
                     defaultCalendar = defaultCalendar ?? new EmployeeCalendar
                     {
                         AttendanceProof = AttendanceProof.RequiredInOut,
-                        ContractWorkTime = ContractWorkTime.ShiftA,
+                        ContractWorkTime = ContractWorkTime.Default,
                         StartDate = new DateTime(2018, 12, 1)
                     };
 
