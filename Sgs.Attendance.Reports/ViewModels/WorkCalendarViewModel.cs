@@ -2,6 +2,7 @@
 using Sgs.Attendance.Reports.Helpers;
 using Sgs.Attendance.Reports.Models;
 using System;
+using System.Collections.Generic;
 
 namespace Sgs.Attendance.Reports.ViewModels
 {
@@ -30,6 +31,9 @@ namespace Sgs.Attendance.Reports.ViewModels
         public string WorkCalendarType => IsVacationCalendar ? "تقويم إجازة" : "تقويم عمل";
 
         public bool IsOpenDuration { get; set; }
+
+        public List<WorkShiftViewModel> WorkShifts { get; set; }
+
 
         public string Note { get; set; }
     }

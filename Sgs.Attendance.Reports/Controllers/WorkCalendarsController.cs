@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Sgs.Attendance.Reports.Logic;
 using Sgs.Attendance.Reports.Models;
 using Sgs.Attendance.Reports.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
@@ -101,6 +102,46 @@ namespace Sgs.Attendance.Reports.Controllers
             catch (System.Exception)
             {
                 return Json(new { errors = new string[] { "خطأ أثناء حفظ بيانات التقويم الرجاء المحاولة لاحقاً"} });
+            }
+        }
+
+        public async Task<IActionResult> GetCalendarDaysForKendo([DataSourceRequest] DataSourceRequest request,int calendarId)
+        {
+            try
+            {
+                var manager = _dataManager as WorkCalendarsManager;
+                var currentCalendar = await manager.GetByIdAsync(calendarId, c => c.WorkShifts);
+                if(currentCalendar == null)
+                {
+                    return Json(new { errors = new string[] { "لايمكن العثور على بيانات التقويم" } });
+                }
+
+                var results = new List<CalendarDayReportViewModel>();
+
+                results.Add(new CalendarDayReportViewModel
+                {
+                    DayDate = DateTime.Today.AddDays(-5),
+                    CheckInTime= DateTime.Today.AddDays(-5).Add(new TimeSpan(7,30,0)),
+                    CheckOutTime= DateTime.Today.AddDays(-5).Add(new TimeSpan(15,30,0)),
+                });
+
+                var startDate = currentCalendar.StartDate;
+                var endDate = currentCalendar.StartDate.AddDays(31);
+
+                endDate = currentCalendar.EndDate.HasValue && endDate <= currentCalendar.EndDate.Value ? 
+
+                while(startDate.Date <= startDate.Date)
+
+
+                return Json(results.ToDataSourceResult(request));
+            }
+            catch (ValidationException ex)
+            {
+                return Json(new { errors = new string[] { ex.ValidationResult.ErrorMessage } });
+            }
+            catch (System.Exception)
+            {
+                return Json(new { errors = new string[] { "خطأ أثناء قراءة البيانات الرجاء المحاولة لاحقاً" } });
             }
         }
 

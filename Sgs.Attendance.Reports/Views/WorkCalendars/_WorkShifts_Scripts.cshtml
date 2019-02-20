@@ -172,6 +172,38 @@
         shiftsOrderGrid.dataSource.read();
     }
 
+    function changeOrder(calendarId,direction) {
+        var shiftsOrderGrid = $("#grd_" + calendarId).data("kendoGrid");
+
+        var totalRows = shiftsOrderGrid.dataSource.total();
+
+        var selectedRow = shiftsOrderGrid.select();
+        var selectedIndex = selectedRow.index();
+
+        if (selectedIndex < 0 || (selectedIndex < 1 && direction == 'up') || (selectedIndex == totalRows - 1 && direction == 'down')) {
+            return;
+        }
+    
+        var selectedShift;
+        selectedRow.each(function () {
+            selectedShift = shiftsOrderGrid.dataItem($(this));
+        });
+
+        if (!selectedShift) {
+            return;
+        }
+
+        var row;
+        if (direction == "up") {
+            row = shiftsOrderGrid.tbody.find(">tr:not(.k-grouping-row)").eq(selectedIndex - 1);
+        }
+        else {
+            row = shiftsOrderGrid.tbody.find(">tr:not(.k-grouping-row)").eq(selectedIndex + 1);
+        }
+        
+        shiftsOrderGrid.select(row);
+    }
+
     $(function () {
 
         $("#workShift").prop("checked", true);
