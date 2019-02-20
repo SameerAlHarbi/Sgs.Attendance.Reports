@@ -219,5 +219,18 @@ namespace Sgs.Attendance.Reports.Controllers
                 });
         }
 
+        public async Task<IActionResult> PartialEmployeeDetailsReport(int employeeId,DateTime fromDate,DateTime toDate)
+        {
+            var results = await _employeesDaysReportsManager.GetAllAsNoTrackingListAsync(d => d.EmployeeId == employeeId);
+
+            return PartialView("EmployeeDetailsMonthlyReport", results);
+        }
+
+        public async Task<IActionResult> EmployeeDetailsReport(int employeeId, DateTime fromDate, DateTime toDate)
+        {
+            var results = await _employeesDaysReportsManager.GetAllAsNoTrackingListAsync(d => d.EmployeeId == employeeId);
+            return View(results);
+        }
+
     }
 }

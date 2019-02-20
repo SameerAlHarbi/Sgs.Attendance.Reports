@@ -26,6 +26,8 @@
                                         .Columns(columns =>
                                         {
 
+                                            columns.Bound(c => c.ShiftOrder).Title("الترتيب").Width(100);
+                                            columns.Bound(c => c.ShiftRepeat).Title("التكرار").Width(100);
                                             columns.Bound(c => c.ShiftType).Title("نوع الوردية");
                                             columns.Bound(c => c.ShiftTypeInRamadan).Hidden(true)
                                               .Title("نوع الوردية").ClientHeaderTemplate("نوع الوردية <i class='far fa-moon'></i>");
@@ -39,10 +41,17 @@
                                             columns.Bound(c => c.ShiftDurationTimeInRamadan).Title("مدة الوردية").Hidden(true)
                                                 .ClientHeaderTemplate("مدة الوردية <i class='far fa-moon'></i>");
                                             columns.Bound(c => c.DayOffDescription).Title("وصف الإجازة");
-                                            columns.Bound(c => c.DayOffDescriptionInRamadan).Title("وصف الإجازة").Hidden(true)
+                                            columns.Bound(c => c.OffDescriptionInRamadan).Title("وصف الإجازة").Hidden(true)
                                                 .ClientHeaderTemplate("وصف الإجازة <i class='far fa-moon'></i>");
 
-                                        }).ToClientTemplate()
+                                        })
+                                        .DataSource(d =>
+                                            d.Ajax()
+                                            .ServerOperation(false)
+                                            .Read(read => read.Action("GetAllShiftsByCalendarIdJsonForKendo", "WorkShifts").Data("readShiftsData"))
+                                           )
+                                        .ToClientTemplate()
+
                                 )
 
                             </div>

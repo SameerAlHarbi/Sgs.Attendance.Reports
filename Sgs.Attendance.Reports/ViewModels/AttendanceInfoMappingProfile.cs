@@ -5,6 +5,7 @@ namespace Sgs.Attendance.Reports.ViewModels
 {
     public class AttendanceInfoMappingProfile : Profile
     {
+
         public AttendanceInfoMappingProfile()
         {
             CreateMap<EmployeeCalendar, EmployeeInfoViewModel>()
@@ -17,6 +18,9 @@ namespace Sgs.Attendance.Reports.ViewModels
             CreateMap<EmployeeDayReport, EmployeeDayReportViewModel>().ReverseMap();
 
             CreateMap<WorkCalendar, WorkCalendarViewModel>().ReverseMap();
+
+            CreateMap<WorkShift, WorkShiftViewModel>().ReverseMap();
         }
+
     }
 }

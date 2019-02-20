@@ -70,7 +70,8 @@
             .DataSource(d =>
                 d.Ajax()
                .ServerOperation(false)
-               .Read(read => read.Action("GetAllCalendarsByWorkTimeJsonForKendo", "WorkCalendars").Data("readCalendarsData")))
+               .Read(read => read.Action("GetAllCalendarsByWorkTimeJsonForKendo", "WorkCalendars").Data("readCalendarsData"))
+               )
                .ClientDetailTemplateId("workShiftsTemplate")
 )
 

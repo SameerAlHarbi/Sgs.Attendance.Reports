@@ -25,7 +25,7 @@ namespace Sgs.Attendance.Reports.ViewModels
 
         public int ShiftOrder { get; set; }
 
-        public bool ShiftRepeat { get; set; }
+        public int ShiftRepeat { get; set; }
 
         public double? ShiftStart { get; set; }
 
@@ -80,7 +80,7 @@ namespace Sgs.Attendance.Reports.ViewModels
         }
 
         public TimeSpan? ShiftDurationTime => ShiftDuration.HasValue ?
-            ShiftDuration.Value.ConvertToTime() : default(TimeSpan?);
+            ShiftDuration.Value.ConvertToTime() : new TimeSpan(0,0,0);
 
         public double? ShiftStartInRamadan { get; set; }
 
@@ -147,7 +147,7 @@ namespace Sgs.Attendance.Reports.ViewModels
         }
 
         public TimeSpan? ShiftDurationTimeInRamadan => ShiftDurationInRamadan.HasValue ?
-            ShiftDurationInRamadan.Value.ConvertToTime() : default(TimeSpan?);
+            ShiftDurationInRamadan.Value.ConvertToTime() : new TimeSpan(0, 0, 0);
 
         public bool IsDayOff { get; set; }
 
@@ -155,7 +155,22 @@ namespace Sgs.Attendance.Reports.ViewModels
 
         public bool? IsDayOffInRamadan { get; set; }
 
+        public bool dayOffInRamadan => IsDayOffInRamadan.HasValue ?
+            IsDayOffInRamadan.Value : IsDayOff;
+
         public string DayOffDescriptionInRamadan { get; set; }
+
+        public string OffDescriptionInRamadan
+        {
+            get
+            {
+                if(dayOffInRamadan)
+                {
+                    return !string.IsNullOrWhiteSpace(DayOffDescriptionInRamadan) ? DayOffDescriptionInRamadan : DayOffDescription;
+                }
+                return "";
+            }
+        }
 
         public int WorkCalendarId { get; set; }
 

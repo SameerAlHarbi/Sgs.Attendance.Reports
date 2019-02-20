@@ -58,10 +58,6 @@ namespace Sgs.Attendance.Reports.Controllers
                     if (model.Id == 0)
                     {
                         var newCalendar = _mapper.Map<WorkCalendar>(model);
-                        if (model.IsOpenDuration && !model.IsVacationCalendar)
-                        {
-                            newCalendar.EndDate = null;
-                        }
 
                         await manager.InsertNewAsync(newCalendar); 
                     }

@@ -54,7 +54,7 @@
             <td class="report-content-cell">
                 <div>
                     <div class="d-print-none" style="margin-bottom:5px;">
-                        <button class="btn btn-outline-secondary d-print-none" onclick="window.print()">
+                        <button id="print" class="btn btn-outline-secondary d-print-none">
                             <i class="fas fa-print"></i> طباعة
                         </button>
                         <br />
@@ -106,3 +106,15 @@
         </tr>
     </tbody>
 </table>
+
+
+<script>
+    $(function () {
+
+        $("#print").on("click", function () {
+            window.print();
+        });
+
+        }
+    );
+</script>
