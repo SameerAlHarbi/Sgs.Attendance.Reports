@@ -42,5 +42,50 @@ namespace Sgs.Attendance.Reports.Models
 
             return results;
         }
+
+        public List<CalendarDayReport> DaysReports(DateTime? fromDate = null,DateTime? toDate = null)
+        {
+            var results = new List<CalendarDayReport>();
+
+            fromDate = (fromDate ?? this.StartDate).Date;
+            toDate = (toDate ?? StartDate.AddDays(31)).Date;
+
+            fromDate = fromDate < this.StartDate.Date ? this.StartDate.Date : fromDate;
+            toDate = this.EndDate.HasValue
+                && toDate > this.EndDate.Value ? this.EndDate.Value : toDate;
+
+            if(fromDate > toDate)
+            {
+                return results;
+            }
+
+            int shiftsCount = this.WorkShifts?.Count ?? 0;
+            int shiftOrder = (int)fromDate.Value.Date.Subtract(StartDate.Date).TotalDays;
+
+            while (fromDate <= toDate)
+            {
+                while (shiftOrder > shiftsCount - 1)
+                {
+                    shiftOrder = shiftOrder - shiftsCount;
+                }
+
+                var newDayReport = new CalendarDayReport
+                {
+                    DayDate = fromDate.Value,
+                    IsDayOff = this.IsVacationCalendar,
+                    DayOffDescription = this.IsVacationCalendar ? this.Name : string.Empty
+                };
+
+                if(!this.IsVacationCalendar && this.WorkShifts.Count > 1)
+                {
+                       
+                }
+
+                results.Add(newDayReport);
+                fromDate = fromDate.Value.AddDays(1);
+            }
+
+            return results;
+        }
     }
 }

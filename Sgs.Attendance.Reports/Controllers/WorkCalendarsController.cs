@@ -128,9 +128,9 @@ namespace Sgs.Attendance.Reports.Controllers
                 var startDate = currentCalendar.StartDate;
                 var endDate = currentCalendar.StartDate.AddDays(31);
 
-                endDate = currentCalendar.EndDate.HasValue && endDate <= currentCalendar.EndDate.Value ? 
+                //endDate = currentCalendar.EndDate.HasValue && endDate <= currentCalendar.EndDate.Value ? 
 
-                while(startDate.Date <= startDate.Date)
+                //while(startDate.Date <= startDate.Date)
 
 
                 return Json(results.ToDataSourceResult(request));
