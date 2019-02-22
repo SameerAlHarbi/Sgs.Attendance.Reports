@@ -20,6 +20,8 @@ namespace Sgs.Attendance.Reports.ViewModels
             CreateMap<WorkCalendar, WorkCalendarViewModel>().ReverseMap();
 
             CreateMap<WorkShift, WorkShiftViewModel>().ReverseMap();
+
+            CreateMap<CalendarDayReport, CalendarDayReportViewModel>().ReverseMap();
         }
 
     }

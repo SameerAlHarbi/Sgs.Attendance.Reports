@@ -83,23 +83,44 @@
                                                                             .Name("grdCalendarDays_#=Id#")
                                                                             .Columns(clmn =>
                                                                             {
-                                                                               clmn.Bound(c => c.DayDate).Format("{0:yyyy/MM/dd}").Title("التاريخ");
-                                                                               clmn.Bound(c => c.CheckInTime).Format("{0:yyyy/MM/dd hh:mm tt}").Title("تاريخ الدخول");
-                                                                               clmn.Bound(c => c.CheckOutTime).Format("{0:yyyy/MM/dd HH:mm tt}").Title("تاريخ الخروج");
-                                                                               clmn.Bound(c => c.WorkType).Title("نوع الوردية");
-                                                                               clmn.Bound(c => c.DayOffDescription).Title("وصف الإجازة");
+                                                                                clmn.Group(g => g
+                                                                                    .Title("التاريخ").Columns(c =>
+                                                                                    {
+                                                                                        c.Bound(d => d.DayDateName).Width(100).Title("اليوم");
+                                                                                        c.Bound(d => d.DayDate).Width(100).Format("{0:yyyy/MM/dd}").Title("ميلادي");
+                                                                                        c.Bound(d => d.DayDateHijriString).Width(100).Title("هجري");
+                                                                                    }));
+                                                                                clmn.Group(g => g
+                                                                                    .Title("دخول").Columns(c =>
+                                                                                    {
+                                                                                        c.Bound(m => m.CheckInDayName).Width(100).Title("اليوم");
+                                                                                        c.Bound(m => m.CheckInTime).Width(220).Format("{0:yyyy/MM/dd hh:mm tt}").Title("ميلادي");
+                                                                                        c.Bound(m => m.CheckInTimeHijri).Width(220).Title("هجري");
+                                                                                    }));
+                                                                                clmn.Group(g => g
+                                                                                    .Title("خروج").Columns(c =>
+                                                                                    {
+                                                                                        c.Bound(m => m.CheckOutDayName).Width(100).Title("اليوم");
+                                                                                        c.Bound(m => m.CheckOutTime).Width(220).Format("{0:yyyy/MM/dd hh:mm tt}").Title("ميلادي");
+                                                                                        c.Bound(m => m.CheckOutTimeHijri).Width(220).Title("هجري");
+                                                                                    }));
+                                                                                clmn.Bound(c => c.WorkType).Title("نوع الوردية");
+                                                                                clmn.Bound(c => c.DayOffDescription).Title("وصف الإجازة");
+
                                                                             })
                                                                             .DataSource(d =>
                                                                                             d.Ajax()
                                                                                             .ServerOperation(false)
                                                                                             .Read(read => read.Action("GetCalendarDaysForKendo", "WorkCalendars", new { calendarId = "#=Id#" }))
                                                                                         )
+                                                                                        .Events(e => e.DataBound("daysReportsBound"))
                                                                              .ToClientTemplate()
                                                             )
                                                         </div>
 
                                                  </text>);
                                                 }).ToClientTemplate()
+
         )
 
     </div>

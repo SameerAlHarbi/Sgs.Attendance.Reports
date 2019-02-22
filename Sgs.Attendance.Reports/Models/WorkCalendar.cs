@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 
 namespace Sgs.Attendance.Reports.Models
 {
@@ -43,7 +44,7 @@ namespace Sgs.Attendance.Reports.Models
             return results;
         }
 
-        public List<CalendarDayReport> DaysReports(DateTime? fromDate = null,DateTime? toDate = null)
+        public List<CalendarDayReport> GetDaysReports(DateTime? fromDate = null,DateTime? toDate = null)
         {
             var results = new List<CalendarDayReport>();
 
@@ -59,29 +60,81 @@ namespace Sgs.Attendance.Reports.Models
                 return results;
             }
 
-            int shiftsCount = this.WorkShifts?.Count ?? 0;
+            int shiftsCount = this.WorkShifts?.Sum(s => s.ShiftRepeat) ?? 0;
             int shiftOrder = (int)fromDate.Value.Date.Subtract(StartDate.Date).TotalDays;
+
+            while (shiftsCount > 0 && shiftOrder > shiftsCount - 1)
+            {
+                shiftOrder = shiftOrder - shiftsCount;
+            }
 
             while (fromDate <= toDate)
             {
-                while (shiftOrder > shiftsCount - 1)
-                {
-                    shiftOrder = shiftOrder - shiftsCount;
-                }
-
                 var newDayReport = new CalendarDayReport
                 {
                     DayDate = fromDate.Value,
                     IsDayOff = this.IsVacationCalendar,
-                    DayOffDescription = this.IsVacationCalendar ? this.Name : string.Empty
+                    DayOffDescription = this.IsVacationCalendar ? this.Name : string.Empty,
                 };
 
-                if(!this.IsVacationCalendar && this.WorkShifts.Count > 1)
+                if(shiftOrder >= shiftsCount)
                 {
-                       
+                    shiftOrder = 0;
                 }
 
+                if(!this.IsVacationCalendar && this.WorkShifts.Count > 0)
+                {
+                    int order = -1;
+                    foreach (WorkShift workShift in this.WorkShifts.OrderBy(s => s.ShiftOrder).ToList())
+                    {
+                        for (int i = 0; i < workShift.ShiftRepeat; i++)
+                        {
+                            order++;
+                            if (shiftOrder != order)
+                            {
+                                continue;
+                            }
+
+                            newDayReport.IsDayOff = workShift.IsDayOff;
+                            newDayReport.DayOffDescription = workShift.DayOffDescription;
+
+                            double? start = workShift.ShiftStart;
+                            double? end = workShift.ShiftEnd;
+
+                            if (fromDate.Value.GetMonth(true) == 9)
+                            {
+                                start = workShift.ShiftStartInRamadan ?? workShift.ShiftStart;
+                                end = workShift.ShiftEndInRamadan ?? workShift.ShiftEnd;
+                                newDayReport.IsDayOff = workShift.IsDayOffInRamadan ?? workShift.IsDayOff;
+                                newDayReport.DayOffDescription = !string.IsNullOrWhiteSpace(workShift.DayOffDescriptionInRamadan) ?
+                                    workShift.DayOffDescriptionInRamadan:workShift.DayOffDescription;
+                            }
+                            
+                            newDayReport.CheckInTime = start.HasValue ?
+                                fromDate.Value.Date.Add(start.Value.ConvertToTime()) : default(DateTime?);
+
+                            newDayReport.CheckOutTime = end.HasValue ?
+                                fromDate.Value.Date.Add(end.Value.ConvertToTime()) : default(DateTime?);
+
+                            if (newDayReport.CheckOutTime <= newDayReport.CheckInTime)
+                            {
+                                newDayReport.CheckOutTime = newDayReport.CheckOutTime.Value.AddDays(1);
+                            }
+
+                            break;
+
+                        }
+                        if(shiftOrder == order)
+                        {
+                            break;
+                        }
+                    }
+                    
+                }
+
+       
                 results.Add(newDayReport);
+                shiftOrder++;
                 fromDate = fromDate.Value.AddDays(1);
             }
 

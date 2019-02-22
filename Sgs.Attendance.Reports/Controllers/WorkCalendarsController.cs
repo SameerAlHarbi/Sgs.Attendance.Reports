@@ -105,7 +105,8 @@ namespace Sgs.Attendance.Reports.Controllers
             }
         }
 
-        public async Task<IActionResult> GetCalendarDaysForKendo([DataSourceRequest] DataSourceRequest request,int calendarId)
+        public async Task<IActionResult> GetCalendarDaysForKendo([DataSourceRequest] DataSourceRequest request,int calendarId
+            ,DateTime? fromDate=null,DateTime? toDate = null)
         {
             try
             {
@@ -116,24 +117,9 @@ namespace Sgs.Attendance.Reports.Controllers
                     return Json(new { errors = new string[] { "لايمكن العثور على بيانات التقويم" } });
                 }
 
-                var results = new List<CalendarDayReportViewModel>();
+                var results = currentCalendar.GetDaysReports(fromDate, toDate);
 
-                results.Add(new CalendarDayReportViewModel
-                {
-                    DayDate = DateTime.Today.AddDays(-5),
-                    CheckInTime= DateTime.Today.AddDays(-5).Add(new TimeSpan(7,30,0)),
-                    CheckOutTime= DateTime.Today.AddDays(-5).Add(new TimeSpan(15,30,0)),
-                });
-
-                var startDate = currentCalendar.StartDate;
-                var endDate = currentCalendar.StartDate.AddDays(31);
-
-                //endDate = currentCalendar.EndDate.HasValue && endDate <= currentCalendar.EndDate.Value ? 
-
-                //while(startDate.Date <= startDate.Date)
-
-
-                return Json(results.ToDataSourceResult(request));
+                return Json(_mapper.Map<List<CalendarDayReportViewModel>>(results).ToDataSourceResult(request));
             }
             catch (ValidationException ex)
             {
