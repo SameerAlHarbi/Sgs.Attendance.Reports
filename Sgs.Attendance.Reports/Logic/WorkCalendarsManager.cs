@@ -21,7 +21,7 @@ namespace Sgs.Attendance.Reports.Logic
 
             if(newItem.EndDate.HasValue)
             {
-                var allConflicts = await this.GetAllAsNoTrackingListAsync(c => c.StartDate <= newItem.EndDate && c.EndDate >= newItem.StartDate);
+                var allConflicts = await this.GetAllAsNoTrackingListAsync(c => c.ContractWorkTime == newItem.ContractWorkTime && c.StartDate <= newItem.EndDate && c.EndDate >= newItem.StartDate);
                 if(allConflicts.Count > 0)
                 {
                     results.Add(new ValidationResult("عفواً التقويم متعارض مع تقويم آخر",new string[] { nameof(WorkCalendar.StartDate),nameof(WorkCalendar.EndDate)}));

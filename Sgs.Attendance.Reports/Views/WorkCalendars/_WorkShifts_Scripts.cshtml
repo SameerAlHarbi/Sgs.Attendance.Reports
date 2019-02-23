@@ -197,6 +197,9 @@
     function updateShiftsInfo(calendarId) {
         var shiftsOrderGrid = $("#grd_" + calendarId).data("kendoGrid");
         shiftsOrderGrid.dataSource.read();
+        $("#grdCalendarDays_" + calendarId).data("kendoGrid").dataSource.read();
+        $("#grdWorkTimeDays").data("kendoGrid").dataSource.read();
+
     }
 
     function changeOrder(calendarId,direction) {
@@ -255,6 +258,7 @@
 
             if (!shiftId) {
                 shiftId = 0;
+                $("#shiftOrder").val(1);
             }
             else {
 
@@ -291,7 +295,7 @@
                         shiftOrderNumber = data.ShiftOrder;
 
                         
-
+                        $("#shiftOrder").val(shiftOrderNumber);
 
                         $("#vacationName").val(data.DayOffDescription);
                         $("#vacationNameRamadan").val(data.DayOffDescriptionInRamadan);
@@ -314,7 +318,7 @@
 
             }
 
-            $("#shiftOrder").val(shiftOrderNumber);
+            
             $("#shiftCalendarId").val(calendarId);
             $("#shiftId").val(shiftId);
         })
