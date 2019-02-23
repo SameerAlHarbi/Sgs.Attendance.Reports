@@ -144,6 +144,33 @@
 
     }
 
+    function toggleHijriCalendarDays(calendarName) {
+        var grd = $('#' + calendarName).data("kendoGrid");
+        var me = event.target;
+
+        if ($(me).hasClass('active')) {
+            grd.hideColumn("DayDateHijri");
+            grd.showColumn("DayDate");
+
+            grd.hideColumn("CheckInDateHijri");
+            grd.showColumn("CheckInDateTime");
+
+            grd.hideColumn("CheckOutDateHijri");
+            grd.showColumn("CheckOutDateTime");
+        }
+        else{
+            grd.hideColumn("DayDate");
+            grd.showColumn("DayDateHijri");
+
+            grd.hideColumn("CheckInDateTime");
+            grd.showColumn("CheckInDateHijri")
+
+            grd.hideColumn("CheckOutDateTime");
+            grd.showColumn("CheckOutDateHijri");
+        }
+        
+    }
+
     function updateNewShiftInfo() {
         var selectedShiftType = $("input[name='shiftType']:checked").val();
         var selectedShiftTypeRamadan = $("input[name='shiftTypeRamadan']:checked").val();

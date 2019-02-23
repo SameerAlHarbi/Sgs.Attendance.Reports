@@ -78,33 +78,39 @@
                                                 </text>);
                                                 items.Add().Text("جدول الورديات").Content(@<text>
 
-                                                        <div style="min-height:400px;padding-top:20px">
-                                                            @(Html.Kendo().Grid<CalendarDayReportViewModel>()
+                                                    <div style="min-height:400px;padding-top:20px">
+                                                        <div class="col clearfix">
+                                                            <button onclick="toggleHijriCalendarDays('grdCalendarDays_#=Id#')"  class="btn btn-sm btn-outline-info" data-toggle="button" aria-pressed="false" autocomplete="off"> هجري <i class="far fa-calendar-alt"></i></button>
+                                                        </div>
+                                                        <br />
+                                                        @(Html.Kendo().Grid<CalendarDayReportViewModel>()
                                                                             .Name("grdCalendarDays_#=Id#")
                                                                             .Columns(clmn =>
                                                                             {
                                                                                 clmn.Group(g => g
                                                                                     .Title("التاريخ").Columns(c =>
                                                                                     {
-                                                                                        c.Bound(d => d.DayDateName).Width(100).Title("اليوم");
+                                                                                        c.Bound(d => d.DayDateName).HtmlAttributes(new { style = "color:blue" }).Width(100).Title("اليوم");
                                                                                         c.Bound(d => d.DayDate).Width(100).Format("{0:yyyy/MM/dd}").Title("ميلادي");
-                                                                                        c.Bound(d => d.DayDateHijriString).Width(100).Title("هجري");
+                                                                                        c.Bound(d => d.DayDateHijri).Width(100).Hidden(true).Title("هجري");
                                                                                     }));
                                                                                 clmn.Group(g => g
                                                                                     .Title("دخول").Columns(c =>
                                                                                     {
                                                                                         c.Bound(m => m.CheckInDayName).Width(100).Title("اليوم");
-                                                                                        c.Bound(m => m.CheckInTime).Width(220).Format("{0:yyyy/MM/dd hh:mm tt}").Title("ميلادي");
-                                                                                        c.Bound(m => m.CheckInTimeHijri).Width(220).Title("هجري");
+                                                                                        c.Bound(m => m.CheckInDateTime).Width(110).Format("{0:yyyy/MM/dd}").Title("ميلادي");
+                                                                                        c.Bound(m => m.CheckInDateHijri).Hidden(true).Width(110).Title("هجري");
+                                                                                        c.Bound(m => m.CheckInTime).HtmlAttributes(new { style = "color:red" }).Width(100).Title("الوقت");
                                                                                     }));
                                                                                 clmn.Group(g => g
                                                                                     .Title("خروج").Columns(c =>
                                                                                     {
                                                                                         c.Bound(m => m.CheckOutDayName).Width(100).Title("اليوم");
-                                                                                        c.Bound(m => m.CheckOutTime).Width(220).Format("{0:yyyy/MM/dd hh:mm tt}").Title("ميلادي");
-                                                                                        c.Bound(m => m.CheckOutTimeHijri).Width(220).Title("هجري");
+                                                                                        c.Bound(m => m.CheckOutDateTime).Width(110).Format("{0:yyyy/MM/dd}").Title("ميلادي");
+                                                                                        c.Bound(m => m.CheckOutDateHijri).Hidden(true).Width(110).Title("هجري");
+                                                                                        c.Bound(m => m.CheckOutTime).HtmlAttributes(new { style = "color:red" }).Width(100).Title("الوقت");
                                                                                     }));
-                                                                                clmn.Bound(c => c.WorkType).Title("نوع الوردية");
+                                                                                clmn.Bound(c => c.WorkType).Width(100).Title("نوع الوردية");
                                                                                 clmn.Bound(c => c.DayOffDescription).Title("وصف الإجازة");
 
                                                                             })
@@ -115,8 +121,8 @@
                                                                                         )
                                                                                         .Events(e => e.DataBound("daysReportsBound"))
                                                                              .ToClientTemplate()
-                                                            )
-                                                        </div>
+                                                        )
+                                                    </div>
 
                                                  </text>);
                                                 }).ToClientTemplate()

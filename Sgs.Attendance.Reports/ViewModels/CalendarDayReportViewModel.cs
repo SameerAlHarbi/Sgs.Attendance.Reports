@@ -9,21 +9,25 @@ namespace Sgs.Attendance.Reports.ViewModels
 
         public DateTime DayDate { get; set; }
 
-        public string DayDateHijriString => DayDate.ConvertToString(true);
+        public string DayDateHijri => DayDate.Date.ConvertToString(true);
 
-        public string DayDateName => DayDate.ToString("dddd",new CultureInfo("ar-SA"));
+        public string DayDateName => DayDate.Date.ToString("dddd",new CultureInfo("ar-SA"));
 
-        public DateTime? CheckInTime { get; set; }
+        public DateTime? CheckInDateTime { get; set; }
 
-        public string CheckInDayName => CheckInTime.HasValue ? CheckInTime.Value.ToString("dddd", new CultureInfo("ar-SA")):"";
+        public string CheckInDateHijri => CheckInDateTime.HasValue ? CheckInDateTime.Value.ConvertToString(true) : "";
 
-        public string CheckInTimeHijri => CheckInTime.HasValue ? CheckInTime.Value.ConvertToString(true, false, false, "yyyy/MM/dd hh:mm tt") : "";
+        public string CheckInDayName => CheckInDateTime.HasValue ? CheckInDateTime.Value.ToString("dddd", new CultureInfo("ar-SA")):"";
 
-        public DateTime? CheckOutTime { get; set; }
+        public string CheckInTime => CheckInDateTime.HasValue ? CheckInDateTime.Value.ToString("hh:mm tt", new CultureInfo("ar-SA")):"";
 
-        public string CheckOutDayName => CheckOutTime.HasValue ? CheckOutTime.Value.ToString("dddd", new CultureInfo("ar-SA")) : "";
+        public DateTime? CheckOutDateTime { get; set; }
 
-        public string CheckOutTimeHijri => CheckOutTime.HasValue ? CheckOutTime.Value.ConvertToString(true, false, false, "yyyy/MM/dd hh:mm tt") : "";
+        public string CheckOutDateHijri => CheckOutDateTime.HasValue ? CheckOutDateTime.Value.ConvertToString(true) : "";
+
+        public string CheckOutDayName => CheckOutDateTime.HasValue ? CheckOutDateTime.Value.ToString("dddd", new CultureInfo("ar-SA")) : "";
+
+        public string CheckOutTime => CheckOutDateTime.HasValue ? CheckOutDateTime.Value.ToString("hh:mm tt", new CultureInfo("ar-SA")) : "";
 
         public TimeSpan? WorkDuration { get; set; }
 

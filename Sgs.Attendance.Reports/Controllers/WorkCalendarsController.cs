@@ -9,6 +9,7 @@ using Sgs.Attendance.Reports.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Sgs.Attendance.Reports.Controllers
@@ -118,6 +119,28 @@ namespace Sgs.Attendance.Reports.Controllers
                 }
 
                 var results = currentCalendar.GetDaysReports(fromDate, toDate);
+
+                return Json(_mapper.Map<List<CalendarDayReportViewModel>>(results).ToDataSourceResult(request));
+            }
+            catch (ValidationException ex)
+            {
+                return Json(new { errors = new string[] { ex.ValidationResult.ErrorMessage } });
+            }
+            catch (System.Exception)
+            {
+                return Json(new { errors = new string[] { "خطأ أثناء قراءة البيانات الرجاء المحاولة لاحقاً" } });
+            }
+        }
+
+        public async Task<IActionResult> GetCalendarsDaysForKendo([DataSourceRequest] DataSourceRequest request, ContractWorkTime workTime
+            , DateTime? fromDate = null, DateTime? toDate = null)
+        {
+            try
+            {
+
+                var manager = _dataManager as WorkCalendarsManager;
+
+                var results = await manager.GetCalendarsDaysReport(workTime, fromDate, toDate);
 
                 return Json(_mapper.Map<List<CalendarDayReportViewModel>>(results).ToDataSourceResult(request));
             }

@@ -38,6 +38,7 @@
 </div>
 <br />
 
+
 <div class="clearfix">
     <h5 class="text-info float-right"> <i class="fas fa-calendar-alt"></i> تقاويم الوردية </h5>
     <button class="btn btn-sm btn-outline-info float-left" style="width:150px" data-toggle="modal" data-target="#addCalendarModal"><i class="fa fa-plus"></i>  إضافة تقويم جديد </button>
@@ -45,39 +46,91 @@
 <hr />
 
 @(Html.Kendo()
-            .Grid<WorkCalendarViewModel>()
-            .Name("grdWorkCalendars")
-            .AutoBind(false)
-            .Columns(column =>
-            {
-                column.Bound(c => c.Name).Width(300).Title("اسم التقويم");
-                column.Group(g => g
-                    .Title("تاريخ البداية")
-                    .Columns(c =>
+                    .Grid<WorkCalendarViewModel>()
+                    .Name("grdWorkCalendars")
+                    .AutoBind(false)
+                    .Columns(column =>
                     {
-                        c.Bound(m => m.StartDate).Title("ميلادي").Format("{0:yyyy/MM/dd}").Width(200);
-                        c.Bound(m => m.StartDateHijri).Title("هجري").Width(200);
-                    }));
-                column.Group(g => g
-                    .Title("تاريخ النهاية")
-                    .Columns(c =>
-                    {
-                        c.Bound(m => m.EndDate).Title("ميلادي").Format("{0:yyyy/MM/dd}").Width(200);
-                        c.Bound(m => m.EndDateHijri).Title("هجري").Width(200);
-                    }));
-                column.Bound(c => c.WorkCalendarType).Title("نوع التقويم");
-                column.Bound(c => c.Note).Title("ملاحظات");
-                column.Bound(c => c.Id).Title("تحكم").ClientTemplate(
-                    "<a href='\\#addCalendarModal' data-toggle='modal' data-calendarId ='#= Id #' class='text-secondary' title='التقويم الافتراضي'><i class='fas fa-pencil-alt'></i> </a>" +
-                    "<a href='\\#deleteModal' data-toggle='modal' data-calendarId='#= Id #' class='text-danger' title='حذف'><i class='fas fa-trash-alt'></i></a>");
-            })
-            .DataSource(d =>
-                d.Ajax()
-               .ServerOperation(false)
-               .Read(read => read.Action("GetAllCalendarsByWorkTimeJsonForKendo", "WorkCalendars").Data("readCalendarsData"))
-               )
-               .ClientDetailTemplateId("workShiftsTemplate")
+                        column.Bound(c => c.Name).Width(300).Title("اسم التقويم");
+                        column.Group(g => g
+                            .Title("تاريخ البداية")
+                            .Columns(c =>
+                            {
+                                c.Bound(m => m.StartDate).Title("ميلادي").Format("{0:yyyy/MM/dd}").Width(200);
+                                c.Bound(m => m.StartDateHijri).Title("هجري").Width(200);
+                            }));
+                        column.Group(g => g
+                            .Title("تاريخ النهاية")
+                            .Columns(c =>
+                            {
+                                c.Bound(m => m.EndDate).Title("ميلادي").Format("{0:yyyy/MM/dd}").Width(200);
+                                c.Bound(m => m.EndDateHijri).Title("هجري").Width(200);
+                            }));
+                        column.Bound(c => c.WorkCalendarType).Title("نوع التقويم");
+                        column.Bound(c => c.Note).Title("ملاحظات");
+                        column.Bound(c => c.Id).Title("تحكم").ClientTemplate(
+                            "<a href='\\#addCalendarModal' data-toggle='modal' data-calendarId ='#= Id #' class='text-secondary' title='التقويم الافتراضي'><i class='fas fa-pencil-alt'></i> </a>" +
+                            "<a href='\\#deleteModal' data-toggle='modal' data-calendarId='#= Id #' class='text-danger' title='حذف'><i class='fas fa-trash-alt'></i></a>");
+                    })
+                    .DataSource(d =>
+                        d.Ajax()
+                       .ServerOperation(false)
+                       .Read(read => read.Action("GetAllCalendarsByWorkTimeJsonForKendo", "WorkCalendars").Data("readCalendarsData"))
+                       )
+                       .ClientDetailTemplateId("workShiftsTemplate")
 )
+
+<br />
+
+<div class="clearfix" style="margin-top:70px">
+    <h5 class="text-info float-right"> <i class="fas fa-calendar-alt"></i> جدول الورديات </h5>
+    @*<button class="btn btn-sm btn-outline-info float-left" style="width:150px" data-toggle="modal" data-target="#addCalendarModal"><i class="fa fa-plus"></i>  إضافة تقويم جديد </button>*@
+</div>
+<hr />
+
+<div class="col clearfix">
+    <button onclick="toggleHijriCalendarDays('grdWorkTimeDays')" class="btn btn-sm btn-outline-info" data-toggle="button" aria-pressed="false" autocomplete="off"> هجري <i class="far fa-calendar-alt"></i></button>
+</div>
+<br />
+@(Html.Kendo().Grid<CalendarDayReportViewModel>()
+                            .Name("grdWorkTimeDays")
+                            .Columns(clmn =>
+                            {
+                                clmn.Group(g => g
+                                    .Title("التاريخ").Columns(c =>
+                                    {
+                                        c.Bound(d => d.DayDateName).HtmlAttributes(new { style = "color:blue" }).Width(100).Title("اليوم");
+                                        c.Bound(d => d.DayDate).Width(100).Format("{0:yyyy/MM/dd}").Title("ميلادي");
+                                        c.Bound(d => d.DayDateHijri).Width(100).Hidden(true).Title("هجري");
+                                    }));
+                                clmn.Group(g => g
+                                    .Title("دخول").Columns(c =>
+                                    {
+                                        c.Bound(m => m.CheckInDayName).Width(100).Title("اليوم");
+                                        c.Bound(m => m.CheckInDateTime).Width(110).Format("{0:yyyy/MM/dd}").Title("ميلادي");
+                                        c.Bound(m => m.CheckInDateHijri).Hidden(true).Width(110).Title("هجري");
+                                        c.Bound(m => m.CheckInTime).HtmlAttributes(new { style = "color:red" }).Width(100).Title("الوقت");
+                                    }));
+                                clmn.Group(g => g
+                                    .Title("خروج").Columns(c =>
+                                    {
+                                        c.Bound(m => m.CheckOutDayName).Width(100).Title("اليوم");
+                                        c.Bound(m => m.CheckOutDateTime).Width(110).Format("{0:yyyy/MM/dd}").Title("ميلادي");
+                                        c.Bound(m => m.CheckOutDateHijri).Hidden(true).Width(110).Title("هجري");
+                                        c.Bound(m => m.CheckOutTime).HtmlAttributes(new { style = "color:red" }).Width(100).Title("الوقت");
+                                    }));
+                                clmn.Bound(c => c.WorkType).Width(100).Title("نوع الوردية");
+                                clmn.Bound(c => c.DayOffDescription).Title("وصف الإجازة");
+
+                            })
+                            .DataSource(d =>
+                                            d.Ajax()
+                                            .ServerOperation(false)
+                                            .Read(read => read.Action("GetCalendarsDaysForKendo", "WorkCalendars", new { calendarId = ContractWorkTime.Default }))
+                                        )
+                                        .Events(e => e.DataBound("daysReportsBound"))
+)
+
 
 <div id="addCalendarModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="addCalendarLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -174,7 +227,6 @@
             text-align: center;
             vertical-align: middle;
         }
-
     </style>
 }
 
@@ -435,7 +487,7 @@
                             var button = $(event.relatedTarget) // Button that triggered the modal
                             selectedCalendar = button.data('calendarid') // Extract info from data-* attributes
                             selectedShift = button.data('shiftid') // Extract info from data-* attributes
-                            
+
                             if(selectedShift) {
                                 $('#deleteLabel').text('هل انت متأكد من حذف الوردية ؟');
                                 deleteMode = 'shift';

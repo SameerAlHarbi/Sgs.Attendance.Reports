@@ -110,15 +110,15 @@ namespace Sgs.Attendance.Reports.Models
                                     workShift.DayOffDescriptionInRamadan:workShift.DayOffDescription;
                             }
                             
-                            newDayReport.CheckInTime = start.HasValue ?
+                            newDayReport.CheckInDateTime = start.HasValue ?
                                 fromDate.Value.Date.Add(start.Value.ConvertToTime()) : default(DateTime?);
 
-                            newDayReport.CheckOutTime = end.HasValue ?
+                            newDayReport.CheckOutDateTime = end.HasValue ?
                                 fromDate.Value.Date.Add(end.Value.ConvertToTime()) : default(DateTime?);
 
-                            if (newDayReport.CheckOutTime <= newDayReport.CheckInTime)
+                            if (newDayReport.CheckOutDateTime <= newDayReport.CheckInDateTime)
                             {
-                                newDayReport.CheckOutTime = newDayReport.CheckOutTime.Value.AddDays(1);
+                                newDayReport.CheckOutDateTime = newDayReport.CheckOutDateTime.Value.AddDays(1);
                             }
 
                             break;
