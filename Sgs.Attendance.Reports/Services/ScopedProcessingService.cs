@@ -18,6 +18,7 @@ namespace Sgs.Attendance.Reports.Services
         private readonly IErpManager _erpManager;
         private readonly EmployeesCalendarsManager _employeesCalendarManager;
         private readonly EmployeesExcusesManager _employeesExcusesManager;
+        private readonly WorkCalendarsManager _workCalendarsManager;
         private readonly ILogger _logger;
 
         public ScopedProcessingService(
@@ -26,6 +27,7 @@ namespace Sgs.Attendance.Reports.Services
             , IErpManager erpManager
             , EmployeesCalendarsManager employeesCalendarManager
             , EmployeesExcusesManager employeesExcusesManager
+            , WorkCalendarsManager workCalendarsManager
             , ILogger<ScopedProcessingService> logger)
         {
             _processingsRequestsManager = processingsRequestsManager;
@@ -33,6 +35,7 @@ namespace Sgs.Attendance.Reports.Services
             _erpManager = erpManager;
             _employeesCalendarManager = employeesCalendarManager;
             _employeesExcusesManager = employeesExcusesManager;
+            _workCalendarsManager = workCalendarsManager;
             _logger = logger;
         }
 
@@ -46,32 +49,39 @@ namespace Sgs.Attendance.Reports.Services
                 var allEmployeesCalendars = await _employeesCalendarManager.GetAllAsNoTrackingListAsync(ec => employeesIds.Contains(ec.EmployeeId)
                     && (ec.StartDate <= fromDate && ec.EndDate == null) || (ec.StartDate >= fromDate && ec.StartDate <= toDate) || (ec.StartDate <= fromDate && ec.EndDate >= fromDate));
 
-                //Get employees excuses
-                var allEmployeesExcuses = await _employeesExcusesManager.GetAllAsNoTrackingListAsync(ex => employeesIds.Contains(ex.EmployeeId)
-                    && ex.ExcueseDate >= fromDate && ex.ExcueseDate <= toDate);
+                //Get workCalendars
+                var calendarsDaysReports = new Dictionary<ContractWorkTime, List<CalendarDayReport>>();
+                foreach (var workTime in (ContractWorkTime[])Enum.GetValues(typeof(ContractWorkTime)))
+                {
+                    calendarsDaysReports.Add(workTime, await _workCalendarsManager.GetCalendarsDaysReport(workTime, fromDate, toDate));
+                }
 
                 //Get employees vacations
                 var allEmployeesVacations = await _erpManager.GetAllVacations(fromDate, toDate,employeesIds);
 
-                //Get employees open delegations requests
-                var allEmployeesOpenDelegationsRequests = await _erpManager.GetAllOpenDelegations(fromDate, toDate, employeesIds);
-
                 //Get employees Open vacations requests
                 var allEmployeesOpenVacationsRequests = await _erpManager.GetAllOpenVacations(fromDate, toDate, employeesIds);
 
+                //Get employees open delegations requests
+                var allEmployeesOpenDelegationsRequests = await _erpManager.GetAllOpenDelegations(fromDate, toDate, employeesIds);
+
                 //Get employees transactions
                 var allEmployeesTransactions = await _erpManager.GetAllTransaction(fromDate, toDate, employeesIds);
+
+                //Get employees excuses
+                var allEmployeesExcuses = await _employeesExcusesManager.GetAllAsNoTrackingListAsync(ex => employeesIds.Contains(ex.EmployeeId)
+                    && ex.ExcueseDate >= fromDate && ex.ExcueseDate <= toDate);
 
                 var resultsDaysReports = new List<EmployeeDayReport>();
 
                 while (fromDate <= toDate)
                 {
-                    var calendars = allEmployeesCalendars.Where(c => (c.StartDate <= fromDate && c.EndDate == null) 
+                    var employeeCalendars = allEmployeesCalendars.Where(c => (c.StartDate <= fromDate && c.EndDate == null) 
                     && (fromDate >= c.StartDate && fromDate <= c.EndDate)).ToList();
                     var excuses = allEmployeesExcuses.Where(x => x.ExcueseDate.Date == fromDate);
                     var vacations = allEmployeesVacations.Where(v => fromDate >= v.StartDate && fromDate <= v.EndDate).ToList();
-                    var openDelegationsRequest = allEmployeesOpenDelegationsRequests.Where(d => fromDate >= d.StartDate && fromDate <= d.EndDate).ToList();
-                    var openVacationsRequest = allEmployeesOpenVacationsRequests.Where(d => fromDate >= d.StartDate && fromDate <= d.EndDate).ToList();
+                    var openDelegationsRequests = allEmployeesOpenDelegationsRequests.Where(d => fromDate >= d.StartDate && fromDate <= d.EndDate).ToList();
+                    var openVacationsRequests = allEmployeesOpenVacationsRequests.Where(d => fromDate >= d.StartDate && fromDate <= d.EndDate).ToList();
                     var transactions = allEmployeesTransactions.Where(t => t.TransactionDate.Date == fromDate).ToList();
 
                     foreach (var employee in employees)
@@ -79,27 +89,65 @@ namespace Sgs.Attendance.Reports.Services
                         var newDayReport = new EmployeeDayReport
                         {
                             EmployeeId = employee.EmployeeId,
-                            DayDate = fromDate,
+                            DayDate = fromDate.Date,
                             ProcessingDate = DateTime.Now
                         };
 
-                        var defaultCalendar = calendars.Where(c => c.EndDate == null)
+                        var defaultEmployeeCalendar = employeeCalendars.Where(c => c.EndDate == null)
                             .OrderByDescending(c => c.StartDate).FirstOrDefault() ?? new EmployeeCalendar
                             {
                                 StartDate = fromDate,
                                 AttendanceProof = AttendanceProof.RequiredInOut,
                                 EmployeeId = employee.EmployeeId,
-                                ContractWorkTime = ContractWorkTime.ShiftA
+                                ContractWorkTime = ContractWorkTime.Default
                             };
 
-                        var limitedCalendar = calendars.Where(c => c.EndDate.HasValue).FirstOrDefault();
+                        var limitedCalendar = employeeCalendars.Where(c => c.EndDate.HasValue).FirstOrDefault();
 
-                        var appliedCalendar = limitedCalendar ?? defaultCalendar;
+                        var appliedCalendar = limitedCalendar ?? defaultEmployeeCalendar;
 
                         newDayReport.AttendanceProof = limitedCalendar.AttendanceProof;
-                        
-                        
-                        
+
+                        var contractDayReport = calendarsDaysReports[appliedCalendar.ContractWorkTime]?
+                            .FirstOrDefault(d => d.DayDate.Date == fromDate.Date);
+
+                        if(!contractDayReport.IsDayOff)
+                        {
+                            newDayReport.ContractCheckInDateTime = contractDayReport.CheckInDateTime;
+                            newDayReport.ContractCheckOutDateTime = contractDayReport.CheckOutDateTime;
+                            newDayReport.ContractWorkDurationTime = contractDayReport.WorkDuration;
+                        }
+                        else
+                        {
+                            newDayReport.IsVacation = true;
+                            newDayReport.VacationName = contractDayReport.DayOffDescription;
+                        }
+
+                        var employeeVacation = vacations.FirstOrDefault(v => v.EmployeeId == employee.EmployeeId);        
+                        if(employeeVacation != null)
+                        {
+                            newDayReport.IsVacation = true;
+                            newDayReport.VacationName = employeeVacation.VacationTypeName;
+                            newDayReport.VacationRegisterDate = employeeVacation.RegisterDate;
+                        }
+
+                        var employeeOpenVacationRequest = openVacationsRequests
+                            .FirstOrDefault(vr => vr.EmployeeId == employee.EmployeeId);
+                        if(employeeOpenVacationRequest != null)
+                        {
+                            newDayReport.IsVacationRequest = true;
+                            newDayReport.VacationRequestDate = employeeOpenVacationRequest.RequestDate;
+                        }
+
+                        var employeeOpenDelegationRequest = openDelegationsRequests
+                            .FirstOrDefault(vr => vr.EmployeeId == employee.EmployeeId);
+                        if(employeeOpenDelegationRequest != null)
+                        {
+                            newDayReport.IsDelegationRequest = true;
+                            newDayReport.DelegationRequestDate = employeeOpenDelegationRequest.RequestDate;
+                        }
+
+
 
                     }
 
@@ -120,9 +168,11 @@ namespace Sgs.Attendance.Reports.Services
         {
             try
             {
+                //Check if there is any open proceesing request
                 var openProcessingRequest = await _processingsRequestsManager.GetSingleItemAsync(pr => !pr.Completed);
                 if(openProcessingRequest != null)
                 {
+                    //Get requset employees ids
                     IEnumerable<decimal> listOfEmployeesIdsNumbers = openProcessingRequest.Employees.TryParseToNumbers();
                     List<int> employeesIds = listOfEmployeesIdsNumbers?.Select(d => (int)d).ToList() ?? new List<int>();
 

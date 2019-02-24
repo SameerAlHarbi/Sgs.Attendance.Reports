@@ -108,6 +108,12 @@ namespace Sgs.Attendance.Reports.Models
                                 newDayReport.IsDayOff = workShift.IsDayOffInRamadan ?? workShift.IsDayOff;
                                 newDayReport.DayOffDescription = !string.IsNullOrWhiteSpace(workShift.DayOffDescriptionInRamadan) ?
                                     workShift.DayOffDescriptionInRamadan:workShift.DayOffDescription;
+
+                                newDayReport.WorkDuration = workShift.ShiftDurationInRamadan.HasValue ? workShift.ShiftDurationInRamadan.Value.ConvertToTime(): default(TimeSpan?);
+                            }
+                            else
+                            {
+                                newDayReport.WorkDuration = workShift.ShiftDuration.HasValue? workShift.ShiftDuration.Value.ConvertToTime() : default(TimeSpan?);
                             }
                             
                             newDayReport.CheckInDateTime = start.HasValue ?
