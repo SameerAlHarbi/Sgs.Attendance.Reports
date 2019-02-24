@@ -30,6 +30,11 @@ namespace Sgs.Attendance.Reports.Controllers
             return View();
         }
 
+        public IActionResult Wastes()
+        {
+            return View();
+        }
+
         [HttpPost]
         public async Task<IActionResult> AbsentsReport(DateTime startDate,DateTime endDate,string employeesIds = null,int? pageNumber = null,int pageSize=31)
         {
@@ -68,7 +73,23 @@ namespace Sgs.Attendance.Reports.Controllers
                     } 
                 }
 
-                return PartialView(resultViewModels);
+                //return PartialView(resultViewModels);
+
+                return PartialView(new List<EmployeeDayReportViewModel>
+                {
+                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
+                    new EmployeeDayReportViewModel{ EmployeeId = 1544 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,22),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=true},
+                    new EmployeeDayReportViewModel{ EmployeeId = 565 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,31),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
+                    new EmployeeDayReportViewModel{ EmployeeId = 323 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,5),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
+                    new EmployeeDayReportViewModel{ EmployeeId = 765 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,24),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
+                    new EmployeeDayReportViewModel{ EmployeeId = 923 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,12),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
+                    new EmployeeDayReportViewModel{ EmployeeId = 234 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,19),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
+                    new EmployeeDayReportViewModel{ EmployeeId = 651 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
+                    new EmployeeDayReportViewModel{ EmployeeId = 463 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,3),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
+                    new EmployeeDayReportViewModel{ EmployeeId = 211 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
+                    new EmployeeDayReportViewModel{ EmployeeId = 387 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,11),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
+                    new EmployeeDayReportViewModel{ EmployeeId = 917 , EmployeeName ="سمير محمد الحربي", DayDate=new DateTime(2019,1,21),DepartmentName="الادارة العامة لتقنية المعلومات والاتصالا" ,IsDelegationRequest=false}
+                });
             }
             catch (Exception)
             {
@@ -76,108 +97,141 @@ namespace Sgs.Attendance.Reports.Controllers
             }
         }
 
-        public IActionResult EmployeeMonthReport()
-        {
-            return View(new List<EmployeeMonthReportViewModel>
-                {
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 917 , EmployeeName ="سمير محمد الحربي", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="تقنية المعلومات والاتصالات" , TotalAbsentsDays=0,TotalWasteDays=2},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 917 , EmployeeName ="سمير محمد الحربي", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="تقنية المعلومات والاتصالات" , TotalAbsentsDays=0,TotalWasteDays=2},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
-                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0}
 
+        [HttpPost]
+        public async Task<IActionResult> WastesReport(DateTime startDate, DateTime endDate, string employeesIds = null, int? pageNumber = null, int pageSize = 31)
+        {
+            try
+            {
+                return PartialView(new List<EmployeeMonthReportViewModel>
+                {
+                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=1},
+                    new EmployeeMonthReportViewModel{ EmployeeId = 1123 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=0,TotalWasteDays=3},
+                    new EmployeeMonthReportViewModel{ EmployeeId = 322 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=0,TotalWasteDays=1},
+                    new EmployeeMonthReportViewModel{ EmployeeId = 457 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=0,TotalWasteDays=4},
+                    new EmployeeMonthReportViewModel{ EmployeeId = 244 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=0,TotalWasteDays=2},
+                    new EmployeeMonthReportViewModel{ EmployeeId = 433 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=0,TotalWasteDays=1},
+                    new EmployeeMonthReportViewModel{ EmployeeId = 876 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=0,TotalWasteDays=1},
+                    new EmployeeMonthReportViewModel{ EmployeeId = 445 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=0,TotalWasteDays=2},
+                    new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=0,TotalWasteDays=4},
+                    new EmployeeMonthReportViewModel{ EmployeeId = 455 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=0,TotalWasteDays=2},
+                    new EmployeeMonthReportViewModel{ EmployeeId = 754 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=0,TotalWasteDays=1},
+                    new EmployeeMonthReportViewModel{ EmployeeId = 544 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=0,TotalWasteDays=3},
+                    new EmployeeMonthReportViewModel{ EmployeeId = 671 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=0,TotalWasteDays=4},
+                    new EmployeeMonthReportViewModel{ EmployeeId = 532 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=0,TotalWasteDays=1},
+                    new EmployeeMonthReportViewModel{ EmployeeId = 435 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=0,TotalWasteDays=1},
+                    new EmployeeMonthReportViewModel{ EmployeeId = 917 , EmployeeName ="سمير محمد الحربي", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="تقنية المعلومات والاتصالات" , TotalAbsentsDays=0,TotalWasteDays=1}
                 });
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
-        public IActionResult AbsentsReport()
-        {
-            return View(new List<EmployeeDayReportViewModel>
-                {
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=true},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 917 , EmployeeName ="سمير محمد الحربي", DayDate=new DateTime(2019,2,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=true},
-                });
-        }
+
+        //public IActionResult WastesReport()
+        //{
+        //    return View(new List<EmployeeMonthReportViewModel>
+        //        {
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 917 , EmployeeName ="سمير محمد الحربي", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="تقنية المعلومات والاتصالات" , TotalAbsentsDays=0,TotalWasteDays=2},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 917 , EmployeeName ="سمير محمد الحربي", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="تقنية المعلومات والاتصالات" , TotalAbsentsDays=0,TotalWasteDays=2},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0},
+        //            new EmployeeMonthReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),DepartmentName="الخدمات الالكترونية" ,TotalAbsentsDays=1,TotalWasteDays=0}
+
+        //        });
+        //}
+
+        //public IActionResult AbsentsReport()
+        //{
+        //    return View(new List<EmployeeDayReportViewModel>
+        //        {
+        //            new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
+        //            new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=true},
+        //            new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
+        //            new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
+        //            new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
+        //            new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
+        //            new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
+        //            new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
+        //            new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
+        //            new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
+        //            new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
+        //            new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
+        //            new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
+        //            new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
+        //            new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
+        //            new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
+        //            new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
+        //            new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
+        //            new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
+        //            new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
+        //            new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
+        //            new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
+        //            new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
+        //            new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
+        //            new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
+        //            new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
+        //            new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
+        //            new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
+        //            new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
+        //            new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
+        //            new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
+        //            new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
+        //            new EmployeeDayReportViewModel{ EmployeeId = 917 , EmployeeName ="سمير محمد الحربي", DayDate=new DateTime(2019,2,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=true},
+        //        });
+        //}
 
         public IActionResult EmployeeDetailsMonthlyReport()
         {

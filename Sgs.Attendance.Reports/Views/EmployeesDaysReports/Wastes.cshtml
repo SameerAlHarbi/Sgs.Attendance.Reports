@@ -1,6 +1,5 @@
-﻿
-@{
-    ViewData["Title"] = "تقرير الغياب";
+﻿@{
+    ViewData["Title"] = "تقرير التقصير";
 }
 
 <div class="d-print-none">
@@ -18,13 +17,13 @@
         </div>
 
         <div class="form-group" style="margin: 0 30px">
-            <button type="submit" id="showAbsents" class="btn btn-primary"> عرض </button>
+            <button type="submit" id="showWastes" class="btn btn-primary"> عرض </button>
         </div>
     </form>
     <br />
 </div>
 
-<div id="absentsData">
+<div id="wastesData">
 
 </div>
 
@@ -40,17 +39,17 @@
                 if ($(this).valid()) {
 
                     var options = {
-                    url: "@Url.Action("AbsentsReport", "EmployeesDaysReports")",
+                    url: "@Url.Action("WastesReport", "EmployeesDaysReports")",
                     type: "Post",
                  dataType: "html",
                     data: { startDate: $("#startDate").val(), endDate: $("#endDate").val() },
-                    success: function updateBalances(data) {
-                        $("#absentsData").html(data);
-                        $("#absentsData").fadeIn();
+                        success: function updateWastes(data) {
+                        $("#wastesData").html(data);
+                        $("#wastesData").fadeIn();
                     },
                  error: function () {
-                     $("#absentsData").text("error");
-                     $("#absentsData").fadeIn();
+                     $("#wastesData").text("error");
+                     $("#wastesData").fadeIn();
                     }
                 };
 
@@ -68,4 +67,3 @@
         </script>
 
 }
-
