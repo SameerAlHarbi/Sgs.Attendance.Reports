@@ -15,11 +15,12 @@
 
     public enum ContractWorkTime
     {
+        Default,
         ShiftA,
         ShiftB,
         ShiftC,
         ShiftD,
-        ShiftE
+        ShiftH  
     }
 
 }

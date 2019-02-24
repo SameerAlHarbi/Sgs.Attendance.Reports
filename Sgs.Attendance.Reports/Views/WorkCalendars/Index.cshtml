@@ -6,31 +6,34 @@
 <div class="row">
 
     <div class="col" style="margin-top:5px; text-align:center">
-        @*<label for="ShiftA" class="form-check-label" weight:bold"> الورديات المسجلة </label>*@
+        @*<label for="Default" class="form-check-label" weight:bold"> الورديات المسجلة </label>*@
         <div class="form-check form-check-inline" data-toggle="tooltip" data-placement="top" title="دوام صباحي ٧:٣٠ ص - ٢:٣٠ م">
+            <input style="margin-left:5px" class="form-check-input" type="radio" id="Default" name="ContractWorkTime" value="Default">
+            <label for="Default" class="form-check-label" weight:bold"> الصباح  </label>
+        </div>
+        <div class="form-check form-check-inline" data-toggle="tooltip" data-placement="top" title="@ContractWorkTime.ShiftA.GetText()">
             <input style="margin-left:5px" class="form-check-input" type="radio" id="ShiftA" name="ContractWorkTime" value="ShiftA">
-            <label for="ShiftA" class="form-check-label" weight:bold"> المجوعة أ </label>
+            <label for="ShiftA" class="form-check-label"> أ-A </label>
         </div>
-        <div class="form-check form-check-inline" data-toggle="tooltip" data-placement="top" title="وردية صباحية ٧:٣٠ ص - ٣:٣٠ م">
+        <div class="form-check form-check-inline" data-toggle="tooltip" data-placement="top" title="@ContractWorkTime.ShiftB.GetText()">
             <input style="margin-left:5px" class="form-check-input" type="radio" id="ShiftB" name="ContractWorkTime" value="ShiftB">
-            <label for="ShiftB" class="form-check-label"> المجوعة ب </label>
+            <label for="ShiftB" class="form-check-label"> ب-B </label>
         </div>
-        <div class="form-check form-check-inline" data-toggle="tooltip" data-placement="top" title="وردية مسائية ٣:٣٠ م - ١١:٣٠ م">
+        <div class="form-check form-check-inline" data-toggle="tooltip" data-placement="top" title="@ContractWorkTime.ShiftC.GetText()">
             <input style="margin-left:5px" class="form-check-input" type="radio" id="ShiftC" name="ContractWorkTime" value="ShiftC">
-            <label for="ShiftC" class="form-check-label"> المجوعة ج </label>
+            <label for="ShiftC" class="form-check-label"> ج-C </label>
         </div>
-        <div class="form-check form-check-inline" data-toggle="tooltip" data-placement="top" title="وردية ليلية ١١:٣٠ م - ٧:٣٠ ص">
+        <div class="form-check form-check-inline" data-toggle="tooltip" data-placement="top" title="@ContractWorkTime.ShiftD.GetText()">
             <input style="margin-left:5px" class="form-check-input" type="radio" id="ShiftD" name="ContractWorkTime" value="ShiftD">
-            <label for="ShiftD" class="form-check-label"> المجوعة د </label>
+            <label for="ShiftD" class="form-check-label"> د-D </label>
         </div>
-        <div class="form-check form-check-inline" data-toggle="tooltip" data-placement="top" title="إجازة نهاية الوردية">
-            <input style="margin-left:5px" class="form-check-input" type="radio" id="ShiftE" name="ContractWorkTime" value="ShiftE">
-            <label for="ShiftE" class="form-check-label">المجوعة هـ </label>
+        <div class="form-check form-check-inline" data-toggle="tooltip" data-placement="top" title="@ContractWorkTime.ShiftH.GetText()">
+            <input style="margin-left:5px" class="form-check-input" type="radio" id="ShiftH" name="ContractWorkTime" value="ShiftH">
+            <label for="ShiftH" class="form-check-label"> هـ-H </label>
         </div>
         @*<small id="emailHelp" class="form-text text-muted text-center"> الرجاء تحديد الورية</small>*@
     </div>
     @*<div class="col-md-3"><button class="btn btn-info" style="margin:0 30px"> بحث <i class="fas fa-search"></i></button></div>*@
-
 </div>
 <br />
 
@@ -41,39 +44,122 @@
 <hr />
 
 @(Html.Kendo()
-            .Grid<WorkCalendarViewModel>()
-            .Name("grdWorkCalendars")
-            .AutoBind(false)
-            .Columns(column =>
-            {
-                column.Bound(c => c.Name).Title("اسم التقويم");
-                column.Group(g => g
-                    .Title("تاريخ البداية")
-                    .Columns(c =>
+                    .Grid<WorkCalendarViewModel>()
+                    .Name("grdWorkCalendars")
+                    .AutoBind(false)
+                    .Columns(column =>
                     {
-                        c.Bound(m => m.StartDate).Title("ميلادي").Format("{0:yyyy/MM/dd}").Width(200);
-                        c.Bound(m => m.StartDateHijri).Title("هجري").Width(200);
-                    }));
-                column.Group(g => g
-                    .Title("تاريخ النهاية")
-                    .Columns(c =>
-                    {
-                        c.Bound(m => m.EndDate).Title("ميلادي").Format("{0:yyyy/MM/dd}").Width(200);
-                        c.Bound(m => m.EndDateHijri).Title("هجري").Width(200);
-                    }));
-                column.Bound(c => c.WorkCalendarType).Title("نوع التقويم");
-                column.Bound(c => c.Note).Title("ملاحظات");
-                column.Bound(c => c.Id).Title("تحكم").ClientTemplate(
-                    "<a href='\\#addCalendarModal' data-toggle='modal' data-calendarId ='#= Id #' class='text-secondary' title='التقويم الافتراضي'><i class='fas fa-pencil-alt'></i> </a>" +
-                    "<a href='\\#deleteModal' data-toggle='modal' data-calendarId='#= Id #' class='text-danger' title='حذف'><i class='fas fa-trash-alt'></i></a>");
-            })
-            .DataSource(d =>
-                d.Ajax()
-               .ServerOperation(false)
-               .Read(read => read.Action("GetAllCalendarsByWorkTimeJsonForKendo", "WorkCalendars").Data("readCalendarsData"))
-               )
-               .ClientDetailTemplateId("workShiftsTemplate")
+                        column.Bound(c => c.Name).Width(300).Title("اسم التقويم");
+                        column.Group(g => g
+                            .Title("تاريخ البداية")
+                            .Columns(c =>
+                            {
+                                c.Bound(m => m.StartDate).Title("ميلادي").Format("{0:yyyy/MM/dd}").Width(200);
+                                c.Bound(m => m.StartDateHijri).Title("هجري").Width(200);
+                            }));
+                        column.Group(g => g
+                            .Title("تاريخ النهاية")
+                            .Columns(c =>
+                            {
+                                c.Bound(m => m.EndDate).Title("ميلادي").Format("{0:yyyy/MM/dd}").Width(200);
+                                c.Bound(m => m.EndDateHijri).Title("هجري").Width(200);
+                            }));
+                        column.Bound(c => c.WorkCalendarType).Title("نوع التقويم");
+                        column.Bound(c => c.Note).Title("ملاحظات");
+                        column.Bound(c => c.Id).Title("تحكم").ClientTemplate(
+                            "<a href='\\#addCalendarModal' data-toggle='modal' data-calendarId ='#= Id #' class='text-secondary' title='التقويم الافتراضي'><i class='fas fa-pencil-alt'></i> </a>" +
+                            "<a href='\\#deleteModal' data-toggle='modal' data-calendarId='#= Id #' class='text-danger' title='حذف'><i class='fas fa-trash-alt'></i></a>");
+                    })
+                    .DataSource(d =>
+                        d.Ajax()
+                       .ServerOperation(false)
+                       .Read(read => read.Action("GetAllCalendarsByWorkTimeJsonForKendo", "WorkCalendars").Data("readCalendarsData"))
+                       )
+                       .ClientDetailTemplateId("workShiftsTemplate")
 )
+
+<br />
+
+<div class="clearfix" style="margin-top:70px">
+    <h5 class="text-info float-right"> <i class="fas fa-calendar-alt"></i> جدول الورديات </h5>
+    @*<button class="btn btn-sm btn-outline-info float-left" style="width:150px" data-toggle="modal" data-target="#addCalendarModal"><i class="fa fa-plus"></i>  إضافة تقويم جديد </button>*@
+</div>
+<hr />
+
+<div class="col clearfix">
+    <button onclick="toggleHijriCalendarDays('grdWorkTimeDays')" class="btn btn-sm btn-outline-info" data-toggle="button" aria-pressed="false" autocomplete="off"> هجري <i class="far fa-calendar-alt"></i></button>
+    <div class="float-left" style="direction:rtl">
+
+        @{
+            var years = new List<int>();
+            int currentYear = 2018;
+            for (int i = 0; i < 20; i++)
+            {
+                years.Add(currentYear++);
+            }
+        }
+
+        @(Html.Kendo().DropDownList()
+                               .Name("years")
+                               .BindTo(years.ToArray())
+                               .Value(DateTime.Today.Year.ToString())
+                               .HtmlAttributes(new { style = "width: 100px" })
+        )
+
+        @(Html.Kendo().DropDownList()
+                                .Name("months")
+                                .BindTo(new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 })
+                                .Value(DateTime.Today.Month.ToString())
+                                .HtmlAttributes(new { style = "width: 100px" })
+        )
+
+        <button onclick="updateCalendarsDays()"  class="btn btn-outline-info"> عرض <i class="fas fa-search"></i></button>
+
+    </div>
+</div>
+<br />
+@(Html.Kendo().Grid<CalendarDayReportViewModel>()
+                            .Name("grdWorkTimeDays")
+                            .AutoBind(false)
+                            .Columns(clmn =>
+                            {
+                                clmn.Group(g => g
+                                    .Title("التاريخ").Columns(c =>
+                                    {
+                                        c.Bound(d => d.DayDateName).HtmlAttributes(new { style = "color:blue" }).Width(100).Title("اليوم");
+                                        c.Bound(d => d.DayDate).Width(100).Format("{0:yyyy/MM/dd}").Title("ميلادي");
+                                        c.Bound(d => d.DayDateHijri).Width(100).Hidden(true).Title("هجري");
+                                    }));
+                                clmn.Group(g => g
+                                    .Title("دخول").Columns(c =>
+                                    {
+                                        c.Bound(m => m.CheckInDayName).Width(100).Title("اليوم");
+                                        c.Bound(m => m.CheckInDateTime).Width(110).Format("{0:yyyy/MM/dd}").Title("ميلادي");
+                                        c.Bound(m => m.CheckInDateHijri).Hidden(true).Width(110).Title("هجري");
+                                        c.Bound(m => m.CheckInTime).HtmlAttributes(new { style = "color:red" }).Width(100).Title("الوقت");
+                                    }));
+                                clmn.Group(g => g
+                                    .Title("خروج").Columns(c =>
+                                    {
+                                        c.Bound(m => m.CheckOutDayName).Width(100).Title("اليوم");
+                                        c.Bound(m => m.CheckOutDateTime).Width(110).Format("{0:yyyy/MM/dd}").Title("ميلادي");
+                                        c.Bound(m => m.CheckOutDateHijri).Hidden(true).Width(110).Title("هجري");
+                                        c.Bound(m => m.CheckOutTime).HtmlAttributes(new { style = "color:red" }).Width(100).Title("الوقت");
+                                    }));
+                                clmn.Bound(c => c.WorkType).Width(100).Title("نوع الوردية");
+                                clmn.Bound(c => c.DayOffDescription).Title("وصف الإجازة");
+
+                            })
+                            .Pageable(p =>p.PageSizes(new int[] { 10,20,31}).Messages(m => m.ItemsPerPage("يوم في الصفحة").Of("من أصل")))
+                            .DataSource(d =>
+                                            d.Ajax()
+                                            .PageSize(10)
+                                            .ServerOperation(false)
+                                            .Read(read => read.Action("GetCalendarsDaysForKendo", "WorkCalendars").Data("readCalendarsDays"))
+                                        )
+                                        .Events(e => e.DataBound("daysReportsBound"))
+)
+
 
 <div id="addCalendarModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="addCalendarLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -170,7 +256,6 @@
             text-align: center;
             vertical-align: middle;
         }
-
     </style>
 }
 
@@ -178,7 +263,8 @@
     <partial name="_ValidationScripts">
         <script>
 
-                    var calendarsGrid;
+            var calendarsGrid;
+            var calendarsDaysGrid;
                     var selectedWorkTime;
 
                     function readCalendarsData() {
@@ -187,11 +273,29 @@
                         }
                     }
 
+            function readCalendarsDays() {
+                var year = $("#years").val();
+                var month = $("#months").val();
+
+                var startDate = new Date(year, month-1, 1);
+                var lastDate = new Date(year, month, 0);
+
+                        return {
+                            workTime: selectedWorkTime,
+                            fromDate: startDate,
+                            toDate:lastDate,
+                        }
+            }
+
+            function updateCalendarsDays() {
+                $("#grdWorkTimeDays").data("kendoGrid").dataSource.read();
+            }
+
                     function updateWorkTimeInfo() {
 
                         selectedWorkTime = $("input[name='ContractWorkTime']:checked").val();
                         calendarsGrid.dataSource.read();
-
+                        calendarsDaysGrid.dataSource.read();
                     }
 
                     function updateNewCalendarInfo() {
@@ -229,6 +333,10 @@
                         if (deleteMode == 'calendar') {
                             deleteCalendar();
                         }
+
+                        else if(deleteMode == 'shift'){
+                            deleteShift();
+                        }
                     }
 
                     var selectedCalendar;
@@ -264,7 +372,40 @@
 
                         $.ajax(options);
 
-                    }
+            }
+
+            var selectedShift;
+
+            function deleteShift() {
+                if (!selectedShift) {
+                            return;
+                        }
+
+                        var options = {
+                            url: "@Url.Action("DeleteItemJson", "WorkShifts")",
+                            type: "Post",
+                            data: {
+                                id: selectedShift
+                            },
+                            dataType: "json",
+                            success: function (data) {
+                                if (data.errors) {
+                                    toastr.error(data.errors[0]);
+                                    return;
+                                }
+                                toastr.success("تم حذف الوردية بنجاح");
+                            },
+                            error: function () {
+                                toastr.error("خطأ الرجاء المحاولة لاحقاً");
+                                return;
+                            },
+                            complete: function () {
+                                updateShiftsInfo(selectedCalendar);
+                            }
+                        };
+
+                        $.ajax(options);
+            }
 
             $(function () {
 
@@ -274,9 +415,10 @@
                         $(".k-grid-header tr th").css("vertical-align", "middle");
 
                         calendarsGrid = $("#grdWorkCalendars").data("kendoGrid");
+                        calendarsDaysGrid = $("#grdWorkTimeDays").data("kendoGrid");
 
                         //Initialize all radio buttons
-                        $("#ShiftA").prop("checked", true);
+                        $("#Default").prop("checked", true);
                         $("#workCalendar").prop("checked", true);
                         $("#openCalendar").prop("checked", true);
 
@@ -393,8 +535,14 @@
                         $('#deleteModal').on('show.bs.modal', function (event) {
                             var button = $(event.relatedTarget) // Button that triggered the modal
                             selectedCalendar = button.data('calendarid') // Extract info from data-* attributes
-                            if (selectedCalendar) {
-                                $('#deleteLabel').text('هل انت متأكد من حذف التقويم ؟');
+                            selectedShift = button.data('shiftid') // Extract info from data-* attributes
+
+                            if(selectedShift) {
+                                $('#deleteLabel').text('هل انت متأكد من حذف الوردية ؟');
+                                deleteMode = 'shift';
+                            }
+                            else if(selectedCalendar) {
+                                $('#deleteLabel').text('هل انت متأكد من حذف تقويم الورديات ؟');
                                 deleteMode = 'calendar';
                             }
                         })

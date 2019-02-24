@@ -46,11 +46,19 @@ namespace Sgs.Attendance.Reports.Controllers
                         model.ShiftStartTime = null;
                         model.ShiftEndTime = null;
                     }
+                    else
+                    {
+                        model.DayOffDescription = string.Empty;
+                    }
 
                     if (model.dayOffInRamadan)
                     {
                         model.ShiftStartTimeInRamadan = null;
                         model.ShiftEndTimeInRamadan = null;
+                    }
+                    else
+                    {
+                        model.DayOffDescriptionInRamadan = string.Empty;
                     }
 
                     if (model.Id == 0)
