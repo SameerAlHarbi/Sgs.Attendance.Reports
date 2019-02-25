@@ -12,10 +12,10 @@
                     <div id="header-info" class="row justify-content-center align-self-center text-center">
                         <div class="col justify-content-center align-self-center text-center d-none d-print-block">
                             <h5>قسم عمليات الموارد البشرية</h5>
-                            <h6>تقرير التقصير</h6>
+                            <h6>التقري التقصير</h6>
                         </div>
                         <div class="col">
-                            <div class="d-none d-print-block"><img style="max-width:190px; max-height:130px" src="~/Images/SGSLOGO.png" /></div>
+                            <div class="d-none d-print-block"><img width="190px" height="130px" src="~/Images/SGSLOGO.png" /></div>
                         </div>
                         <div class="col justify-content-center align-self-center text-center d-none d-print-block">
                             <img style="max-width:70px; max-height:90px" src="~/Images/scan-fingerprint-icon.png" />
@@ -55,7 +55,7 @@
                                 <th>الادارة - القسم</th>
                                 <th>من تاريخ</th>
                                 <th>الى تاريخ</th>
-                                <th class="d-print-none">ايام الغياب</th>
+                                <th>ايام الغياب</th>
                                 <th>ايام التقصير</th>
                             </tr>
                         </thead>
@@ -68,7 +68,7 @@
                                     <td>@empMonthReport.DepartmentName</td>
                                     <td>@empMonthReport.StartDate.ToShortDateString()</td>
                                     <td>@empMonthReport.ToDate.ToShortDateString()</td>
-                                    <td class="d-print-none">@empMonthReport.TotalAbsentsDays</td>
+                                    <td>@empMonthReport.TotalAbsentsDays</td>
                                     <td>@empMonthReport.TotalWasteDays</td>
                                 </tr>
                             }
