@@ -37,11 +37,15 @@ namespace Sgs.Attendance.Reports.Models
 
         public TimeSpan? ActualWorkDurationTime { get; set; }
 
+        public TimeSpan? ActualTotalDurationTime { get; set; }
+
         public DateTime? CheckInDateTime { get; set; }
 
         public DateTime? CheckOutDateTime { get; set; }
 
         public TimeSpan? WorkDurationTime { get; set; }
+
+        public TimeSpan? WorkTotalDurationTime { get; set; }
 
         public TimeSpan? CheckInLateDurationTime { get; set; }
 
@@ -55,9 +59,13 @@ namespace Sgs.Attendance.Reports.Models
 
         public double CheckInExcuseHours { get; set; }
 
+        public bool IsOpenCheckInExcuse => CheckInExcuse && CheckInExcuseHours == 0;
+
         public bool CheckOutExcuse { get; set; }
 
         public double CheckOutExcuseHours { get; set; }
+
+        public bool IsOpenCheckOutExcuse => CheckOutExcuse && CheckOutExcuseHours == 0;
 
         public bool IsAbsentEmployee { get; set; }
 

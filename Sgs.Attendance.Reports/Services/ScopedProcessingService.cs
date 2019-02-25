@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Transactions;
 
 namespace Sgs.Attendance.Reports.Services
 {
@@ -74,42 +75,44 @@ namespace Sgs.Attendance.Reports.Services
 
                 var resultsDaysReports = new List<EmployeeDayReport>();
 
-                while (fromDate <= toDate)
+                DateTime startDate = fromDate;
+
+                while (startDate <= toDate)
                 {
-                    var employeeCalendars = allEmployeesCalendars.Where(c => (c.StartDate <= fromDate && c.EndDate == null)
-                    && (fromDate >= c.StartDate && fromDate <= c.EndDate)).ToList();
-                    var excuses = allEmployeesExcuses.Where(x => x.ExcueseDate.Date == fromDate);
-                    var vacations = allEmployeesVacations.Where(v => fromDate >= v.StartDate && fromDate <= v.EndDate).ToList();
-                    var openDelegationsRequests = allEmployeesOpenDelegationsRequests.Where(d => fromDate >= d.StartDate && fromDate <= d.EndDate).ToList();
-                    var openVacationsRequests = allEmployeesOpenVacationsRequests.Where(d => fromDate >= d.StartDate && fromDate <= d.EndDate).ToList();
-                    var transactions = allEmployeesTransactions.Where(t => t.TransactionDate.Date == fromDate).ToList();
+                    var employeesCalendars = allEmployeesCalendars.Where(c => (c.StartDate <= startDate && c.EndDate == null)
+                    || (startDate >= c.StartDate && startDate <= c.EndDate)).ToList();
+                    var excuses = allEmployeesExcuses.Where(x => x.ExcueseDate.Date == startDate);
+                    var vacations = allEmployeesVacations.Where(v => startDate >= v.StartDate && startDate <= v.EndDate).ToList();
+                    var openDelegationsRequests = allEmployeesOpenDelegationsRequests.Where(d => startDate >= d.StartDate && startDate <= d.EndDate).ToList();
+                    var openVacationsRequests = allEmployeesOpenVacationsRequests.Where(d => startDate >= d.StartDate && startDate <= d.EndDate).ToList();
+                    var transactions = allEmployeesTransactions.Where(t => t.TransactionDate.Date == startDate).ToList();
 
                     foreach (var employee in employees)
                     {
                         var newDayReport = new EmployeeDayReport
                         {
                             EmployeeId = employee.EmployeeId,
-                            DayDate = fromDate.Date,
+                            DayDate = startDate.Date,
                             ProcessingDate = DateTime.Now
                         };
 
-                        var defaultEmployeeCalendar = employeeCalendars.Where(c => c.EndDate == null)
+                        var defaultEmployeeCalendar = employeesCalendars.Where(c => c.EndDate == null)
                             .OrderByDescending(c => c.StartDate).FirstOrDefault() ?? new EmployeeCalendar
                             {
-                                StartDate = fromDate,
+                                StartDate = startDate,
                                 AttendanceProof = AttendanceProof.RequiredInOut,
                                 EmployeeId = employee.EmployeeId,
                                 ContractWorkTime = ContractWorkTime.Default
                             };
 
-                        var limitedCalendar = employeeCalendars.Where(c => c.EndDate.HasValue).FirstOrDefault();
+                        var limitedCalendar = employeesCalendars.Where(c => c.EndDate.HasValue).FirstOrDefault();
 
                         var appliedCalendar = limitedCalendar ?? defaultEmployeeCalendar;
 
-                        newDayReport.AttendanceProof = limitedCalendar.AttendanceProof;
+                        newDayReport.AttendanceProof = appliedCalendar.AttendanceProof;
 
                         var contractDayReport = calendarsDaysReports[appliedCalendar.ContractWorkTime]?
-                            .FirstOrDefault(d => d.DayDate.Date == fromDate.Date);
+                            .FirstOrDefault(d => d.DayDate.Date == startDate.Date);
 
                         if (!contractDayReport.IsDayOff)
                         {
@@ -163,19 +166,25 @@ namespace Sgs.Attendance.Reports.Services
 
                                 newDayReport.ActualCheckOutDateTime = employeeTransactions.LastOrDefault(t => t.TransactionDate >= checkOutStartRange && t.TransactionDate <= checkOutEndRange)?.TransactionDate;
 
-                                newDayReport.ActualCheckOutDateTime = newDayReport.ActualCheckOutDateTime > newDayReport.ActualCheckInDateTime ?
-                                    newDayReport.ActualCheckOutDateTime : default(DateTime?);
-
                                 if (newDayReport.ActualCheckInDateTime.HasValue
                                     && newDayReport.ActualCheckOutDateTime.HasValue)
                                 {
+                                    newDayReport.ActualCheckOutDateTime = newDayReport.ActualCheckOutDateTime > newDayReport.ActualCheckInDateTime ?
+                                           newDayReport.ActualCheckOutDateTime : default(DateTime?);
+
                                     var checkIn = newDayReport.ActualCheckInDateTime >= newDayReport.ContractCheckInDateTime ?
                                         newDayReport.ActualCheckInDateTime : newDayReport.ContractCheckInDateTime;
 
-                                    var checkOut = newDayReport.ActualCheckOutDateTime > newDayReport.ContractCheckOutDateTime ?
+                                    var checkOut = newDayReport.ActualCheckOutDateTime.HasValue 
+                                        && newDayReport.ActualCheckOutDateTime > newDayReport.ContractCheckOutDateTime ?
                                         newDayReport.ContractCheckOutDateTime : newDayReport.ActualCheckOutDateTime;
 
-                                    newDayReport.ActualWorkDurationTime = checkOut.Value.Subtract(checkIn.Value);
+                                    newDayReport.ActualWorkDurationTime = checkOut.HasValue ?
+                                        checkOut.Value.Subtract(checkIn.Value) : default(TimeSpan?);
+
+                                    newDayReport.ActualTotalDurationTime = newDayReport.ActualCheckOutDateTime.HasValue ?
+                                        newDayReport.ActualCheckOutDateTime.Value
+                                        .Subtract(newDayReport.ActualCheckInDateTime.Value) : default(TimeSpan?);
                                 }
                             }
                         }
@@ -196,14 +205,16 @@ namespace Sgs.Attendance.Reports.Services
                             newDayReport.CheckInDateTime = newDayReport.ActualCheckInDateTime;
                             newDayReport.CheckOutDateTime = newDayReport.ActualCheckOutDateTime;
 
-                            if(newDayReport.CheckInDateTime.HasValue)
+                            if(newDayReport.CheckInDateTime.HasValue 
+                                && newDayReport.CheckInDateTime > newDayReport.ContractCheckInDateTime)
                             {
-                                if (newDayReport.CheckInDateTime >= newDayReport.ContractCheckInDateTime
-                                    && newDayReport.CheckInDateTime <= newDayReport.ContractCheckInDateTime.Value.Add(new TimeSpan(0, 30, 0)))
+                                if (newDayReport.CheckInDateTime <= 
+                                    newDayReport.ContractCheckInDateTime.Value.Add(new TimeSpan(0, 30, 0))
+                                    || newDayReport.IsOpenCheckInExcuse)
                                 {
                                     newDayReport.CheckInDateTime = newDayReport.ContractCheckInDateTime;
                                 }
-                                else if (newDayReport.CheckInExcuse && newDayReport.CheckInExcuseHours > 0)
+                                else if (newDayReport.CheckInExcuse)
                                 {
                                     newDayReport.CheckInDateTime = newDayReport.CheckInDateTime.Value
                                         .Subtract(newDayReport.CheckInExcuseHours.ConvertToTime());
@@ -212,16 +223,19 @@ namespace Sgs.Attendance.Reports.Services
                                         newDayReport.ContractCheckInDateTime : newDayReport.CheckInDateTime;
                                 }
                             }
-
-                            if(newDayReport.CheckInExcuse && newDayReport.CheckInExcuseHours == 0)
+                            else if(!newDayReport.CheckInDateTime.HasValue 
+                                && newDayReport.IsOpenCheckInExcuse)
                             {
                                 newDayReport.CheckInDateTime = newDayReport.ContractCheckInDateTime;
                             }
 
-                            if (newDayReport.CheckOutDateTime.HasValue  
+                            if (newDayReport.CheckOutDateTime.HasValue
                                 && newDayReport.CheckOutDateTime.Value < newDayReport.ContractCheckOutDateTime)
                             {
-                                if (newDayReport.CheckOutExcuse && newDayReport.CheckOutExcuseHours > 0)
+                                newDayReport.CheckOutDateTime = newDayReport.IsOpenCheckOutExcuse ?
+                                    newDayReport.ContractCheckOutDateTime : newDayReport.CheckOutDateTime;
+
+                                if (!newDayReport.IsOpenCheckOutExcuse)
                                 {
                                     newDayReport.CheckOutDateTime = newDayReport.CheckOutDateTime.Value
                                         .Add(newDayReport.CheckOutExcuseHours.ConvertToTime());
@@ -230,21 +244,78 @@ namespace Sgs.Attendance.Reports.Services
                                         newDayReport.ContractCheckOutDateTime : newDayReport.CheckOutDateTime;
                                 }
                             }
-
-                            if(newDayReport.CheckOutExcuse && newDayReport.CheckOutExcuseHours == 0 
-                                && newDayReport.CheckOutDateTime.Value < newDayReport.ContractCheckOutDateTime)
+                            else if (!newDayReport.CheckOutDateTime.HasValue
+                                && newDayReport.IsOpenCheckOutExcuse)
                             {
                                 newDayReport.CheckOutDateTime = newDayReport.ContractCheckOutDateTime;
                             }
+
+                            //Calculations
+
+                            newDayReport.IsAbsentEmployee = !newDayReport.IsVacation
+                                && !newDayReport.CheckInDateTime.HasValue
+                                && !newDayReport.CheckOutDateTime.HasValue
+                                && newDayReport.AttendanceProof != AttendanceProof.Exempted;
+
+                            if (newDayReport.CheckInDateTime.HasValue 
+                                && newDayReport.CheckOutDateTime.HasValue && newDayReport.AttendanceProof == AttendanceProof.RequiredInOut)
+                            {
+                                var checkIn = newDayReport.CheckInDateTime >= newDayReport.ContractCheckInDateTime ?
+                                        newDayReport.CheckInDateTime : newDayReport.ContractCheckInDateTime;
+
+                                var checkOut = newDayReport.CheckOutDateTime > newDayReport.ContractCheckOutDateTime ?
+                                    newDayReport.ContractCheckOutDateTime : newDayReport.CheckOutDateTime;
+
+                                newDayReport.WorkDurationTime = checkOut.Value.Subtract(checkIn.Value) ;
+
+                                newDayReport.WorkTotalDurationTime = newDayReport.CheckOutDateTime.Value
+                                    .Subtract(newDayReport.CheckInDateTime.Value);
+                            }
+
+                            if (newDayReport.AttendanceProof == AttendanceProof.RequiredInOut)
+                            {
+                                newDayReport.CheckInLateDurationTime = newDayReport.CheckInDateTime.HasValue 
+                                    && newDayReport.CheckInDateTime.Value > newDayReport.ContractCheckInDateTime ? 
+                                     newDayReport.CheckInDateTime.Value.Subtract(newDayReport.ContractCheckInDateTime.Value) : default(TimeSpan?);
+
+                                newDayReport.CheckOutEarlyDurationTime = newDayReport.CheckOutDateTime.HasValue 
+                                    && newDayReport.CheckOutDateTime.Value < newDayReport.ContractCheckOutDateTime ? 
+                                     newDayReport.ContractCheckOutDateTime.Value.Subtract(newDayReport.CheckOutDateTime.Value) : default(TimeSpan?);
+
+                                if (!newDayReport.IsAbsentEmployee)
+                                {
+                                    newDayReport.WasteDurationTime = !newDayReport.WorkDurationTime.HasValue ?
+                                        newDayReport.ContractWorkDurationTime : newDayReport.ContractWorkDurationTime.Value
+                                        .Subtract(newDayReport.WorkDurationTime.Value);
+                                }
+                            }
                         }
+
                         resultsDaysReports.Add(newDayReport);
                     }
 
-                    fromDate = fromDate.AddDays(1);
+                    startDate = startDate.AddDays(1);
 
                 }
 
-                //ToDo:Save and delete
+                using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                {
+                    try
+                    {
+                        await _employeesDaysReportsManager
+                                        .DirectDeleteItems(d => (employeesIds.Count < 1 || employeesIds.Contains(d.EmployeeId))
+                                            && d.DayDate >= fromDate && d.DayDate <= toDate);
+
+                        await _employeesDaysReportsManager.InsertNewDataItems(resultsDaysReports);
+
+                        scope.Complete();
+                    }
+                    catch (Exception)
+                    {
+                        scope.Dispose();
+                        throw;
+                    }
+                }
 
                 return true;
             }
@@ -301,7 +372,7 @@ namespace Sgs.Attendance.Reports.Services
                     else if(lastEmployeeId > 0)
                     {
                         employees = employees
-                        .Where(e => e.EmployeeId <= lastEmployeeId).OrderBy(e => e.EmployeeId)
+                        .Where(e => e.EmployeeId <= lastEmployeeId).OrderByDescending(e => e.EmployeeId)
                         .Take(100).ToList();
                     }
                     else
@@ -314,7 +385,7 @@ namespace Sgs.Attendance.Reports.Services
                     return await processDaysReports(employees, fromDate, toDate);
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
             }
 

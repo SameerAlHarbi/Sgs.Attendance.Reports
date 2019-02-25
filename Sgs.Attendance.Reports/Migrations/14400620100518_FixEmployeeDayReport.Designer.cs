@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Sgs.Attendance.Reports.Data;
 
 namespace Sgs.Attendance.Reports.Migrations
 {
     [DbContext(typeof(AttendanceReportsDb))]
-    partial class AttendanceReportsDbModelSnapshot : ModelSnapshot
+    [Migration("14400620100518_FixEmployeeDayReport")]
+    partial class FixEmployeeDayReport
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -53,8 +55,6 @@ namespace Sgs.Attendance.Reports.Migrations
                     b.Property<DateTime?>("ActualCheckInDateTime");
 
                     b.Property<DateTime?>("ActualCheckOutDateTime");
-
-                    b.Property<TimeSpan?>("ActualTotalDurationTime");
 
                     b.Property<TimeSpan?>("ActualWorkDurationTime");
 
@@ -107,8 +107,6 @@ namespace Sgs.Attendance.Reports.Migrations
                     b.Property<TimeSpan?>("WasteDurationTime");
 
                     b.Property<TimeSpan?>("WorkDurationTime");
-
-                    b.Property<TimeSpan?>("WorkTotalDurationTime");
 
                     b.HasKey("Id");
 
