@@ -77,7 +77,7 @@
                             {
                                 <tr style="text-align:center">
                                     <td>
-                                        <div class="row">
+                                        <div class="row @(Absent.IsAbsentEmployee?"text-danger":"")">
                                             <div class="col-3" style="text-align:left;">@Absent.DayDate.GetDayName(true)</div>
                                             <div class="col-9" style="text-align:right;">@Absent.DayDate.ToString("yyyy-MM-dd")</div>
                                         </div>
@@ -93,10 +93,10 @@
                                         @Absent.CheckInLateDurationTime
                                     </td>
                                     <td class=@(Absent.IsAbsentEmployee && Absent.IsDelegationRequest ? "text-secondary" : "text-danger")>
-                                        @(Absent.IsAbsentEmployee? "غائب" : "")
+                                        @(Absent.IsAbsentEmployee? "غياب" : "")
                                     </td>
                                     <td class="text-success">@Absent.VacationTypeName</td>
-                                    <td>@(Absent.IsDelegationRequest ? "يوجد طلب انتداب" : "")</td>
+                                    <td>@(Absent.IsDelegationRequest ? "طلب انتداب" : "")</td>
                                 </tr>
                             }
                         </tbody>
