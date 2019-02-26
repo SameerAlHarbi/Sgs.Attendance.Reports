@@ -29,6 +29,11 @@ namespace Sgs.Attendance.Reports.Controllers
         {
             return View();
         }
+        
+        public IActionResult Wastes()
+        {
+            return View();
+        }
 
         [HttpPost]
         public async Task<IActionResult> AbsentsReport(DateTime startDate,DateTime endDate,string employeesIds = null,int? pageNumber = null,int pageSize=31)
@@ -76,49 +81,14 @@ namespace Sgs.Attendance.Reports.Controllers
             }
         }
 
-        public IActionResult EmployeeMonthReport()
+        [HttpPost]
+        public async Task<IActionResult> WastesReport(DateTime startDate, DateTime endDate, string employeesIds = null, int? pageNumber = null, int pageSize = 31)
         {
-            return View();
-        }
-
-        public IActionResult AbsentsReport()
-        {
-            return View(new List<EmployeeDayReportViewModel>
-                {
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=true},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 1143 , EmployeeName ="اسامه محمد نجار", DayDate=new DateTime(2019,1,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=false},
-                    new EmployeeDayReportViewModel{ EmployeeId = 917 , EmployeeName ="سمير محمد الحربي", DayDate=new DateTime(2019,2,1),DepartmentName="الخدمات الالكترونية" ,IsDelegationRequest=true},
-                });
+             
+            return PartialView(new List<EmployeeMonthReportViewModel>
+            {
+                new EmployeeMonthReportViewModel{EmployeeId = 1143,EmployeeName="Osama Mohammed Najjar", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),TotalAbsentsDays=0,TotalWasteDays=1}
+            });
         }
 
         public IActionResult EmployeeDetailsMonthlyReport()
