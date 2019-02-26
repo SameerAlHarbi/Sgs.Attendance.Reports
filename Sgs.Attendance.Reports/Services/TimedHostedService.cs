@@ -23,8 +23,8 @@ namespace Sgs.Attendance.Reports.Services
         {
             _logger.LogInformation("Timed Background Service is starting.");
 
-            _timer = new Timer(DoWork, null, TimeSpan.FromSeconds(20),
-                TimeSpan.FromSeconds(5));
+            _timer = new Timer(DoWork, null, TimeSpan.FromSeconds(05),
+                TimeSpan.FromSeconds(05));
 
             return Task.CompletedTask;
         }

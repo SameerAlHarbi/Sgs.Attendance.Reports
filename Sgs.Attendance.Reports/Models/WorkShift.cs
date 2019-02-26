@@ -62,7 +62,7 @@ namespace Sgs.Attendance.Reports.Models
         [Range(0, 23.99, ErrorMessage = "{0} must be between {2} And {1}")]
         public double? ShiftEndInRamadan { get; set; }
 
-        //public TimeSpan? ShiftEndTimeInRamadan => ShiftEndInRamadan.HasValue ? 
+        //public TimeSpan? ShiftEndTimeInRamadan => ShiftEndInRamadan.HasValue ?
         //    ShiftEndInRamadan.Value.ConvertToTime() : default(TimeSpan);
 
         public double? ShiftDurationInRamadan

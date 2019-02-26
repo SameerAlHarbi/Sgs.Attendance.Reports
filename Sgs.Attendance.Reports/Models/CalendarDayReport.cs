@@ -11,6 +11,8 @@ namespace Sgs.Attendance.Reports.Models
 
         public DateTime? CheckOutDateTime { get; set; }
 
+        public TimeSpan? WorkDuration { get; set; }
+
         public bool IsDayOff { get; set; }
 
         public string DayOffDescription { get; set; }

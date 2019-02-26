@@ -95,7 +95,7 @@
                                     <td class=@(Absent.IsAbsentEmployee && Absent.IsDelegationRequest ? "text-secondary" : "text-danger")>
                                         @(Absent.IsAbsentEmployee? "غياب" : "")
                                     </td>
-                                    <td class="text-success">@Absent.VacationTypeName</td>
+                                    <td class="text-success">@Absent.VacationName</td>
                                     <td>@(Absent.IsDelegationRequest ? "طلب انتداب" : "")</td>
                                 </tr>
                             }
