@@ -49,8 +49,9 @@ namespace Sgs.Attendance.Reports.Logic
                         DayDate = startDate,
                         IsDayOff = dayOff,
                         DayOffDescription = dayOff ? "نهاية الاسبوع" : "",
-                        CheckInDateTime = !dayOff ? startDate.Date.Add(new TimeSpan(7,30,0)):default(DateTime?),
-                        CheckOutDateTime = !dayOff ? startDate.Date.Add(new TimeSpan(14,30,0)):default(DateTime?)
+                        CheckInDateTime = !dayOff ? startDate.Date.Add(new TimeSpan(7, 30, 0)) : default(DateTime?),
+                        CheckOutDateTime = !dayOff ? startDate.Date.Add(new TimeSpan(14, 30, 0)) : default(DateTime?),
+                        WorkDuration = !dayOff ? new TimeSpan(7, 30, 0) : default(TimeSpan?)
                     });
                     startDate = startDate.AddDays(1);
                 }

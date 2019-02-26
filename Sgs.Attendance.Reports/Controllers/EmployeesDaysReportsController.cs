@@ -73,7 +73,7 @@ namespace Sgs.Attendance.Reports.Controllers
                     } 
                 }
 
-                return PartialView(resultViewModels);
+                return PartialView(resultViewModels.OrderBy(d => d.EmployeeId).ThenBy(d => d.DayDate).ToList());
             }
             catch (Exception ex)
             {

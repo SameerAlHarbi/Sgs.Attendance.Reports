@@ -1,8 +1,5 @@
 ﻿using Sameer.Shared;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Sgs.Attendance.Reports.Models
 {
@@ -22,5 +19,7 @@ namespace Sgs.Attendance.Reports.Models
         public bool Completed { get; set; }
 
         public int UserId { get; set; }
+
+        public DateTime? CompletedDate { get; set; }
     }
 }
