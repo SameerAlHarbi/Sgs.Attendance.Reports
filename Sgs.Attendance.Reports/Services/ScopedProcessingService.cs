@@ -48,7 +48,7 @@ namespace Sgs.Attendance.Reports.Services
 
                 //Get employees Calendars
                 var allEmployeesCalendars = await _employeesCalendarManager.GetAllAsNoTrackingListAsync(ec => employeesIds.Contains(ec.EmployeeId)
-                    && (ec.StartDate <= fromDate && ec.EndDate == null) || (ec.StartDate >= fromDate && ec.StartDate <= toDate) || (ec.StartDate <= fromDate && ec.EndDate >= fromDate));
+                    && ((ec.StartDate <= fromDate && ec.EndDate == null) || (ec.StartDate >= fromDate && ec.StartDate <= toDate) || (ec.StartDate <= fromDate && ec.EndDate >= fromDate)));
 
                 //Get workCalendars
                 var calendarsDaysReports = new Dictionary<ContractWorkTime, List<CalendarDayReport>>();
@@ -96,7 +96,8 @@ namespace Sgs.Attendance.Reports.Services
                             ProcessingDate = DateTime.Now
                         };
 
-                        var defaultEmployeeCalendar = employeesCalendars.Where(c => c.EndDate == null)
+                        var defaultEmployeeCalendar = employeesCalendars.Where(c => c.EndDate == null 
+                            && c.EmployeeId == employee.EmployeeId)
                             .OrderByDescending(c => c.StartDate).FirstOrDefault() ?? new EmployeeCalendar
                             {
                                 StartDate = startDate,
@@ -105,7 +106,7 @@ namespace Sgs.Attendance.Reports.Services
                                 ContractWorkTime = ContractWorkTime.Default
                             };
 
-                        var limitedCalendar = employeesCalendars.Where(c => c.EndDate.HasValue).FirstOrDefault();
+                        var limitedCalendar = employeesCalendars.Where(c => c.EndDate.HasValue && c.EmployeeId == employee.EmployeeId).FirstOrDefault();
 
                         var appliedCalendar = limitedCalendar ?? defaultEmployeeCalendar;
 
@@ -357,6 +358,7 @@ namespace Sgs.Attendance.Reports.Services
                         if (lastEmployeeId >= lastRequestEmployeeId)
                         {
                             openProcessingRequest.Completed = true;
+                            openProcessingRequest.CompletedDate = DateTime.Now;
                             await _processingsRequestsManager.UpdateItemAsync(openProcessingRequest);
                             return true; 
                         }
