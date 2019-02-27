@@ -163,5 +163,17 @@ namespace Sgs.Attendance.Reports.Controllers
                 return Json(new { errors="خطأ اثناء قراءة البيانات"});
             }
         }
+
+        public async Task<ActionResult> ShortEmployeesInfoJson()
+        {
+            IEnumerable<ShortEmployeeInfoViewModel> results = await _erpManager.GetShortEmployeesInfo();
+            return Json(results.OrderBy(e => e.EmployeeId).ToList());
+        }
+
+        public async Task<ActionResult> ShortEmployeesInfoForKendo([DataSourceRequest]DataSourceRequest request)
+        {
+            IEnumerable<ShortEmployeeInfoViewModel> results = await _erpManager.GetShortEmployeesInfo();
+            return Json(results.OrderBy(e => e.EmployeeId).ToList().ToDataSourceResult(request));
+        }
     }
 }
