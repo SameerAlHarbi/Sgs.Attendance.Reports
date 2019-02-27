@@ -8,18 +8,52 @@
 
 <div class="d-print-none">
     <form>
-        <div class="form-inline">
-            <div class="form-group">
-                <label for="startDate" class="control-label" style="margin:0 20px"> من تاريخ :</label>
-                <kendo-datepicker min="new DateTime(2018,12,1)" name="startDate" id="startDate" value="firstMonthDay" format="yyyy-MM-dd" title="عرض من تاريخ" />
+        <div class="form-row">
+            <div class="form-group col-md-2">
+                <label for="startDate" class="control-label"> من تاريخ :</label>
+                <br />
+                <kendo-datepicker class="form-control" min="new DateTime(2018,12,1)" name="startDate" id="startDate" value="firstMonthDay" format="yyyy-MM-dd" title="عرض من تاريخ" />
             </div>
+            <div class="form-group col-md-2">
+                <label for="endDate" class="control-label"> إلى تاريخ :</label>
+                <br />
+                <kendo-datepicker class="form-control" min="new DateTime(2018,12,1)" name="endDate" id="endDate" value="lastMonthDay" format="yyyy-MM-dd" title="عرض الى تاريخ" />
+            </div>
+            <div class="form-group col-md-4">
+                <label for="employees" class="control-label"> الموظفين :</label>
+                <br />
+                @(Html.Kendo().MultiSelect()
+                                        .Name("employees")
+                                        .Placeholder("تحديد الموظفين ...")
+                                        .HtmlAttributes(new { style = "100%" })
+                                        .DataTextField("EmployeeId")
+                                        .DataValueField("EmployeeId")
+                                        .AutoClose(true)
+                                        .AutoBind(false)
+                                        .MinLength(3)
+                                        .Events(e => e.Change("onChange"))
+                                        .ItemTemplate("<span style=\"color:red\">#= EmployeeId #</span>&nbsp;-&nbsp; #= Name #")
+                                .DataSource(source =>
+                                {
+                                    source
+                                    .Custom()
+                                    .Group(g => g.Add("DepartmentName", typeof(string)))
+                                    .Transport(transport =>
+                                        transport.Read(read =>
+                                        {
+                                            read.Action("ShortEmployeesInfoForKendo", "Employees");
+                                        })).Schema(schema =>
+                  {
+                      schema.Data("Data") 
+                            .Total("Total"); 
+                  })
 
-            <div class="form-group">
-                <label for="endDate" class="control-label" style="margin:0 20px"> إلى تاريخ :</label>
-                <kendo-datepicker min="new DateTime(2018,12,1)" name="endDate" id="endDate" value="lastMonthDay" format="yyyy-MM-dd" title="عرض الى تاريخ" />
+                                    .ServerFiltering(false);
+                                }))
             </div>
-            <div class="form-group">
-                <label for="reportType" class="control-label" style="margin:0 20px"> نوع التقرير :</label>
+            <div class="form-group col-md-2">
+                <label for="reportType" class="control-label"> نوع التقرير :</label>
+                <br />
                 <div class="btn-group btn-group-toggle" data-toggle="buttons" style="direction:ltr">
                     <label class="btn btn-outline-info">
                         <input type="radio" name="reportType" id="detailsReport" autocomplete="off" value="details"> تفصيلي
@@ -29,56 +63,34 @@
                     </label>
                 </div>
             </div>
-            <div class="form-group">
-                <label for="employees" class="control-label" style="margin:0 20px;"> الموظفين :</label>
-                @(Html.Kendo().MultiSelect()
-                  .Name("employees")
-                  .Placeholder("تحديد الموظفين ...")
-                  .HtmlAttributes(new { style="width:400px"})
-                  .DataTextField("Name")
-                  .DataValueField("EmployeeId")
-                  .BindTo(new List<string>() {
-                      "Steven White",
-                      "Nancy King",
-                      "Anne King",
-                      "Nancy Davolio",
-                      "Robert Davolio",
-                      "Michael Leverling",
-                      "Andrew Callahan",
-                      "Michael Suyama",
-                      "Anne King",
-                      "Laura Peacock",
-                      "Robert Fuller",
-                      "Janet White",
-                      "Nancy Leverling",
-                      "Robert Buchanan",
-                      "Andrew Fuller",
-                      "Anne Davolio",
-                      "Andrew Suyama",
-                      "Nige Buchanan",
-                      "Laura Fuller"
-                  })
-                )
-
-            </div>
-
-            <div class="form-group" style="margin: 0 30px">
-                <button type="submit" id="showAbsents" class="btn btn-primary"> عرض </button>
+            <div class="form-group col-md-2">
+                <label for="showAbsents" class="control-label">&nbsp;</label>
+                <br />
+                <button type="submit" id="showAbsents" class="btn btn-info btn-block"> عرض <i class="fas fa-search"></i> </button>
             </div>
         </div>
     </form>
-    <br />
 </div>
 
 <div id="absentsData">
-
+    <hr />
+    <p id="report" class="lead" style="text-align:center;margin-top:150px;font-style:italic;color:gray"> .... تقرير الغياب .... </p>
 </div>
-
-
 
 @section scripts{
     <partial name="_ValidationScripts">
         <script>
+
+            function readEmployees() {
+                return {
+                    employeeId: $("#employees").val()
+                }
+            }
+
+            function onChange() {
+                var x = $("#employees").val();
+                alert(x);
+            }
 
         $(function () {
 
@@ -97,7 +109,10 @@
                  error: function () {
                      $("#absentsData").text("error");
                      $("#absentsData").fadeIn();
-                    }
+                        },
+                 beforeSend: function () {
+                            $("#report").html("<div class='spinner-grow text-info' role='status'>< span class='sr-only'> Loading...</span ></div>'");
+                        }
                 };
 
                 $.ajax(options);
