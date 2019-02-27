@@ -29,6 +29,11 @@ namespace Sgs.Attendance.Reports.Controllers
         {
             return View();
         }
+        
+        public IActionResult Wastes()
+        {
+            return View();
+        }
 
         [HttpPost]
         public async Task<IActionResult> AbsentsReport(DateTime startDate,DateTime endDate,string employeesIds = null,int? pageNumber = null,int pageSize=31)
@@ -76,14 +81,14 @@ namespace Sgs.Attendance.Reports.Controllers
             }
         }
 
-        public IActionResult EmployeeMonthReport()
+        [HttpPost]
+        public async Task<IActionResult> WastesReport(DateTime startDate, DateTime endDate, string employeesIds = null, int? pageNumber = null, int pageSize = 31)
         {
-            return View();
-        }
-
-        public IActionResult AbsentsReport()
-        {
-            return View();
+             
+            return PartialView(new List<EmployeeMonthReportViewModel>
+            {
+                new EmployeeMonthReportViewModel{EmployeeId = 1143,EmployeeName="Osama Mohammed Najjar", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),TotalAbsentsDays=0,TotalWasteDays=1}
+            });
         }
 
         public IActionResult EmployeeDetailsMonthlyReport()

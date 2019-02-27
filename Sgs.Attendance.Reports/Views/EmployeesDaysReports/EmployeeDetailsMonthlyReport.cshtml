@@ -16,7 +16,7 @@
                             <h6>تقرير الموظف</h6>
                         </div>
                         <div class="col">
-                            <div class="d-none d-print-block"><img width="190px" height="130px" src="~/Images/SGSLOGO.png" /></div>
+                            <div class="d-none d-print-block"><img style="max-width:190px; max-height:130px" src="~/Images/SGSLOGO.png" /></div>
                         </div>
                         <div class="col justify-content-center align-self-center text-center d-none d-print-block">
                             <img style="max-width:70px; max-height:90px" src="~/Images/scan-fingerprint-icon.png" />
@@ -53,13 +53,7 @@
         <tr>
             <td class="report-content-cell">
                 <div>
-                    <div class="d-print-none" style="margin-bottom:5px;">
-                        <button id="print" class="btn btn-outline-secondary d-print-none">
-                            <i class="fas fa-print"></i> طباعة
-                        </button>
-                        <br />
-                    </div>
-
+                 
                     <table class="table table-bordered table-striped">
                         <thead style="background-color:#bbe3e8 ; text-align:center">
                             <tr>
@@ -73,30 +67,30 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var Absent in Model)
+                            @foreach (var empDaysReports in Model)
                             {
                                 <tr style="text-align:center">
                                     <td>
-                                        <div class="row @(Absent.IsAbsentEmployee?"text-danger":"")">
-                                            <div class="col-3" style="text-align:left;">@Absent.DayDate.GetDayName(true)</div>
-                                            <div class="col-9" style="text-align:right;">@Absent.DayDate.ToString("yyyy-MM-dd")</div>
+                                        <div class="row @(empDaysReports.IsAbsentEmployee?"text-danger":"")">
+                                            <div class="col-3" style="text-align:left;">@empDaysReports.DayDate.GetDayName(true)</div>
+                                            <div class="col-9" style="text-align:right;">@empDaysReports.DayDate.ToString("yyyy-MM-dd")</div>
                                         </div>
                                         
                                     </td>
-                                    <td class=@(Absent.IsLate?"text-danger":"text-primary")>
-                                        @(Absent.ActualCheckInDateTime.HasValue? Absent.ActualCheckInDateTime.Value.ToShortTimeString() : "")
+                                    <td class=@(empDaysReports.IsLate?"text-danger":"text-primary")>
+                                        @(empDaysReports.ActualCheckInDateTime.HasValue? empDaysReports.ActualCheckInDateTime.Value.ToShortTimeString() : "")
                                     </td>
-                                    <td class=@(Absent.IsEarly?"text-danger":"text-primary")>
-                                        @(Absent.ActualCheckOutDateTime.HasValue? Absent.ActualCheckOutDateTime.Value.ToShortTimeString() : "")
+                                    <td class=@(empDaysReports.IsEarly?"text-danger":"text-primary")>
+                                        @(empDaysReports.ActualCheckOutDateTime.HasValue? empDaysReports.ActualCheckOutDateTime.Value.ToShortTimeString() : "")
                                     </td>
-                                    <td class=@(Absent.IsLate || Absent.IsEarly || Absent.IsAbsentEmployee?"text-danger":"text-primary")>
-                                        @Absent.CheckInLateDurationTime
+                                    <td class=@(empDaysReports.IsLate || empDaysReports.IsEarly || empDaysReports.IsAbsentEmployee?"text-danger":"text-primary")>
+                                        @empDaysReports.CheckInLateDurationTime
                                     </td>
-                                    <td class=@(Absent.IsAbsentEmployee && Absent.IsDelegationRequest ? "text-secondary" : "text-danger")>
-                                        @(Absent.IsAbsentEmployee? "غياب" : "")
+                                    <td class=@(empDaysReports.IsAbsentEmployee && (empDaysReports.IsDelegationRequest || empDaysReports.IsVacationRequest) ? "text-secondary" : "text-danger")>
+                                        @(empDaysReports.IsAbsentEmployee? "غائب" : "")
                                     </td>
-                                    <td class="text-success">@Absent.VacationName</td>
-                                    <td>@(Absent.IsDelegationRequest ? "طلب انتداب" : "")</td>
+                                    <td class="text-success">@empDaysReports.VacationName</td>
+                                    <td>@(empDaysReports.IsDelegationRequest ? "طلب انتداب" : empDaysReports.IsVacationRequest ? "طلب اجازة" : "")</td>
                                 </tr>
                             }
                         </tbody>
