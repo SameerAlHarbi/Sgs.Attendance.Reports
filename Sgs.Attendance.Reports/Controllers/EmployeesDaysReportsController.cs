@@ -36,14 +36,16 @@ namespace Sgs.Attendance.Reports.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AbsentsReport(DateTime startDate,DateTime endDate,string employeesIds = null,int? pageNumber = null,int pageSize=31)
+        public async Task<IActionResult> AbsentsReport(DateTime startDate, DateTime endDate
+            , int[] employeesIds = null, bool absentNotes = true, bool summaryReport = true,int? pageNumber = null,int pageSize=31)
         {
             try
             {
                 startDate = startDate.Date;
                 endDate = endDate.Date;
 
-                var employeesIdsNumbers = employeesIds.TryParseToNumbers()?.Select(d => (int)d).ToList() ?? new List<int>();
+                var employeesIdsNumbers =// employeesIds.TryParseToNumbers()?.Select(d => (int)d).ToList() ??
+                    new List<int>();
 
                 var resultsQuery =  _employeesDaysReportsManager
                     .GetAll(d => (employeesIdsNumbers.Count < 1 || employeesIdsNumbers.Contains(d.EmployeeId)) 

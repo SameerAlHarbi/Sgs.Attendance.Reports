@@ -1,6 +1,6 @@
 ﻿
 @{
-    ViewData["Title"] = "الغياب";
+    ViewData["Title"] = "تقرير الغياب";
 
     DateTime firstMonthDay = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
     DateTime lastMonthDay = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1).AddMonths(1).AddDays(-1);
@@ -8,16 +8,20 @@
 
 <div class="d-print-none">
     <form>
-        <div class="form-row">
+        <div class="row">
             <div class="form-group col-md-2">
                 <label for="startDate" class="control-label"> من تاريخ :</label>
                 <br />
-                <kendo-datepicker class="form-control" min="new DateTime(2018,12,1)" name="startDate" id="startDate" value="firstMonthDay" format="yyyy-MM-dd" title="عرض من تاريخ" />
+                <kendo-datepicker name="startDate" id="startDate" value="firstMonthDay"
+                     format="yyyy-MM-dd" min="new DateTime(2018,12,1)" max="lastMonthDay" 
+                     class="form-control" data-toggle="tooltip" data-placement="bottom" title="عرض من تاريخ" />
             </div>
             <div class="form-group col-md-2">
                 <label for="endDate" class="control-label"> إلى تاريخ :</label>
                 <br />
-                <kendo-datepicker class="form-control" min="new DateTime(2018,12,1)" name="endDate" id="endDate" value="lastMonthDay" format="yyyy-MM-dd" title="عرض الى تاريخ" />
+                <kendo-datepicker name="endDate" id="endDate" value="lastMonthDay" 
+                    format="yyyy-MM-dd" min="new DateTime(2018,12,1)" max="lastMonthDay"
+                    class="form-control" data-toggle="tooltip" data-placement="bottom" title="عرض الى تاريخ" />
             </div>
             <div class="form-group col-md-3">
                 <label for="employees" class="control-label"> الموظفين :</label>
@@ -31,75 +35,54 @@
                                         .AutoClose(true)
                                         .AutoBind(false)
                                         .MinLength(3)
-                                        .Events(e => e.Change("onChange"))
                                         .ItemTemplate("<span style=\"color:red\">#= EmployeeId #</span>&nbsp;-&nbsp; #= Name #")
                                 .DataSource(source =>
                                 {
-                                    source
-                                    .Custom()
-                                    .Group(g => g.Add("DepartmentName", typeof(string)))
-                                    .Transport(transport =>
-                                        transport.Read(read =>
-                                        {
-                                            read.Action("ShortEmployeesInfoForKendo", "Employees").Data("readEmployees");
-                                        })).Schema(schema =>
-                                          {
-                                              schema.Data("Data") 
-                                                    .Total("Total"); 
-                                          })
-
+                                    source.Read(read =>
+                                    {
+                                        read.Action("ShortEmployeesInfoByTextJson", "Employees");
+                                    })
                                     .ServerFiltering(true);
                                 })
-                                )
+                 )
             </div>
             <div class="form-group col-md-2" style="text-align:center">
                 <label for="absentNote" class="control-label">الملاحظات</label>
                 <div class="col" style="margin-top:5px">
-                    <div class="form-check form-check-inline" data-toggle="tooltip" data-placement="top" title="عرض جميع أيام الغياب بدون استثناء">
-                        <input style="margin-left:5px" class="form-check-input" type="radio" id="showNote" name="absentNote" value="show" checked>
+                    <div class="form-check form-check-inline" data-toggle="tooltip" data-placement="bottom" title="عرض جميع أيام الغياب بدون استثناء">
+                        <input style="margin-left:5px" class="form-check-input" type="radio" id="showNote" name="absentNotes" value="true" checked>
                         <label for="showNote" class="form-check-label"> عرض </label>
                     </div>
-                    <div class="form-check form-check-inline" data-toggle="tooltip" data-placement="top" title="إخفاء أيام الغياب لمن لديه طلب إجازة او إنتداب">
-                        <input style="margin-left:5px" class="form-check-input" type="radio" id="hideNote" name="absentNote" value="hide">
+                    <div class="form-check form-check-inline" data-toggle="tooltip" data-placement="bottom" title="إخفاء أيام الغياب لمن لديه طلب إجازة او إنتداب">
+                        <input style="margin-left:5px" class="form-check-input" type="radio" id="hideNote" name="absentNotes" value="false">
                         <label for="hideNote" class="form-check-label"> إخفاء </label>
                     </div>
                 </div>
             </div>
-            @*<div class="form-group col-md-2" style="text-align:center">
-                <label for="reportType" class="control-label"> الملاخظات </label>
-                <br />
-                <div class="btn-group btn-group-toggle" data-toggle="buttons" style="direction:ltr">
-                    <label class="btn btn-outline-info">
-                        <input type="radio" name="reportType" id="detailsReport" autocomplete="off" value="details"> عرض
-                    </label>
-                    <label class="btn btn-outline-info active">
-                        <input type="radio" name="reportType" id="summaryReport" autocomplete="off" value="summary" checked> إخفاء
-                    </label>
-                </div>
-            </div>*@
-            <div class="form-group col-md-2" style="text-align:center">
-                <label for="reportType" class="control-label"> نوع التقرير </label>
-                <br />
-                <div class="btn-group btn-group-toggle" data-toggle="buttons" style="direction:ltr">
-                    <label class="btn btn-outline-info">
-                        <input type="radio" name="reportType" id="detailsReport" autocomplete="off" value="details"> تفصيلي
-                    </label>
-                    <label class="btn btn-outline-info active">
-                        <input type="radio" name="reportType" id="summaryReport" autocomplete="off" value="summary" checked> مختصر
-                    </label>
+            <div class="form-group col-md-2" style="text-align:center;">
+                <label for="reportType" class="control-label">نوع التقرير</label>
+                <div class="col" style="margin-top:5px">
+                    <div class="form-check form-check-inline" data-toggle="tooltip" data-placement="bottom" title="تقرير مختصر بالغياب للموظفين">
+                        <input style="margin-left:5px" class="form-check-input" type="radio" id="summaryReport" name="reportType" value="true" checked>
+                        <label for="summaryReport" class="form-check-label"> مختصر </label>
+                    </div>
+                    <div class="form-check form-check-inline" data-toggle="tooltip" data-placement="bottom" title="تقرير تفصيلي بالغياب للموظفين">
+                        <input style="margin-left:5px" class="form-check-input" type="radio" id="detailsReport" name="reportType" value="false">
+                        <label for="detailsReport" class="form-check-label"> تفصيلي </label>
+                    </div>
                 </div>
             </div>
             <div class="form-group col-md-1">
                 <label for="showAbsents" class="control-label">&nbsp;</label>
                 <br />
-                <button type="submit" id="showAbsents" class="btn btn-primary btn-block"> عرض <i class="fas fa-search"></i> </button>
+                <button type="submit" id="showAbsents" class="btn btn-info btn-block"> عرض <i class="fas fa-search"></i> </button>
             </div>
         </div>
     </form>
 </div>
+<hr />
 
 <div id="absentsData">
-    <hr />
     <p id="report" class="lead" style="text-align:center;margin-top:150px;font-style:italic;color:gray"> .... تقرير الغياب .... </p>
 </div>
 
@@ -107,18 +90,9 @@
     <partial name="_ValidationScripts">
         <script>
 
-            function readEmployees() {
-                return {
-                    employeeId: $("#employees").val()
-                }
-            }
+            $(function () {
 
-            function onChange() {
-                var x = $("#employees").val();
-                alert(x);
-            }
-
-        $(function () {
+                $('[data-toggle="tooltip"]').tooltip()
 
               $('form').submit(function (e) {
                 if ($(this).valid()) {
@@ -126,8 +100,14 @@
                     var options = {
                     url: "@Url.Action("AbsentsReport", "EmployeesDaysReports")",
                     type: "Post",
-                 dataType: "html",
-                    data: { startDate: $("#startDate").val(), endDate: $("#endDate").val() },
+                    dataType: "html",
+                        data: {
+                              startDate: $("#startDate").val()
+                            , endDate: $("#endDate").val()
+                            , employeesIds: $("#employees").data("kendoMultiSelect").value()
+                            , absentNotes: $("input[name='absentNotes']:checked").val()
+                            , summaryReport: $("input[name='reportType']:checked").val()
+                        },
                     success: function updateBalances(data) {
                         $("#absentsData").html(data);
                         $("#absentsData").fadeIn();
@@ -137,7 +117,7 @@
                      $("#absentsData").fadeIn();
                         },
                  beforeSend: function () {
-                            $("#report").html("<div class='spinner-grow text-info' role='status'>< span class='sr-only'> Loading...</span ></div>'");
+                     $("#absentsData").html("<div class='text-center'><div class='spinner-grow text-info' role='status'><span class='sr-only'> Loading...</span ></div></div>");
                         }
                 };
 
@@ -148,7 +128,7 @@
                 e.preventDefault();
             });
 
-            toastr.clear();
+            //toastr.clear();
 
         })
 

@@ -170,6 +170,35 @@ namespace Sgs.Attendance.Reports.Controllers
             return Json(results.OrderBy(e => e.EmployeeId).ToList());
         }
 
+        public async Task<ActionResult> ShortEmployeesInfoByTextJson(string text)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(text))
+                {
+                    return Json(new List<ShortEmployeeInfoViewModel>());
+                }
+
+                IEnumerable<ShortEmployeeInfoViewModel> results = new List<ShortEmployeeInfoViewModel>();
+
+                if (int.TryParse(text, out int empId))
+                {
+                    results = await _erpManager.GetShortEmployeesInfo(new int[] { empId });
+                }
+                else
+                {
+                    results = await _erpManager.GetShortEmployeesInfo();
+                    results = results.Where(e => e.Name.Trim().ToLower().Contains(text)).ToList();
+                }
+
+                return Json(results);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Errors = new string[] { "Errors" } });
+            }
+        }
+
         public async Task<ActionResult> ShortEmployeesInfoForKendo([DataSourceRequest]DataSourceRequest request)
         {
             IEnumerable<ShortEmployeeInfoViewModel> results = await _erpManager.GetShortEmployeesInfo();

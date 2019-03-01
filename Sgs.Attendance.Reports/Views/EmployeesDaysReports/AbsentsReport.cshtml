@@ -68,6 +68,14 @@
                                     <td>@(Absent.IsDelegationRequest ? "طلب انتداب" : "")</td>
                                 </tr>
                             }
+                            @if(Model.Count() < 1)
+                            {
+                                <tr>
+                                    <td colspan="5" class="text-center">
+                                        ... لا يوجد بيانات ...
+                                    </td>
+                                </tr>
+                            }
                         </tbody>
                     </table>
                 </div>
