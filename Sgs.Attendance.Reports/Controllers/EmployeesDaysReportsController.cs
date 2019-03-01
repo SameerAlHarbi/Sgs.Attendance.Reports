@@ -44,11 +44,11 @@ namespace Sgs.Attendance.Reports.Controllers
                 startDate = startDate.Date;
                 endDate = endDate.Date;
 
-                var employeesIdsNumbers =// employeesIds.TryParseToNumbers()?.Select(d => (int)d).ToList() ??
-                    new List<int>();
+                employeesIds = employeesIds ?? new int[] { } ;
 
                 var resultsQuery =  _employeesDaysReportsManager
-                    .GetAll(d => (employeesIdsNumbers.Count < 1 || employeesIdsNumbers.Contains(d.EmployeeId)) 
+                    .GetAll(d => (employeesIds.Count() < 1 || employeesIds.Contains(d.EmployeeId)) 
+                            && (absentNotes || (!d.IsDelegationRequest && !d.IsVacationRequest))
                             &&  d.DayDate >= startDate && d.DayDate <= endDate && d.IsAbsentEmployee == true);
 
                 if(pageNumber.HasValue)
@@ -61,9 +61,9 @@ namespace Sgs.Attendance.Reports.Controllers
 
                 if (resultViewModels.Count>0)
                 {
-                    employeesIdsNumbers = resultViewModels.Select(d => d.EmployeeId).Distinct().ToList();
+                    employeesIds = resultViewModels.Select(d => d.EmployeeId).Distinct().ToArray();
 
-                    var erpEmployees = await _erpManager.GetEmployeesInfo(employeesIdsNumbers);
+                    var erpEmployees = await _erpManager.GetShortEmployeesInfo(employeesIds);
 
                     foreach (var erpEmp in erpEmployees)
                     {

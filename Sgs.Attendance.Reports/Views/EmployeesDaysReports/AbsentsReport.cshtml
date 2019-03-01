@@ -60,13 +60,24 @@
                         <tbody>
                             @foreach (var Absent in Model)
                             {
-                                <tr style="text-align:center">
-                                    <td>@Absent.EmployeeId</td>
-                                    <td>@Absent.EmployeeName</td>
-                                    <td>@Absent.DepartmentName</td>
-                                    <td>@Absent.DayDate.ToString("yyyy-MM-dd")</td>
-                                    <td>@(Absent.IsDelegationRequest ? "طلب انتداب" : "")</td>
-                                </tr>
+                            <tr style="text-align:center">
+                                <td>@Absent.EmployeeId</td>
+                                <td>@Absent.EmployeeName</td>
+                                <td>@Absent.DepartmentName</td>
+                                <td>@Absent.DayDate.ToString("yyyy-MM-dd")</td>
+                                @if (Absent.IsDelegationRequest)
+                                {
+                                    <td style="color:red">طلب انتداب</td>
+                                }
+                                else if (Absent.IsVacationRequest)
+                                {
+                                    <td style="color:green">طلب اجازة</td>
+                                }
+                                else
+                                {
+                                    <td></td>
+                                }
+                            </tr>
                             }
                             @if(Model.Count() < 1)
                             {
