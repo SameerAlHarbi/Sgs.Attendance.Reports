@@ -233,7 +233,7 @@ namespace Sgs.Attendance.Reports.Services
         {
             try
             {
-                string url = !string.IsNullOrWhiteSpace(parentDepartmentCode) ? $"ChildDepartments?deptCode={parentDepartmentCode}" : "ChildDepartments";
+                string url = !string.IsNullOrWhiteSpace(parentDepartmentCode) ? $"ChildDepartments?deptCode={parentDepartmentCode}" : "ChildDepartments?deptCode=00000130";
                 HttpResponseMessage response = await _client.GetAsync(url);
 
                 if (response.IsSuccessStatusCode)
@@ -247,6 +247,20 @@ namespace Sgs.Attendance.Reports.Services
                         item.ParentDepartmentInfo = results.FirstOrDefault(d => d.Code == item.ParentCode);
                         item.ChildDepartmentsList.AddRange(results.Where(d => d.ParentCode == item.Code));
                     }
+
+                    //if (string.IsNullOrWhiteSpace(parentDepartmentCode))
+                    //{
+                    //    var sgs = results?.FirstOrDefault(d => d.Id == 130);
+                    //    if (sgs != null)
+                    //    {
+                    //        sgs.ParentDepartmentInfo = null;
+                    //        sgs.ParentCode = null;
+                    //        sgs.ParentName = null;
+
+                    //        results = new List<DepartmentInfoViewModel> { sgs };
+                    //    }
+                    //}
+
 
                     return results;
                 }

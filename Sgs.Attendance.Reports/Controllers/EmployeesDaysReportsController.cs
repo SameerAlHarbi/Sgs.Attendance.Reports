@@ -37,7 +37,7 @@ namespace Sgs.Attendance.Reports.Controllers
 
         [HttpPost]
         public async Task<IActionResult> AbsentsReport(DateTime startDate, DateTime endDate
-            , int[] employeesIds = null, bool absentNotes = true, bool summaryReport = true,int? pageNumber = null,int pageSize=31)
+            , int[] employeesIds = null, string absentNotes = "all", bool summaryReport = true,int? pageNumber = null,int pageSize=31)
         {
             try
             {
@@ -48,7 +48,11 @@ namespace Sgs.Attendance.Reports.Controllers
 
                 var resultsQuery =  _employeesDaysReportsManager
                     .GetAll(d => (employeesIds.Count() < 1 || employeesIds.Contains(d.EmployeeId)) 
-                            && (absentNotes || (!d.IsDelegationRequest && !d.IsVacationRequest))
+                            && (absentNotes.Trim().ToLower() == "show"
+                                || (absentNotes.Trim().ToLower() == "hide" && !d.IsDelegationRequest && !d.IsVacationRequest)
+                                || (absentNotes.Trim().ToLower() == "notes" && (d.IsDelegationRequest || d.IsVacationRequest))
+                                || (absentNotes.Trim().ToLower() == "vacations" && d.IsVacationRequest)
+                                || (absentNotes.Trim().ToLower() == "delegations" && d.IsDelegationRequest))
                             &&  d.DayDate >= startDate && d.DayDate <= endDate && d.IsAbsentEmployee == true);
 
                 if(pageNumber.HasValue)

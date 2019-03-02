@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Sgs.Attendance.Reports.Services;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Sgs.Attendance.Reports.Controllers
@@ -28,6 +29,24 @@ namespace Sgs.Attendance.Reports.Controllers
             catch (Exception)
             {
                 throw;
+            }
+        }
+
+        public async Task<JsonResult> GetAllDepartmentsJson(string id)
+        {
+            try
+            {
+                var allDataList = await _erpManager.GetChildsDepartmentsInfo(id);
+                return Json(allDataList
+                        .Select(d => new {
+                            id = d.Code,
+                            name = d.Name,
+                            hasChildren = d.ChildsCount
+                        }));
+            }
+            catch (Exception)
+            {
+                return Json(new { errors = "sorry" });
             }
         }
     }
