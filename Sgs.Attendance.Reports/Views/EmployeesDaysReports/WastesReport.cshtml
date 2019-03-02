@@ -56,7 +56,7 @@
                                 <th>من تاريخ</th>
                                 <th>الى تاريخ</th>
                                 <th>ايام الغياب</th>
-                                <th>ايام التقصير</th>
+                                @*<th>ايام التقصير</th>*@
                             </tr>
                         </thead>
                         <tbody>
@@ -68,8 +68,16 @@
                                     <td>@empMonthReport.DepartmentName</td>
                                     <td>@empMonthReport.StartDate.ToShortDateString()</td>
                                     <td>@empMonthReport.ToDate.ToShortDateString()</td>
-                                    <td>@empMonthReport.TotalAbsentsDays</td>
-                                    <td>@empMonthReport.TotalWasteDays</td>
+                                    <td style="color:red;font-weight:bold">@empMonthReport.TotalAbsentsDays</td>
+                                    @*<td>@empMonthReport.TotalWasteDays</td>*@
+                                </tr>
+                            }
+                            @if (Model.Count() < 1)
+                            {
+                                <tr>
+                                    <td colspan="6" class="text-center">
+                                        ... لا يوجد بيانات ...
+                                    </td>
                                 </tr>
                             }
                         </tbody>

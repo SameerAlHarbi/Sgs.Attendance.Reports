@@ -131,12 +131,33 @@
     <partial name="_ValidationScripts">
         <script>
 
+            // function that gathers IDs of checked nodes
+            function checkedNodesIds(nodes, checkedNodes) {
+                for (var i = 0; i < nodes.length; i++) {
+                    if (nodes[i].checked) {
+                        checkedNodes.push(nodes[i].id);
+                    }
+
+                    if (nodes[i].hasChildren) {
+                        checkedNodesIds(nodes[i].children.view(), checkedNodes);
+                    }
+                }
+            }
+
+
             $(function () {
 
                 $('[data-toggle="tooltip"]').tooltip()
 
-              $('form').submit(function (e) {
-                if ($(this).valid()) {
+                $('form').submit(function (e) {
+
+                    if ($(this).valid()) {
+
+                        var departmentsTree = $("#departments").data("kendoDropDownTree");
+                        var departmentsNodes = departmentsTree.dataSource.view();
+                        var checkedDepartmentsNodes = [];
+
+                        checkedNodesIds(departmentsNodes, checkedDepartmentsNodes);
 
                     var options = {
                     url: "@Url.Action("AbsentsReport", "EmployeesDaysReports")",
@@ -148,6 +169,7 @@
                             , employeesIds: $("#employees").data("kendoMultiSelect").value()
                             , absentNotes: $("#absentNotes").val()
                             , summaryReport: $("#reportType").val()
+                            , departments: checkedDepartmentsNodes
                         },
                     success: function updateBalances(data) {
                         $("#absentsData").html(data);

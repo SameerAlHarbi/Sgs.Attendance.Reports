@@ -37,7 +37,8 @@ namespace Sgs.Attendance.Reports.Controllers
 
         [HttpPost]
         public async Task<IActionResult> AbsentsReport(DateTime startDate, DateTime endDate
-            , int[] employeesIds = null, string absentNotes = "all", bool summaryReport = true,int? pageNumber = null,int pageSize=31)
+            , int[] employeesIds = null,string[] departments=null, string absentNotes = "all"
+            , bool summaryReport = true,int? pageNumber = null,int pageSize=31)
         {
             try
             {
@@ -45,6 +46,24 @@ namespace Sgs.Attendance.Reports.Controllers
                 endDate = endDate.Date;
 
                 employeesIds = employeesIds ?? new int[] { } ;
+                departments = departments ?? new string[] { };
+
+                var employeesIdsList = employeesIds.ToList();
+
+                if(departments.Count() > 0)
+                {
+                    var departmentsEmployees = new List<EmployeeInfoViewModel>();
+                    foreach (var department in departments)
+                    {
+                        departmentsEmployees.AddRange(await _erpManager.GetDepartmentEmployeesInfo(department));
+                    }
+
+                    if (departmentsEmployees.Any())
+                    {
+                        employeesIdsList.AddRange(departmentsEmployees.Select(d => d.EmployeeId));
+                        employeesIds = employeesIdsList.Distinct().OrderBy(e => e).ToArray();
+                    }
+                }
 
                 var resultsQuery =  _employeesDaysReportsManager
                     .GetAll(d => (employeesIds.Count() < 1 || employeesIds.Contains(d.EmployeeId)) 
@@ -67,7 +86,7 @@ namespace Sgs.Attendance.Reports.Controllers
                 {
                     employeesIds = resultViewModels.Select(d => d.EmployeeId).Distinct().ToArray();
 
-                    var erpEmployees = await _erpManager.GetShortEmployeesInfo(employeesIds);
+                    var erpEmployees = await _erpManager.GetEmployeesInfo(employeesIds);
 
                     foreach (var erpEmp in erpEmployees)
                     {
@@ -79,7 +98,31 @@ namespace Sgs.Attendance.Reports.Controllers
                     } 
                 }
 
-                return PartialView(resultViewModels.OrderBy(d => d.EmployeeId).ThenBy(d => d.DayDate).ToList());
+                resultViewModels = resultViewModels.OrderBy(d => d.EmployeeId).ThenBy(d => d.DayDate).ToList();
+
+                if (!summaryReport)
+                {
+                    return PartialView(resultViewModels);
+                }
+                else
+                {
+                    var summaryViewModels = new List<EmployeeMonthReportViewModel>();
+                    foreach (var employeeDays in resultViewModels.GroupBy(e => e.EmployeeId))
+                    {
+                        var newSummary = new EmployeeMonthReportViewModel
+                        {
+                            EmployeeId = employeeDays.Key,
+                            EmployeeName = employeeDays.First().EmployeeName,
+                            DepartmentName = employeeDays.First().DepartmentName,
+                            ProcessingDate = employeeDays.Max(d => d.ProcessingDate),
+                            StartDate = startDate,
+                            ToDate = employeeDays.Max(d => d.DayDate),
+                            TotalAbsentsDays = employeeDays.Count()
+                        };
+                        summaryViewModels.Add(newSummary);
+                    }
+                    return PartialView("WastesReport", summaryViewModels.OrderBy(s => s.EmployeeId).ToList());
+                }
             }
             catch (Exception ex)
             {
