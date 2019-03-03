@@ -6,52 +6,170 @@
 }
 
 <div class="d-print-none">
-    <form class="form-inline">
-        <div class="form-group">
-            <label for="startDate" class="control-label" style="margin:0 20px"> من تاريخ :</label>
-            <kendo-datepicker min="new DateTime(2018,12,1)" name="startDate" id="startDate" value="firstMonthDay" format="yyyy-MM-dd" title="عرض من تاريخ" />
+    <form>
+        <div class="form-row">
+            <div class="form-group col-md-2" style="max-width:170px">
+                <label for="startDate" class="control-label"> من تاريخ :</label>
+                <br />
+                <kendo-datepicker name="startDate" id="startDate" value="firstMonthDay"
+                                  format="yyyy-MM-dd" min="new DateTime(2018,12,1)" max="lastMonthDay"
+                                  class="form-control" style="width:160px" data-toggle="tooltip" data-placement="bottom" title="عرض من تاريخ" />
+            </div>
+            <div class="form-group col-md-2" style="max-width:170px">
+                <label for="endDate" class="control-label"> إلى تاريخ :</label>
+                <br />
+                <kendo-datepicker name="endDate" id="endDate" value="lastMonthDay"
+                                  format="yyyy-MM-dd" min="new DateTime(2018,12,1)" max="lastMonthDay"
+                                  class="form-control" style="width:160px" data-toggle="tooltip" data-placement="bottom" title="عرض الى تاريخ" />
+            </div>
+            <div class="form-group col-md-3">
+                <label for="employees" class="control-label"> الموظفين :</label>
+                <br />
+                @(Html.Kendo().MultiSelect()
+                                                        .Name("employees")
+                                                        .Placeholder("تحديد الموظفين ...")
+                                                        .HtmlAttributes(new { style = "100%" })
+                                                        .DataTextField("EmployeeId")
+                                                        .DataValueField("EmployeeId")
+                                                        .AutoClose(true)
+                                                        .AutoBind(false)
+                                                        .MinLength(3)
+                                                        .ItemTemplate("<span style=\"color:red\">#= EmployeeId #</span>&nbsp;-&nbsp; #= Name #")
+                                                .DataSource(source =>
+                                                {
+                                                    source.Read(read =>
+                                                    {
+                                                        read.Action("ShortEmployeesInfoByTextJson", "Employees");
+                                                    })
+                                                    .ServerFiltering(true);
+                                                })
+                )
+            </div>
+            <div class="form-group col-md-3">
+                <label for="departments" class="control-label"> الادارات - الاقسام</label>
+                <br />
+                @(Html.Kendo().DropDownTree()
+                            .Name("departments")
+                            .AutoWidth(true)
+                            .HtmlAttributes(new { style = "width: 100%" })
+                            .Height("500px")
+                            .Placeholder("اختر الادارة - القسم ")
+                            .DataTextField("name")
+                            .AutoClose(false)
+                            //.Filter(FilterType.Contains)
+                            .Checkboxes(checkboxes => checkboxes
+                                .Name("checkedDepartments")
+                                .CheckChildren(false)
+                            )
+                            .DataSource(dataSource => dataSource
+                            .Read(read => read
+                                .Action("GetAllDepartmentsJson", "Departments")
+                            ))
+                )
+            </div>
+            <div class="form-group col-md-1" style="min-width:130px" data-toggle="tooltip" data-placement="bottom" title="نوع تقرير الغياب للموظفين">
+                <label for="reportType" class="control-label">نوع التقرير</label>
+                <select id="reportType" name="reportType" class="custom-select">
+                    <option value="true" selected title="تقرير مختصر بأيام الغياب للموظفين">مختصر</option>
+                    <option value="false" title="تقرير تفصيلي بأيام الغياب للموظفين">تفصيلي التقصير</option>
+                    <option value="false" title="تقرير تفصيلي بأيام الغياب للموظفين">تفصيلي شامل</option>
+                </select>
+            </div>
+            <div class="form-group col-md-1">
+                <label for="showAbsents" class="control-label">&nbsp;</label>
+                <br />
+                <button type="submit" id="showWastes" class="btn btn-info btn-block"> عرض <i class="fas fa-search"></i> </button>
+            </div>
         </div>
 
-        <div class="form-group">
-            <label for="endDate" class="control-label" style="margin:0 20px"> إلى تاريخ :</label>
-            <kendo-datepicker min="new DateTime(2018,12,1)" name="endDate" id="endDate" value="lastMonthDay" format="yyyy-MM-dd" title="عرض الى تاريخ" />
-        </div>
-
-        <div class="form-group" style="margin: 0 30px">
-            <button type="submit" id="showWastes" class="btn btn-primary"> عرض </button>
-        </div>
     </form>
-    <br />
+    <hr />
 </div>
+
 
 <div id="wastesData">
-
+    <p id="report" class="lead" style="text-align:center;margin-top:150px;font-style:italic;color:gray"> .... تقرير التقصير .... </p>
 </div>
 
+@section header{
+    <style>
 
+        .search-row {
+            display: flex;
+            flex-flow: row nowrap;
+            justify-content: space-between;
+            align-items: center;
+            background-color: lightyellow;
+            min-height: 50px;
+        }
+
+            .search-row > div {
+                padding: 0 5px;
+            }
+
+        .search-dates {
+            background-color: lightcyan;
+        }
+
+        .search-2 {
+            flex: 1;
+        }
+    </style>
+}
 
 @section scripts{
     <partial name="_ValidationScripts">
         <script>
 
-        $(function () {
+            // function that gathers IDs of checked nodes
+            function checkedNodesIds(nodes, checkedNodes) {
+                for (var i = 0; i < nodes.length; i++) {
+                    if (nodes[i].checked) {
+                        checkedNodes.push(nodes[i].id);
+                    }
 
-              $('form').submit(function (e) {
-                if ($(this).valid()) {
+                    if (nodes[i].hasChildren) {
+                        checkedNodesIds(nodes[i].children.view(), checkedNodes);
+                    }
+                }
+            }
+
+
+            $(function () {
+
+                $('[data-toggle="tooltip"]').tooltip()
+
+                $('form').submit(function (e) {
+
+                    if ($(this).valid()) {
+
+                        var departmentsTree = $("#departments").data("kendoDropDownTree");
+                        var departmentsNodes = departmentsTree.dataSource.view();
+                        var checkedDepartmentsNodes = [];
+
+                        checkedNodesIds(departmentsNodes, checkedDepartmentsNodes);
 
                     var options = {
                     url: "@Url.Action("WastesReport", "EmployeesDaysReports")",
                     type: "Post",
-                 dataType: "html",
-                    data: { startDate: $("#startDate").val(), endDate: $("#endDate").val() },
-                        success: function updateWastes(data) {
+                    dataType: "html",
+                        data: {
+                              startDate: $("#startDate").val()
+                            , endDate: $("#endDate").val()
+                            , employeesIds: $("#employees").data("kendoMultiSelect").value()
+                            , departments: checkedDepartmentsNodes
+                        },
+                    success: function updateBalances(data) {
                         $("#wastesData").html(data);
                         $("#wastesData").fadeIn();
                     },
                  error: function () {
                      $("#wastesData").text("error");
                      $("#wastesData").fadeIn();
-                    }
+                        },
+                 beforeSend: function () {
+                     $("#wastesData").html("<div class='text-center'><div class='spinner-grow text-info' role='status'><span class='sr-only'> Loading...</span ></div></div>");
+                        }
                 };
 
                 $.ajax(options);
@@ -61,7 +179,7 @@
                 e.preventDefault();
             });
 
-            toastr.clear();
+            //toastr.clear();
 
         })
 
