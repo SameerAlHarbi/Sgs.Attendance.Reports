@@ -41,11 +41,11 @@
             <td class="report-content-cell">
                 <div>
                     @*<div class="d-print-none" style="margin-bottom:5px;">
-                        <a class="btn btn-outline-secondary d-print-none" href="javascript:window.print()">
-                            <i class="fas fa-print"></i> طباعة
-                        </a>
-                        <br />
-                    </div>*@
+                            <a class="btn btn-outline-secondary d-print-none" href="javascript:window.print()">
+                                <i class="fas fa-print"></i> طباعة
+                            </a>
+                            <br />
+                        </div>*@
 
                     <table class="table table-bordered table-striped">
                         <thead style="background-color:#bbe3e8 ; text-align:center">
@@ -55,30 +55,58 @@
                                 <th>الادارة - القسم</th>
                                 <th>من تاريخ</th>
                                 <th>الى تاريخ</th>
-                                <th>ايام الغياب</th>
-                                @*<th>ايام التقصير</th>*@
+                                @if (ViewBag.ShowAbsents)
+                                {
+                                    <th>ايام الغياب</th>
+                                }
+                                @if(ViewBag.ShowWaste)
+                                {
+                                    <th>ايام التقصير</th>
+                                }
+
                             </tr>
                         </thead>
                         <tbody>
                             @foreach (var empMonthReport in Model)
                             {
-                                <tr style="text-align:center">
-                                    <td>@empMonthReport.EmployeeId</td>
-                                    <td>@empMonthReport.EmployeeName</td>
-                                    <td>@empMonthReport.DepartmentName</td>
-                                    <td>@empMonthReport.StartDate.ToShortDateString()</td>
-                                    <td>@empMonthReport.ToDate.ToShortDateString()</td>
-                                    <td style="color:red;font-weight:bold">@empMonthReport.TotalAbsentsDays</td>
-                                    @*<td>@empMonthReport.TotalWasteDays</td>*@
-                                </tr>
+                            <tr style="text-align:center">
+                                <td>@empMonthReport.EmployeeId</td>
+                                <td>@empMonthReport.EmployeeName</td>
+                                <td>@empMonthReport.DepartmentName</td>
+                                <td>@empMonthReport.StartDate.ToShortDateString()</td>
+                                <td>@empMonthReport.ToDate.ToShortDateString()</td>
+                                @if (ViewBag.ShowAbsents)
+                                {
+                                    <td style="color:red">
+                                        @empMonthReport.TotalAbsentsDays
+                                    </td>
+                                }
+                                @if (ViewBag.ShowWaste)
+                                {
+                                    <td style="color:red">
+                                        @empMonthReport.WasteDays
+                                    </td>
+                                }
+                            </tr>
                             }
                             @if (Model.Count() < 1)
                             {
-                                <tr>
-                                    <td colspan="6" class="text-center">
-                                        ... لا يوجد بيانات ...
-                                    </td>
-                                </tr>
+                                @if (ViewBag.ShowWaste && ViewBag.ShowAbsents)
+                                {
+                                    <tr>
+                                        <td colspan="7" class="text-center">
+                                            ... لا يوجد بيانات ...
+                                        </td>
+                                    </tr>
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="6" class="text-center">
+                                            ... لا يوجد بيانات ...
+                                        </td>
+                                    </tr>
+                                }
                             }
                         </tbody>
                     </table>

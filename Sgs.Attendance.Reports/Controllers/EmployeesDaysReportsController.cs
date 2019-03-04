@@ -116,11 +116,14 @@ namespace Sgs.Attendance.Reports.Controllers
                             DepartmentName = employeeDays.First().DepartmentName,
                             ProcessingDate = employeeDays.Max(d => d.ProcessingDate),
                             StartDate = startDate,
-                            ToDate = employeeDays.Max(d => d.DayDate),
+                            ToDate = endDate,
                             TotalAbsentsDays = employeeDays.Count()
                         };
                         summaryViewModels.Add(newSummary);
                     }
+
+                    ViewBag.ShowAbsents = true;
+                    ViewBag.ShowWaste = false;
                     return PartialView("WastesReport", summaryViewModels.OrderBy(s => s.EmployeeId).ToList());
                 }
             }
@@ -131,13 +134,123 @@ namespace Sgs.Attendance.Reports.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> WastesReport(DateTime startDate, DateTime endDate, string employeesIds = null, int? pageNumber = null, int pageSize = 31)
+        public async Task<IActionResult> WasteReport(int years, int months
+            , int[] employeesIds = null, string[] departments = null, string reportType = null, int? pageNumber = null, int pageSize = 31)
         {
-             
-            return PartialView(new List<EmployeeMonthReportViewModel>
+            try
             {
-                new EmployeeMonthReportViewModel{EmployeeId = 1143,EmployeeName="Osama Mohammed Najjar", StartDate=new DateTime(2019,1,1),ToDate=new DateTime(2019,1,30),TotalAbsentsDays=0,TotalWasteDays=1}
-            });
+                DateTime startDate = new DateTime(years, months, 1);
+                DateTime endDate = new DateTime(years, months, 1).AddMonths(1).AddDays(-1);
+
+                employeesIds = employeesIds ?? new int[] { };
+                departments = departments ?? new string[] { };
+
+                var employeesIdsList = employeesIds.ToList();
+
+                if (departments.Count() > 0)
+                {
+                    var departmentsEmployees = new List<EmployeeInfoViewModel>();
+                    foreach (var department in departments)
+                    {
+                        departmentsEmployees.AddRange(await _erpManager.GetDepartmentEmployeesInfo(department));
+                    }
+
+                    if (departmentsEmployees.Any())
+                    {
+                        employeesIdsList.AddRange(departmentsEmployees.Select(d => d.EmployeeId));
+                        employeesIds = employeesIdsList.Distinct().OrderBy(e => e).ToArray();
+                    }
+                }
+
+                var resultsQuery = _employeesDaysReportsManager
+                    .GetAll(d => (employeesIds.Count() < 1 || employeesIds.Contains(d.EmployeeId))          
+                            && d.DayDate >= startDate && d.DayDate <= endDate
+                            && (reportType == null || reportType == "fullDetails" 
+                            || (d.WasteDurationTime != null && d.WasteDurationTime.Value > new TimeSpan(0,0,0))));
+
+                if (pageNumber.HasValue)
+                {
+                    resultsQuery = resultsQuery.Skip((pageNumber.Value - 1) * pageSize).Take(pageSize);
+                }
+
+                var resultsData = await resultsQuery.AsNoTracking().ToListAsync();
+                var resultViewModels = _mapper.Map<List<EmployeeDayReportViewModel>>(resultsData);
+
+                if (resultViewModels.Count > 0)
+                {
+                    employeesIds = resultViewModels.Select(d => d.EmployeeId).Distinct().ToArray();
+
+                    var erpEmployees = await _erpManager.GetEmployeesInfo();
+
+                    foreach (var erpEmp in erpEmployees)
+                    {
+                        foreach (var dayReport in resultViewModels.Where(d => d.EmployeeId == erpEmp.EmployeeId))
+                        {
+                            dayReport.EmployeeName = erpEmp.Name;
+                            dayReport.DepartmentName = erpEmp.DepartmentName;
+                        }
+                    }
+                }
+
+                resultViewModels = resultViewModels.OrderBy(d => d.EmployeeId).ThenBy(d => d.DayDate).ToList();
+
+                if (string.IsNullOrWhiteSpace(reportType) || reportType == "summary" || employeesIds.Count() > 1)
+                {
+                    var summaryViewModels = new List<EmployeeMonthReportViewModel>();
+                    foreach (var employeeDays in resultViewModels.GroupBy(e => e.EmployeeId))
+                    {
+                        var newSummary = new EmployeeMonthReportViewModel
+                        {
+                            EmployeeId = employeeDays.Key,
+                            EmployeeName = employeeDays.First().EmployeeName,
+                            DepartmentName = employeeDays.First().DepartmentName,
+                            ProcessingDate = employeeDays.Max(d => d.ProcessingDate),
+                            StartDate = startDate,
+                            ToDate = endDate,
+                            ContractWorkDurationAvarage = employeeDays
+                                .Average(d => d.ContractWorkDuration.HasValue ? d.ContractWorkDuration.Value : 0),
+                            TotalActualWorkDuration = employeeDays
+                                .Sum(d => d.ActualWorkDuration.HasValue ? d.ActualWorkDuration.Value : 0),
+                            TotalContractWorkDuration=employeeDays
+                                .Sum(d => d.ContractWorkDuration.HasValue ? d.ContractWorkDuration.Value:0),
+                            TotalWasteHours = employeeDays
+                                .Sum(d => d.WasteDuration.HasValue ? d.WasteDuration.Value : 0),
+                        };
+
+                        newSummary.ContractWorkDurationAvarageTime = newSummary.ContractWorkDurationAvarage.ConvertToTime();
+                        newSummary.TotalActualWorkDurationTime = newSummary.TotalActualWorkDuration.ConvertToTime();
+                        newSummary.TotalContractWorkDurationTime = newSummary.TotalContractWorkDuration.ConvertToTime();
+                        newSummary.TotalWasteHoursTime = newSummary.TotalWasteHours.ConvertToTime();
+
+                        newSummary.WasteHours = newSummary.TotalWasteHours - newSummary.ContractWorkDurationAvarage;
+                        newSummary.WasteHours = newSummary.WasteHours > 0 ? newSummary.WasteHours : 0;
+
+                        newSummary.WasteHoursTime = newSummary.WasteHours.ConvertToTime();
+
+                        if( newSummary.WasteHours  > 0)
+                        {
+                            newSummary.WasteDays = (int)(newSummary.WasteHours / newSummary.ContractWorkDurationAvarage);
+                        }
+
+                        summaryViewModels.Add(newSummary);
+                    }
+
+                    ViewBag.ShowAbsents = false;
+                    ViewBag.ShowWaste = true;
+
+                    return PartialView("WastesReport", summaryViewModels.OrderBy(s => s.EmployeeId).ToList());
+                }
+                else
+                {
+                    return PartialView("EmployeeDetailsMonthlyReport", resultViewModels);
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
         }
 
         public IActionResult EmployeeDetailsMonthlyReport()

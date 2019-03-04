@@ -3,80 +3,94 @@
 
     DateTime firstMonthDay = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
     DateTime lastMonthDay = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1).AddMonths(1).AddDays(-1);
+
+    var years = new List<int>();
+    int currentYear = 2018;
+    for (int i = 0; i < 20; i++)
+    {
+        years.Add(currentYear++);
+    }
+    
 }
 
 <div class="d-print-none">
     <form>
         <div class="form-row">
-            <div class="form-group col-md-2" style="max-width:170px">
-                <label for="startDate" class="control-label"> من تاريخ :</label>
+            <div class="form-group col-md-1">
+                <label for="years" class="control-label"> السنة :</label>
                 <br />
-                <kendo-datepicker name="startDate" id="startDate" value="firstMonthDay"
-                                  format="yyyy-MM-dd" min="new DateTime(2018,12,1)" max="lastMonthDay"
-                                  class="form-control" style="width:160px" data-toggle="tooltip" data-placement="bottom" title="عرض من تاريخ" />
+                @(Html.Kendo().DropDownList()
+                                       .Name("years")
+                                       .BindTo(years.ToArray())
+                                       .Value(DateTime.Today.Year.ToString())
+                                       .HtmlAttributes(new { style = "width: 100px" , data_toggle = "tooltip" , data_placement = "bottom" , title = "السنة" })
+                )
             </div>
-            <div class="form-group col-md-2" style="max-width:170px">
-                <label for="endDate" class="control-label"> إلى تاريخ :</label>
+            <div class="form-group col-md-1">
+                <label for="months" class="control-label"> الشهر :</label>
                 <br />
-                <kendo-datepicker name="endDate" id="endDate" value="lastMonthDay"
-                                  format="yyyy-MM-dd" min="new DateTime(2018,12,1)" max="lastMonthDay"
-                                  class="form-control" style="width:160px" data-toggle="tooltip" data-placement="bottom" title="عرض الى تاريخ" />
+                @(Html.Kendo().DropDownList()
+                                       .Name("months")
+                                       .BindTo(new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 })
+                                       .Value(DateTime.Today.Month.ToString())
+                                       .HtmlAttributes(new { style = "width: 100px", data_toggle = "tooltip", data_placement = "bottom", title = "الشهر" })
+                )
             </div>
             <div class="form-group col-md-3">
                 <label for="employees" class="control-label"> الموظفين :</label>
                 <br />
                 @(Html.Kendo().MultiSelect()
-                                                        .Name("employees")
-                                                        .Placeholder("تحديد الموظفين ...")
-                                                        .HtmlAttributes(new { style = "100%" })
-                                                        .DataTextField("EmployeeId")
-                                                        .DataValueField("EmployeeId")
-                                                        .AutoClose(true)
-                                                        .AutoBind(false)
-                                                        .MinLength(3)
-                                                        .ItemTemplate("<span style=\"color:red\">#= EmployeeId #</span>&nbsp;-&nbsp; #= Name #")
-                                                .DataSource(source =>
-                                                {
-                                                    source.Read(read =>
-                                                    {
-                                                        read.Action("ShortEmployeesInfoByTextJson", "Employees");
-                                                    })
-                                                    .ServerFiltering(true);
-                                                })
+                                                                .Name("employees")
+                                                                .Placeholder("تحديد الموظفين ...")
+                                                                .HtmlAttributes(new { style = "100%" })
+                                                                .DataTextField("EmployeeId")
+                                                                .DataValueField("EmployeeId")
+                                                                .AutoClose(true)
+                                                                .AutoBind(false)
+                                                                .MinLength(3)
+                                                                .ItemTemplate("<span style=\"color:red\">#= EmployeeId #</span>&nbsp;-&nbsp; #= Name #")
+                                                        .DataSource(source =>
+                                                        {
+                                                            source.Read(read =>
+                                                            {
+                                                                read.Action("ShortEmployeesInfoByTextJson", "Employees");
+                                                            })
+                                                            .ServerFiltering(true);
+                                                        })
                 )
             </div>
             <div class="form-group col-md-3">
                 <label for="departments" class="control-label"> الادارات - الاقسام</label>
                 <br />
                 @(Html.Kendo().DropDownTree()
-                            .Name("departments")
-                            .AutoWidth(true)
-                            .HtmlAttributes(new { style = "width: 100%" })
-                            .Height("500px")
-                            .Placeholder("اختر الادارة - القسم ")
-                            .DataTextField("name")
-                            .AutoClose(false)
-                            //.Filter(FilterType.Contains)
-                            .Checkboxes(checkboxes => checkboxes
-                                .Name("checkedDepartments")
-                                .CheckChildren(false)
-                            )
-                            .DataSource(dataSource => dataSource
-                            .Read(read => read
-                                .Action("GetAllDepartmentsJson", "Departments")
-                            ))
+                                    .Name("departments")
+                                    .AutoWidth(true)
+                                    .HtmlAttributes(new { style = "width: 100%" })
+                                    .Height("500px")
+                                    .Placeholder("اختر الادارة - القسم ")
+                                    .DataTextField("name")
+                                    .AutoClose(false)
+                                    //.Filter(FilterType.Contains)
+                                    .Checkboxes(checkboxes => checkboxes
+                                        .Name("checkedDepartments")
+                                        .CheckChildren(false)
+                                    )
+                                    .DataSource(dataSource => dataSource
+                                    .Read(read => read
+                                        .Action("GetAllDepartmentsJson", "Departments")
+                                    ))
                 )
             </div>
-            <div class="form-group col-md-1" style="min-width:130px" data-toggle="tooltip" data-placement="bottom" title="نوع تقرير الغياب للموظفين">
+            <div class="form-group col-md-2" style="min-width:130px" data-toggle="tooltip" data-placement="bottom" title="نوع تقرير التقصير للموظفين">
                 <label for="reportType" class="control-label">نوع التقرير</label>
                 <select id="reportType" name="reportType" class="custom-select">
-                    <option value="true" selected title="تقرير مختصر بأيام الغياب للموظفين">مختصر</option>
-                    <option value="false" title="تقرير تفصيلي بأيام الغياب للموظفين">تفصيلي التقصير</option>
-                    <option value="false" title="تقرير تفصيلي بأيام الغياب للموظفين">تفصيلي شامل</option>
+                    <option value="summary" selected title="تقرير مختصر بأيام التقصير للموظفين">مختصر</option>
+                    <option value="wasteDetails" title="تقرير تفصيلي بأيام التقصير للموظفين">تفصيلي التقصير</option>
+                    <option value="fullDetails" title="تقرير تفصيلي شامل للموظفين">تفصيلي شامل</option>
                 </select>
             </div>
             <div class="form-group col-md-1">
-                <label for="showAbsents" class="control-label">&nbsp;</label>
+                <label for="showWastes" class="control-label">&nbsp;</label>
                 <br />
                 <button type="submit" id="showWastes" class="btn btn-info btn-block"> عرض <i class="fas fa-search"></i> </button>
             </div>
@@ -91,49 +105,9 @@
     <p id="report" class="lead" style="text-align:center;margin-top:150px;font-style:italic;color:gray"> .... تقرير التقصير .... </p>
 </div>
 
-@section header{
-    <style>
-
-        .search-row {
-            display: flex;
-            flex-flow: row nowrap;
-            justify-content: space-between;
-            align-items: center;
-            background-color: lightyellow;
-            min-height: 50px;
-        }
-
-            .search-row > div {
-                padding: 0 5px;
-            }
-
-        .search-dates {
-            background-color: lightcyan;
-        }
-
-        .search-2 {
-            flex: 1;
-        }
-    </style>
-}
-
 @section scripts{
     <partial name="_ValidationScripts">
         <script>
-
-            // function that gathers IDs of checked nodes
-            function checkedNodesIds(nodes, checkedNodes) {
-                for (var i = 0; i < nodes.length; i++) {
-                    if (nodes[i].checked) {
-                        checkedNodes.push(nodes[i].id);
-                    }
-
-                    if (nodes[i].hasChildren) {
-                        checkedNodesIds(nodes[i].children.view(), checkedNodes);
-                    }
-                }
-            }
-
 
             $(function () {
 
@@ -150,14 +124,15 @@
                         checkedNodesIds(departmentsNodes, checkedDepartmentsNodes);
 
                     var options = {
-                    url: "@Url.Action("WastesReport", "EmployeesDaysReports")",
+                    url: "@Url.Action("WasteReport", "EmployeesDaysReports")",
                     type: "Post",
                     dataType: "html",
                         data: {
-                              startDate: $("#startDate").val()
-                            , endDate: $("#endDate").val()
+                              years: $("#years").val()
+                            , months: $("#months").val()
                             , employeesIds: $("#employees").data("kendoMultiSelect").value()
                             , departments: checkedDepartmentsNodes
+                            , reportType: $("#reportType").val()
                         },
                     success: function updateBalances(data) {
                         $("#wastesData").html(data);

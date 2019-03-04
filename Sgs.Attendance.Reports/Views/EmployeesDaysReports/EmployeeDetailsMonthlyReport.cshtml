@@ -78,10 +78,10 @@
                                         
                                     </td>
                                     <td class=@(empDaysReports.IsLate?"text-danger":"text-primary")>
-                                        @(empDaysReports.ActualCheckInDateTime.HasValue? empDaysReports.ActualCheckInDateTime.Value.ToShortTimeString() : "")
+                                        @(empDaysReports.CheckInDateTime.HasValue? empDaysReports.CheckInDateTime.Value.ToShortTimeString() : "")
                                     </td>
                                     <td class=@(empDaysReports.IsEarly?"text-danger":"text-primary")>
-                                        @(empDaysReports.ActualCheckOutDateTime.HasValue? empDaysReports.ActualCheckOutDateTime.Value.ToShortTimeString() : "")
+                                        @(empDaysReports.CheckOutDateTime.HasValue? empDaysReports.CheckOutDateTime.Value.ToShortTimeString() : "")
                                     </td>
                                     <td class=@(empDaysReports.IsLate || empDaysReports.IsEarly || empDaysReports.IsAbsentEmployee?"text-danger":"text-primary")>
                                         @empDaysReports.CheckInLateDurationTime

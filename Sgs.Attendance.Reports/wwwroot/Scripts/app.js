@@ -1,4 +1,18 @@
-﻿(function () {
+﻿
+// function that gathers IDs of checked nodes
+function checkedNodesIds(nodes, checkedNodes) {
+    for (var i = 0; i < nodes.length; i++) {
+        if (nodes[i].checked) {
+            checkedNodes.push(nodes[i].id);
+        }
+
+        if (nodes[i].hasChildren) {
+            checkedNodesIds(nodes[i].children.view(), checkedNodes);
+        }
+    }
+}
+
+(function () {
 
     $(function () {
 
