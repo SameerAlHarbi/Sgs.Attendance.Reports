@@ -60,5 +60,7 @@ namespace Sgs.Attendance.Reports.ViewModels
         public List<EmployeeDayReportViewModel> DayReportsList { get; set; }
 
         public int  VacationsDays { get; set; }
+
+        public int  SingleProofDays { get; set; }
     }
 }

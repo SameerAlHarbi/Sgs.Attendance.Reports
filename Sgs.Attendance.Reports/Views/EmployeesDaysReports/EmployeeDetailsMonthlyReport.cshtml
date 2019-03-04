@@ -1,5 +1,5 @@
 ﻿@using Sameer.Shared.Data;
-@model IEnumerable<EmployeeDayReportViewModel>
+@model EmployeeMonthReportViewModel
 
 @{
     ViewData["Title"] = "تقرير الموظف";
@@ -25,10 +25,10 @@
                     </div>
                     <div id="employee-info" class="row">
                         <div class="col d-none d-print-block" style="text-align:right">
-                            <span>اسم الموظف : </span><span class="text-info"></span>
+                            <span>اسم الموظف : </span><span class="text-info">@Model.EmployeeId - @Model.EmployeeName</span>
                         </div>
                         <div class="col d-none d-print-block" style="text-align:left">
-                            <span>الادارة - القسم : </span><span class="text-info"></span> 
+                            <span>الادارة - القسم : </span><span class="text-info">@Model.DepartmentName</span> 
                         </div>
                     </div>
                 </div>
@@ -40,10 +40,11 @@
             <td class="report-footer-cell">
                 <div class="footer-info">
                     <div class="row" style="border: 2px solid gray; margin-left:0.50px;margin-right:0.50px; height:40px">
-                        <div class="col justify-content-center align-self-center text-center text-danger">ايام الاجازة : 6</div>
-                        <div class="col justify-content-center align-self-center text-center text-danger">ايام الغياب : 4</div>
-                        <div class="col justify-content-center align-self-center text-center text-danger">ايام التقصير : 0</div>
-                        <div class="col justify-content-center align-self-center text-center text-danger">ساعات التقصير : 05:23:00</div>
+                        <div class="col justify-content-center align-self-center text-center text-danger">ايام الاجازة :  @Model.VacationsDays</div>
+                        <div class="col justify-content-center align-self-center text-center text-danger">ايام الغياب : @Model.TotalAbsentsDays</div>
+                        <div class="col justify-content-center align-self-center text-center text-danger">بصمة واحدة : @Model.SingleProofDays</div>
+                        <div class="col justify-content-center align-self-center text-center text-danger">ايام التقصير :  @Model.WasteDays</div>
+                        <div class="col justify-content-center align-self-center text-center text-danger">ساعات التقصير :  @Model.TotalWasteHoursTime.TotalHours : @Model.TotalWasteHoursTime.Minutes</div>
                     </div>
                 </div>
             </td>
@@ -67,7 +68,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var empDaysReports in Model)
+                            @foreach (var empDaysReports in Model.DayReportsList)
                             {
                                 <tr style="text-align:center">
                                     <td>
@@ -83,11 +84,11 @@
                                     <td class=@(empDaysReports.IsEarly?"text-danger":"text-primary")>
                                         @(empDaysReports.CheckOutDateTime.HasValue? empDaysReports.CheckOutDateTime.Value.ToShortTimeString() : "")
                                     </td>
-                                    <td class=@(empDaysReports.IsLate || empDaysReports.IsEarly || empDaysReports.IsAbsentEmployee?"text-danger":"text-primary")>
+                                    <td class=@(empDaysReports.WasteDuration.HasValue && empDaysReports.WasteDuration.Value > 0?"text-danger":"text-primary")>
                                         @empDaysReports.WasteDurationTime
                                     </td>
                                     <td class=@(empDaysReports.IsAbsentEmployee && (empDaysReports.IsDelegationRequest || empDaysReports.IsVacationRequest) ? "text-secondary" : "text-danger")>
-                                        @(empDaysReports.IsAbsentEmployee? "غائب" : "")
+                                        @(empDaysReports.IsAbsentEmployee? "غياب" : "")
                                     </td>
                                     <td class="text-success">@empDaysReports.VacationName</td>
                                     <td>@(empDaysReports.IsDelegationRequest ? "طلب انتداب" : empDaysReports.IsVacationRequest ? "طلب اجازة" : "")</td>

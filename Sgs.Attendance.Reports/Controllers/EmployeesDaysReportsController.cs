@@ -188,8 +188,6 @@ namespace Sgs.Attendance.Reports.Controllers
                         {
                             dayReport.EmployeeName = erpEmp.Name;
                             dayReport.DepartmentName = erpEmp.DepartmentName;
-                            ViewBag.empName =erpEmp.EmployeeId + " || " + erpEmp.Name;
-                            ViewBag.empDept = erpEmp.DepartmentName;
                         }
                     }
                 }
@@ -228,10 +226,13 @@ namespace Sgs.Attendance.Reports.Controllers
 
                     newSummary.WasteHoursTime = newSummary.WasteHours.ConvertToTime();
 
-                    if (newSummary.WasteHours > 0)
+                    if (newSummary.WasteHours > 0 && newSummary.ContractWorkDurationAvarage > 0)
                     {
                         newSummary.WasteDays = (int)(newSummary.WasteHours / newSummary.ContractWorkDurationAvarage);
                     }
+
+                    newSummary.VacationsDays = employeeDays.Where(d => d.IsVacation && d.VacationRegisterDate.HasValue).Count();
+                    newSummary.SingleProofDays = employeeDays.Where(d => d.WasteDuration >= d.ContractWorkDuration).Count();
 
                     summaryViewModels.Add(newSummary);
                 }

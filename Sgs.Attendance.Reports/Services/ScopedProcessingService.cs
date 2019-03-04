@@ -170,7 +170,7 @@ namespace Sgs.Attendance.Reports.Services
                                 if (newDayReport.ActualCheckInDateTime.HasValue
                                     && newDayReport.ActualCheckOutDateTime.HasValue)
                                 {
-                                    newDayReport.ActualCheckOutDateTime = newDayReport.ActualCheckOutDateTime > newDayReport.ActualCheckInDateTime ?
+                                    newDayReport.ActualCheckOutDateTime = newDayReport.ActualCheckOutDateTime > newDayReport.ActualCheckInDateTime.Value.AddMinutes(1) ?
                                            newDayReport.ActualCheckOutDateTime : default(DateTime?);
 
                                     var checkIn = newDayReport.ActualCheckInDateTime >= newDayReport.ContractCheckInDateTime ?
