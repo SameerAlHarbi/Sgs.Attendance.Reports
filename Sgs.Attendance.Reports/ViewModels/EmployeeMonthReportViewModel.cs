@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Sgs.Attendance.Reports.ViewModels
 {
@@ -55,5 +56,9 @@ namespace Sgs.Attendance.Reports.ViewModels
         public int UserId { get; set; }
 
         public string Note { get; set; }
+
+        public List<EmployeeDayReportViewModel> DayReportsList { get; set; }
+
+        public int  VacationsDays { get; set; }
     }
 }

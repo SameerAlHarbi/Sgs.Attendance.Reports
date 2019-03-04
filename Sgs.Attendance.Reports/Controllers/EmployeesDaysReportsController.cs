@@ -196,46 +196,49 @@ namespace Sgs.Attendance.Reports.Controllers
 
                 resultViewModels = resultViewModels.OrderBy(d => d.EmployeeId).ThenBy(d => d.DayDate).ToList();
 
+                var summaryViewModels = new List<EmployeeMonthReportViewModel>();
+                foreach (var employeeDays in resultViewModels.GroupBy(e => e.EmployeeId))
+                {
+                    var newSummary = new EmployeeMonthReportViewModel
+                    {
+                        EmployeeId = employeeDays.Key,
+                        EmployeeName = employeeDays.First().EmployeeName,
+                        DepartmentName = employeeDays.First().DepartmentName,
+                        ProcessingDate = employeeDays.Max(d => d.ProcessingDate),
+                        StartDate = startDate,
+                        ToDate = endDate,
+                        ContractWorkDurationAvarage = employeeDays
+                            .Average(d => d.ContractWorkDuration.HasValue ? d.ContractWorkDuration.Value : 0),
+                        TotalActualWorkDuration = employeeDays
+                            .Sum(d => d.ActualWorkDuration.HasValue ? d.ActualWorkDuration.Value : 0),
+                        TotalContractWorkDuration = employeeDays
+                            .Sum(d => d.ContractWorkDuration.HasValue ? d.ContractWorkDuration.Value : 0),
+                        TotalWasteHours = employeeDays
+                            .Sum(d => d.WasteDuration.HasValue ? d.WasteDuration.Value : 0),
+                        DayReportsList = employeeDays.ToList()
+                    };
+
+                    newSummary.ContractWorkDurationAvarageTime = newSummary.ContractWorkDurationAvarage.ConvertToTime();
+                    newSummary.TotalActualWorkDurationTime = newSummary.TotalActualWorkDuration.ConvertToTime();
+                    newSummary.TotalContractWorkDurationTime = newSummary.TotalContractWorkDuration.ConvertToTime();
+                    newSummary.TotalWasteHoursTime = newSummary.TotalWasteHours.ConvertToTime();
+
+                    newSummary.WasteHours = newSummary.TotalWasteHours - newSummary.ContractWorkDurationAvarage;
+                    newSummary.WasteHours = newSummary.WasteHours > 0 ? newSummary.WasteHours : 0;
+
+                    newSummary.WasteHoursTime = newSummary.WasteHours.ConvertToTime();
+
+                    if (newSummary.WasteHours > 0)
+                    {
+                        newSummary.WasteDays = (int)(newSummary.WasteHours / newSummary.ContractWorkDurationAvarage);
+                    }
+
+                    summaryViewModels.Add(newSummary);
+                }
+
                 if (string.IsNullOrWhiteSpace(reportType) || reportType == "summary" || employeesIds.Count() > 1)
                 {
-                    var summaryViewModels = new List<EmployeeMonthReportViewModel>();
-                    foreach (var employeeDays in resultViewModels.GroupBy(e => e.EmployeeId))
-                    {
-                        var newSummary = new EmployeeMonthReportViewModel
-                        {
-                            EmployeeId = employeeDays.Key,
-                            EmployeeName = employeeDays.First().EmployeeName,
-                            DepartmentName = employeeDays.First().DepartmentName,
-                            ProcessingDate = employeeDays.Max(d => d.ProcessingDate),
-                            StartDate = startDate,
-                            ToDate = endDate,
-                            ContractWorkDurationAvarage = employeeDays
-                                .Average(d => d.ContractWorkDuration.HasValue ? d.ContractWorkDuration.Value : 0),
-                            TotalActualWorkDuration = employeeDays
-                                .Sum(d => d.ActualWorkDuration.HasValue ? d.ActualWorkDuration.Value : 0),
-                            TotalContractWorkDuration=employeeDays
-                                .Sum(d => d.ContractWorkDuration.HasValue ? d.ContractWorkDuration.Value:0),
-                            TotalWasteHours = employeeDays
-                                .Sum(d => d.WasteDuration.HasValue ? d.WasteDuration.Value : 0),
-                        };
-
-                        newSummary.ContractWorkDurationAvarageTime = newSummary.ContractWorkDurationAvarage.ConvertToTime();
-                        newSummary.TotalActualWorkDurationTime = newSummary.TotalActualWorkDuration.ConvertToTime();
-                        newSummary.TotalContractWorkDurationTime = newSummary.TotalContractWorkDuration.ConvertToTime();
-                        newSummary.TotalWasteHoursTime = newSummary.TotalWasteHours.ConvertToTime();
-
-                        newSummary.WasteHours = newSummary.TotalWasteHours - newSummary.ContractWorkDurationAvarage;
-                        newSummary.WasteHours = newSummary.WasteHours > 0 ? newSummary.WasteHours : 0;
-
-                        newSummary.WasteHoursTime = newSummary.WasteHours.ConvertToTime();
-
-                        if( newSummary.WasteHours  > 0)
-                        {
-                            newSummary.WasteDays = (int)(newSummary.WasteHours / newSummary.ContractWorkDurationAvarage);
-                        }
-
-                        summaryViewModels.Add(newSummary);
-                    }
+                   
 
                     ViewBag.ShowAbsents = false;
                     ViewBag.ShowWaste = true;
@@ -244,7 +247,8 @@ namespace Sgs.Attendance.Reports.Controllers
                 }
                 else
                 {
-                    return PartialView("EmployeeDetailsMonthlyReport", resultViewModels);
+
+                    return PartialView("EmployeeDetailsMonthlyReport", summaryViewModels.First());
                 }
 
             }
