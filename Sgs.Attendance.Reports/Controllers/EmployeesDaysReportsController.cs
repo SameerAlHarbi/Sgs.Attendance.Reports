@@ -82,20 +82,20 @@ namespace Sgs.Attendance.Reports.Controllers
                 var resultsData = await resultsQuery.AsNoTracking().ToListAsync();
                 var resultViewModels = _mapper.Map<List<EmployeeDayReportViewModel>>(resultsData);
 
-                if (resultViewModels.Count>0)
+                if (resultViewModels.Count > 0)
                 {
                     employeesIds = resultViewModels.Select(d => d.EmployeeId).Distinct().ToArray();
 
-                    var erpEmployees = await _erpManager.GetEmployeesInfo(employeesIds);
+                    //var erpEmployees = await _erpManager.GetEmployeesInfo(employeesIds);
 
-                    foreach (var erpEmp in erpEmployees)
-                    {
-                        foreach (var dayReport in resultViewModels.Where(d => d.EmployeeId == erpEmp.EmployeeId))
-                        {
-                            dayReport.EmployeeName = erpEmp.Name;
-                            dayReport.DepartmentName = erpEmp.DepartmentName;
-                        }
-                    } 
+                    //foreach (var erpEmp in erpEmployees)
+                    //{
+                    //    foreach (var dayReport in resultViewModels.Where(d => d.EmployeeId == erpEmp.EmployeeId))
+                    //    {
+                    //        dayReport.EmployeeName = erpEmp.Name;
+                    //        dayReport.DepartmentName = erpEmp.DepartmentName;
+                    //    }
+                    //}
                 }
 
                 resultViewModels = resultViewModels.OrderBy(d => d.EmployeeId).ThenBy(d => d.DayDate).ToList();
@@ -179,17 +179,6 @@ namespace Sgs.Attendance.Reports.Controllers
                 if (resultViewModels.Count > 0)
                 {
                     employeesIds = resultViewModels.Select(d => d.EmployeeId).Distinct().ToArray();
-
-                    var erpEmployees = await _erpManager.GetEmployeesInfo();
-
-                    foreach (var erpEmp in erpEmployees)
-                    {
-                        foreach (var dayReport in resultViewModels.Where(d => d.EmployeeId == erpEmp.EmployeeId))
-                        {
-                            dayReport.EmployeeName = erpEmp.Name;
-                            dayReport.DepartmentName = erpEmp.DepartmentName;
-                        }
-                    }
                 }
 
                 resultViewModels = resultViewModels.OrderBy(d => d.EmployeeId).ThenBy(d => d.DayDate).ToList();
@@ -205,8 +194,8 @@ namespace Sgs.Attendance.Reports.Controllers
                         ProcessingDate = employeeDays.Max(d => d.ProcessingDate),
                         StartDate = startDate,
                         ToDate = endDate,
-                        ContractWorkDurationAvarage = employeeDays
-                            .Average(d => d.ContractWorkDuration.HasValue ? d.ContractWorkDuration.Value : 0),
+                        ContractWorkDurationAvarage = employeeDays.Where(d => d.ContractWorkDuration.HasValue)
+                            .Average(d => d.ContractWorkDuration.Value),
                         TotalActualWorkDuration = employeeDays
                             .Sum(d => d.ActualWorkDuration.HasValue ? d.ActualWorkDuration.Value : 0),
                         TotalContractWorkDuration = employeeDays
@@ -239,12 +228,10 @@ namespace Sgs.Attendance.Reports.Controllers
 
                 if (string.IsNullOrWhiteSpace(reportType) || reportType == "summary" || employeesIds.Count() > 1)
                 {
-                   
-
                     ViewBag.ShowAbsents = false;
                     ViewBag.ShowWaste = true;
 
-                    return PartialView("WastesReport", summaryViewModels.OrderBy(s => s.EmployeeId).ToList());
+                    return PartialView("WastesReport", summaryViewModels.Where(s => s.WasteDays > 0).OrderBy(s => s.EmployeeId).ToList());
                 }
                 else
                 {

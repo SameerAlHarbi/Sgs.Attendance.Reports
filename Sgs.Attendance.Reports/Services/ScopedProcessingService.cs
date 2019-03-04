@@ -40,7 +40,7 @@ namespace Sgs.Attendance.Reports.Services
             _logger = logger;
         }
 
-        private async Task<bool> processDaysReports(IEnumerable<ShortEmployeeInfoViewModel> employees ,DateTime fromDate,DateTime toDate)
+        private async Task<bool> processDaysReports(IEnumerable<EmployeeInfoViewModel> employees ,DateTime fromDate,DateTime toDate)
         {
             try
             {
@@ -92,6 +92,9 @@ namespace Sgs.Attendance.Reports.Services
                         var newDayReport = new EmployeeDayReport
                         {
                             EmployeeId = employee.EmployeeId,
+                            EmployeeName = employee.Name,
+                            DepartmentId = employee.DepartmentId,
+                            DepartmentName = employee.DepartmentName,
                             DayDate = startDate.Date,
                             ProcessingDate = DateTime.Now
                         };
@@ -350,7 +353,7 @@ namespace Sgs.Attendance.Reports.Services
                     DateTime toDate = lastDayReport?.DayDate.AddDays(10) ?? openProcessingRequest.FromDate.AddDays(10);
                     toDate = toDate <= openProcessingRequest.ToDate ? toDate : openProcessingRequest.ToDate;
 
-                    var employees = await _erpManager.GetShortEmployeesInfo(employeesIds);
+                    var employees = await _erpManager.GetEmployeesInfo(employeesIds);
                     var lastRequestEmployeeId = employees.Max(e => e.EmployeeId);
 
                     if (fromDate > openProcessingRequest.ToDate)

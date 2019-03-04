@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Sgs.Attendance.Reports.Data;
 
 namespace Sgs.Attendance.Reports.Migrations
 {
     [DbContext(typeof(AttendanceReportsDb))]
-    partial class AttendanceReportsDbModelSnapshot : ModelSnapshot
+    [Migration("20190304181345_addEmployeeNameToDayReport")]
+    partial class addEmployeeNameToDayReport
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -86,7 +88,7 @@ namespace Sgs.Attendance.Reports.Migrations
 
                     b.Property<DateTime?>("DelegationRequestDate");
 
-                    b.Property<int>("DepartmentId");
+                    b.Property<string>("DepartmentId");
 
                     b.Property<string>("DepartmentName");
 

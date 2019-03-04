@@ -14,6 +14,8 @@ namespace Sgs.Attendance.Reports.ViewModels
 
         public string EmployeeName { get; set; }
 
+        public int DepartmentId { get; set; }
+
         public string DepartmentName { get; set; }
 
         public bool IsVacation { get; set; }
