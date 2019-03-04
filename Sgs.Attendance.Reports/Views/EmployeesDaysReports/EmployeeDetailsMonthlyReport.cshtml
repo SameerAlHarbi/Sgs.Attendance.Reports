@@ -25,10 +25,10 @@
                     </div>
                     <div id="employee-info" class="row">
                         <div class="col d-none d-print-block" style="text-align:right">
-                            <span>اسم الموظف : </span><span class="text-info">1143 - اسامه محمد نجار</span>
+                            <span>اسم الموظف : </span><span class="text-info"></span>
                         </div>
                         <div class="col d-none d-print-block" style="text-align:left">
-                            <span>الادارة - القسم : </span><span class="text-info">وحدة هندسة وتطوير البرامج</span> 
+                            <span>الادارة - القسم : </span><span class="text-info"></span> 
                         </div>
                     </div>
                 </div>
@@ -78,13 +78,13 @@
                                         
                                     </td>
                                     <td class=@(empDaysReports.IsLate?"text-danger":"text-primary")>
-                                        @(empDaysReports.CheckInDateTime.HasValue? empDaysReports.CheckInDateTime.Value.ToShortTimeString() : "")
+                                        @(empDaysReports.CheckInDateTimeForReport.HasValue? empDaysReports.CheckInDateTimeForReport.Value.ToShortTimeString() : "")
                                     </td>
                                     <td class=@(empDaysReports.IsEarly?"text-danger":"text-primary")>
                                         @(empDaysReports.CheckOutDateTime.HasValue? empDaysReports.CheckOutDateTime.Value.ToShortTimeString() : "")
                                     </td>
                                     <td class=@(empDaysReports.IsLate || empDaysReports.IsEarly || empDaysReports.IsAbsentEmployee?"text-danger":"text-primary")>
-                                        @empDaysReports.CheckInLateDurationTime
+                                        @empDaysReports.WasteDurationTime
                                     </td>
                                     <td class=@(empDaysReports.IsAbsentEmployee && (empDaysReports.IsDelegationRequest || empDaysReports.IsVacationRequest) ? "text-secondary" : "text-danger")>
                                         @(empDaysReports.IsAbsentEmployee? "غائب" : "")

@@ -188,6 +188,8 @@ namespace Sgs.Attendance.Reports.Controllers
                         {
                             dayReport.EmployeeName = erpEmp.Name;
                             dayReport.DepartmentName = erpEmp.DepartmentName;
+                            ViewBag.empName =erpEmp.EmployeeId + " || " + erpEmp.Name;
+                            ViewBag.empDept = erpEmp.DepartmentName;
                         }
                     }
                 }

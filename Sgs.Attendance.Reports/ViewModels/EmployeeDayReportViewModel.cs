@@ -55,6 +55,48 @@ namespace Sgs.Attendance.Reports.ViewModels
 
         public DateTime? CheckInDateTime { get; set; }
 
+        public DateTime? CheckInDateTimeForReport {
+            get
+            {
+                try
+                {
+                    if (ContractCheckInDateTime.HasValue)
+                    {
+                        if (ActualCheckInDateTime.HasValue)
+                        {
+                            if (ActualCheckInDateTime.Value > ContractCheckInDateTime.Value.AddMinutes(30))
+                            {
+                                if (CheckInExcuse && CheckInExcuseHours < 1)
+                                {
+                                    return ContractCheckInDateTime;
+                                }
+                                else
+                                {
+                                    var result = ActualCheckInDateTime.Value.Subtract(CheckInExcuseHours.ConvertToTime());
+                                    result = result < ContractCheckInDateTime.Value ? ContractCheckInDateTime.Value : result;
+                                    return result;
+                                }
+                            }
+                            else
+                            {
+                                return ActualCheckInDateTime;
+                            }
+                        }
+                        else if (CheckInExcuse && CheckInExcuseHours < 1)
+                        {
+                            return ContractCheckInDateTime;
+                        }
+                    }
+                    return default(DateTime?);
+                }
+                catch (Exception ex)
+                {
+
+                    throw;
+                }
+            }
+        }
+
         public DateTime? CheckOutDateTime { get; set; }
 
         public TimeSpan? WorkDurationTime { get; set; }
