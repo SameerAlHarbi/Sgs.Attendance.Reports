@@ -210,7 +210,15 @@ namespace Sgs.Attendance.Reports.Controllers
                     newSummary.TotalContractWorkDurationTime = newSummary.TotalContractWorkDuration.ConvertToTime();
                     newSummary.TotalWasteHoursTime = newSummary.TotalWasteHours.ConvertToTime();
 
+                    newSummary.SingleProofDays = employeeDays.Where(d => d.WasteDuration >= d.ContractWorkDuration).Count();
+
                     newSummary.WasteHours = newSummary.TotalWasteHours - newSummary.ContractWorkDurationAvarage;
+
+                    if (newSummary.SingleProofDays > 0)
+                    {
+                        newSummary.WasteHours -= newSummary.ContractWorkDurationAvarage;
+                    }
+
                     newSummary.WasteHours = newSummary.WasteHours > 0 ? newSummary.WasteHours : 0;
 
                     newSummary.WasteHoursTime = newSummary.WasteHours.ConvertToTime();
@@ -221,7 +229,7 @@ namespace Sgs.Attendance.Reports.Controllers
                     }
 
                     newSummary.VacationsDays = employeeDays.Where(d => d.IsVacation && d.VacationRegisterDate.HasValue).Count();
-                    newSummary.SingleProofDays = employeeDays.Where(d => d.WasteDuration >= d.ContractWorkDuration).Count();
+                    
 
                     summaryViewModels.Add(newSummary);
                 }
