@@ -44,7 +44,7 @@
                         <div class="col justify-content-center align-self-center text-center text-danger">ايام الغياب : @Model.TotalAbsentsDays</div>
                         <div class="col justify-content-center align-self-center text-center text-danger">بصمة واحدة : @Model.SingleProofDays</div>
                         <div class="col justify-content-center align-self-center text-center text-danger">ايام التقصير :  @Model.WasteDays</div>
-                        <div class="col justify-content-center align-self-center text-center text-danger">ساعات التقصير :  @((int)Model.TotalWasteHoursTime.TotalHours):@Model.TotalWasteHoursTime.Minutes</div>
+                        <div class="col justify-content-center align-self-center text-center text-danger">ساعات التقصير :  @(((int)Model.TotalWasteHoursTime.TotalHours).ToString("00")):@Model.TotalWasteHoursTime.Minutes.ToString("00")</div>
                     </div>
                 </div>
             </td>

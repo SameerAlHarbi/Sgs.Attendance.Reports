@@ -62,7 +62,7 @@ namespace Sgs.Attendance.Reports.ViewModels
             {
                 try
                 {
-                    if (ContractCheckInDateTime.HasValue)
+                    if (!IsVacation && ContractCheckInDateTime.HasValue)
                     {
                         if (ActualCheckInDateTime.HasValue)
                         {
