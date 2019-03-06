@@ -134,13 +134,19 @@ namespace Sgs.Attendance.Reports.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> WasteReport(int years, int months
+        public async Task<IActionResult> WasteReport(int years, int months,int day = 0
             , int[] employeesIds = null, string[] departments = null, string reportType = null, int? pageNumber = null, int pageSize = 31)
         {
             try
             {
                 DateTime startDate = new DateTime(years, months, 1);
                 DateTime endDate = new DateTime(years, months, 1).AddMonths(1).AddDays(-1);
+
+                if(day > 0)
+                {
+                    startDate = new DateTime(years, months, day);
+                    endDate = new DateTime(years, months, day);
+                }
 
                 employeesIds = employeesIds ?? new int[] { };
                 departments = departments ?? new string[] { };
@@ -194,8 +200,8 @@ namespace Sgs.Attendance.Reports.Controllers
                         ProcessingDate = employeeDays.Max(d => d.ProcessingDate),
                         StartDate = startDate,
                         ToDate = endDate,
-                        ContractWorkDurationAvarage = employeeDays.Where(d => d.ContractWorkDuration.HasValue)
-                            .Average(d => d.ContractWorkDuration.Value),
+                        ContractWorkDurationAvarage = employeeDays.Where(d => d.ContractWorkDuration.HasValue).Count() > 0 ? employeeDays.Where(d => d.ContractWorkDuration.HasValue)
+                            .Average(d => d.ContractWorkDuration.Value):0,
                         TotalActualWorkDuration = employeeDays
                             .Sum(d => d.ActualWorkDuration.HasValue ? d.ActualWorkDuration.Value : 0),
                         TotalContractWorkDuration = employeeDays
@@ -234,7 +240,7 @@ namespace Sgs.Attendance.Reports.Controllers
                     summaryViewModels.Add(newSummary);
                 }
 
-                if (string.IsNullOrWhiteSpace(reportType) || reportType == "summary" || employeesIds.Count() > 1)
+                if (string.IsNullOrWhiteSpace(reportType) || reportType == "summary" || (employeesIds.Count() > 1 && startDate.Subtract(endDate).TotalDays > 1))
                 {
                     ViewBag.ShowAbsents = false;
                     ViewBag.ShowWaste = true;
@@ -244,7 +250,7 @@ namespace Sgs.Attendance.Reports.Controllers
                 else
                 {
 
-                    return PartialView("EmployeeDetailsMonthlyReport", summaryViewModels.First());
+                    return PartialView("EmployeeDetailsMonthlyReport", summaryViewModels);
                 }
 
             }

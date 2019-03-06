@@ -30,6 +30,7 @@
                 @(Html.Kendo().DropDownList()
                                                        .Name("years")
                                                        .BindTo(years.ToArray())
+                                                       .Events(e => e.Change("dateChange"))
                                                        .Value(DateTime.Today.Year.ToString())
                                                        .HtmlAttributes(new { style = "width: 100px", data_toggle = "tooltip", data_placement = "bottom", title = "السنة" })
                 )
@@ -40,6 +41,7 @@
                 @(Html.Kendo().DropDownList()
                                                        .Name("months")
                                                        .BindTo(new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 })
+                                                       .Events(e => e.Change("dateChange"))
                                                        .Value(DateTime.Today.Month.ToString())
                                                        .HtmlAttributes(new { style = "width: 100px", data_toggle = "tooltip", data_placement = "bottom", title = "الشهر" })
                 )
@@ -131,6 +133,23 @@
     <partial name="_ValidationScripts">
         <script>
 
+            function dateChange() {
+                var year = $("#years").val();
+                var month = $("#months").val();
+
+                var startDate = new Date(year, month - 1, 1);
+                var lastDate = new Date(year, month, 0);
+
+                var lastDay = lastDate.getDate();
+
+                //var days = Array.apply(null, { length: lastDay }).map(Function.call, Number);
+                var days = Array.from(new Array(lastDay), (val, index) => index + 1);
+
+                var daysList = $("#days").data("kendoDropDownList");
+                daysList.dataSource.data(days);
+
+            };
+
             $(function () {
 
                 $('[data-toggle="tooltip"]').tooltip()
@@ -145,43 +164,49 @@
 
                         checkedNodesIds(departmentsNodes, checkedDepartmentsNodes);
 
-                    var options = {
-                    url: "@Url.Action("WasteReport", "EmployeesDaysReports")",
-                    type: "Post",
-                    dataType: "html",
-                        data: {
-                              years: $("#years").val()
-                            , months: $("#months").val()
-                            , employeesIds: $("#employees").data("kendoMultiSelect").value()
-                            , departments: checkedDepartmentsNodes
-                            , reportType: $("#reportType").val()
-                        },
-                    success: function updateBalances(data) {
-                        $("#wastesData").html(data);
-                        $("#wastesData").fadeIn();
-                        $("#download").fadeIn();
-                    },
-                 error: function () {
-                     $("#wastesData").text("error");
-                     $("#wastesData").fadeIn();
-                     $("#download").fadeOut();
-                        },
-                 beforeSend: function () {
-                     $("#wastesData").html("<div class='text-center'><div class='spinner-grow text-info' role='status'><span class='sr-only'> Loading...</span ></div></div>");
-                     $("#download").hide();
-                 }
-                };
+                        var day = $("#days").val();
+                        if (!day) {
+                            day = 0;
+                        }
 
-                $.ajax(options);
+                        var options = {
+                            url: "@Url.Action("WasteReport", "EmployeesDaysReports")",
+                            type: "Post",
+                            dataType: "html",
+                            data: {
+                                years: $("#years").val()
+                                , months: $("#months").val()
+                                , day: day
+                                , employeesIds: $("#employees").data("kendoMultiSelect").value()
+                                , departments: checkedDepartmentsNodes
+                                , reportType: $("#reportType").val()
+                            },
+                            success: function updateBalances(data) {
+                                $("#wastesData").html(data);
+                                $("#wastesData").fadeIn();
+                                $("#download").fadeIn();
+                            },
+                            error: function () {
+                                $("#wastesData").text("error");
+                                $("#wastesData").fadeIn();
+                                $("#download").fadeOut();
+                            },
+                            beforeSend: function () {
+                                $("#wastesData").html("<div class='text-center'><div class='spinner-grow text-info' role='status'><span class='sr-only'> Loading...</span ></div></div>");
+                                $("#download").hide();
+                            }
+                        };
 
-                }
+                        $.ajax(options);
 
-                e.preventDefault();
-            });
+                    }
 
-            //toastr.clear();
+                    e.preventDefault();
+                });
 
-        })
+                //toastr.clear();
+
+            })
 
         </script>
 

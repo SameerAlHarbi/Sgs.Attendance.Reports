@@ -1,5 +1,5 @@
 ﻿@using Sameer.Shared.Data;
-@model EmployeeMonthReportViewModel
+@model IEnumerable<EmployeeMonthReportViewModel>
 
 @{
     ViewData["Title"] = "تقرير الموظف";
@@ -23,73 +23,115 @@
                             <h5 class="text-info" style="display:inline">نظام البصمة</h5>
                         </div>
                     </div>
-                    <div id="employee-info" class="row">
-                        <div class="col d-none d-print-block" style="text-align:right">
-                            <span>اسم الموظف : </span><span class="text-info">@Model.EmployeeId - @Model.EmployeeName</span>
+                    @if (Model.Count() < 2)
+                    {
+                        <div id="employee-info" class="row">
+                            <div class="col d-none d-print-block" style="text-align:right">
+                                <span>اسم الموظف : </span><span class="text-info">@Model.First().EmployeeId - @Model.First().EmployeeName</span>
+                            </div>
+                            <div class="col d-none d-print-block" style="text-align:left">
+                                <span>الادارة - القسم : </span><span class="text-info">@Model.First().DepartmentName</span>
+                            </div>
                         </div>
-                        <div class="col d-none d-print-block" style="text-align:left">
-                            <span>الادارة - القسم : </span><span class="text-info">@Model.DepartmentName</span> 
+                    }
+                    else
+                    {
+                        <div id="employee-info" class="row">
+                            <div class="col d-none d-print-block" style="text-align:right">
+                                <span class="text-info">@Model.FirstOrDefault(d => d.DayReportsList.Any())?.DayReportsList.First().DayDate.ConvertToString(showDayName: true, showDayNameInArabic: true)</span>
+                            </div>
                         </div>
-                    </div>
+                    }
                 </div>
             </th>
         </tr>
     </thead>
-    <tfoot class="report-footer">
-        <tr>
-            <td class="report-footer-cell">
-                <div class="footer-info">
-                    <div class="row" style="border: 2px solid gray; margin-left:0.50px;margin-right:0.50px; height:40px">
-                        <div class="col justify-content-center align-self-center text-center text-danger">ايام الاجازة :  @Model.VacationsDays</div>
-                        <div class="col justify-content-center align-self-center text-center text-danger">ايام الغياب : @Model.TotalAbsentsDays</div>
-                        <div class="col justify-content-center align-self-center text-center text-danger">بصمة واحدة : @Model.SingleProofDays</div>
-                        <div class="col justify-content-center align-self-center text-center text-danger">ايام التقصير :  @Model.WasteDays</div>
-                        <div class="col justify-content-center align-self-center text-center text-danger">ساعات التقصير :  @(((int)Model.TotalWasteHoursTime.TotalHours).ToString("00")):@Model.TotalWasteHoursTime.Minutes.ToString("00")</div>
+    @if (Model.Count() < 2)
+    {
+        <tfoot class="report-footer">
+            <tr>
+                <td class="report-footer-cell">
+                    <div class="footer-info">
+                        <div class="row" style="border: 2px solid gray; margin-left:0.50px;margin-right:0.50px; height:40px">
+                            <div class="col justify-content-center align-self-center text-center text-danger">ايام الاجازة :  @Model.First().VacationsDays</div>
+                            <div class="col justify-content-center align-self-center text-center text-danger">ايام الغياب : @Model.First().TotalAbsentsDays</div>
+                            <div class="col justify-content-center align-self-center text-center text-danger">بصمة واحدة : @Model.First().SingleProofDays</div>
+                            <div class="col justify-content-center align-self-center text-center text-danger">ايام التقصير :  @Model.First().WasteDays</div>
+                            <div class="col justify-content-center align-self-center text-center text-danger">ساعات التقصير :  @(((int)Model.First().TotalWasteHoursTime.TotalHours).ToString("00")):@Model.First().TotalWasteHoursTime.Minutes.ToString("00")</div>
+                        </div>
                     </div>
-                </div>
-            </td>
-        </tr>
-    </tfoot>
+                </td>
+            </tr>
+        </tfoot>
+    }
     <tbody class="report-content">
         <tr>
             <td class="report-content-cell">
                 <div>
-                 
+
                     <table class="table table-bordered table-striped">
                         <thead style="background-color:#bbe3e8 ; text-align:center">
                             <tr>
-                                <th>التاريخ</th>
+                                @if (Model.Count() >= 2)
+                                {
+                                    <th>الرقم الوظيفي</th>
+                                    <th>الاسم</th>
+                                    <th>الادارة - القسم</th>
+                                }
+                                else
+                                {
+                                    <th>التاريخ</th>
+                                }
+
                                 <th>الدخول</th>
                                 <th>الخروج</th>
                                 <th>التقصير</th>
-                                <th>الغياب</th>
+                                @if (Model.Count() < 2)
+                                {
+                                    <th>الغياب</th>
+                                }
                                 <th>الاجازة</th>
                                 <th>ملاحظات</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var empDaysReports in Model.DayReportsList)
+                            @foreach (var empDaysReports in Model.SelectMany(s => s.DayReportsList).Where(d => d.AttendanceProof != AttendanceProof.Exempted).OrderBy(d => d.EmployeeId).ThenBy(d => d.DayDate))
                             {
                                 <tr style="text-align:center">
-                                    <td>
-                                        <div class="row @(empDaysReports.IsAbsentEmployee?"text-danger":"")">
-                                            <div class="col-3" style="text-align:left;">@empDaysReports.DayDate.GetDayName(true)</div>
-                                            <div class="col-9" style="text-align:right;">@empDaysReports.DayDate.ToString("yyyy-MM-dd")</div>
-                                        </div>
-                                        
-                                    </td>
+                                    @if (Model.Count() >= 2)
+                                    {
+                                        <td>
+                                            @empDaysReports.EmployeeId
+                                        </td>
+                                        <td>
+                                            @empDaysReports.EmployeeName
+                                        </td>
+                                        <td>
+                                            @empDaysReports.DepartmentName
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td class="@(empDaysReports.IsAbsentEmployee?"text-danger":"")">
+                                            @empDaysReports.DayDate.ConvertToString(false, true, true)
+                                        </td>
+                                    }
+
                                     <td class=@(empDaysReports.IsLate?"text-danger":"text-primary")>
-                                        @(empDaysReports.CheckInDateTimeForReport.HasValue? empDaysReports.CheckInDateTimeForReport.Value.ToShortTimeString() : "")
+                                        @(empDaysReports.CheckInDateTimeForReport.HasValue ? empDaysReports.CheckInDateTimeForReport.Value.ToShortTimeString() : "")
                                     </td>
                                     <td class=@(empDaysReports.IsEarly?"text-danger":"text-primary")>
-                                        @(empDaysReports.CheckOutDateTime.HasValue? empDaysReports.CheckOutDateTime.Value.ToShortTimeString() : "")
+                                        @(empDaysReports.CheckOutDateTime.HasValue ? empDaysReports.CheckOutDateTime.Value.ToShortTimeString() : "")
                                     </td>
                                     <td class=@(empDaysReports.WasteDuration.HasValue && empDaysReports.WasteDuration.Value > 0?"text-danger":"text-primary")>
                                         @empDaysReports.WasteDurationTime
                                     </td>
-                                    <td class=@(empDaysReports.IsAbsentEmployee && (empDaysReports.IsDelegationRequest || empDaysReports.IsVacationRequest) ? "text-secondary" : "text-danger")>
-                                        @(empDaysReports.IsAbsentEmployee? "غياب" : "")
-                                    </td>
+                                    @if (Model.Count() < 2)
+                                    {
+                                        <td class=@(empDaysReports.IsAbsentEmployee && (empDaysReports.IsDelegationRequest || empDaysReports.IsVacationRequest) ? "text-secondary" : "text-danger")>
+                                            @(empDaysReports.IsAbsentEmployee ? "غياب" : "")
+                                        </td>
+                                    }
                                     <td class="text-success">@empDaysReports.VacationName</td>
                                     <td>@(empDaysReports.IsDelegationRequest ? "طلب انتداب" : empDaysReports.IsVacationRequest ? "طلب اجازة" : "")</td>
                                 </tr>
@@ -110,6 +152,6 @@
             window.print();
         });
 
-        }
+    }
     );
 </script>

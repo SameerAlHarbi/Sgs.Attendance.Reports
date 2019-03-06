@@ -103,3 +103,12 @@
         <button type="submit" id="showAbsents" class="btn btn-info btn-block"> عرض <i class="fas fa-search"></i> </button>
     </div>
 </div>*@
+
+
+<script>
+    var year = $("#years").val();
+    var month = $("#months").val();
+
+    var startDate = new Date(year, month - 1, 1);
+    var lastDate = new Date(year, month, 0);
+</script>
