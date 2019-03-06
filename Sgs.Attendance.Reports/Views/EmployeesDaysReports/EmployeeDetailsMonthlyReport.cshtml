@@ -69,7 +69,7 @@
             <td class="report-content-cell">
                 <div>
 
-                    <table class="table table-bordered table-striped">
+                    <table class="table table-bordered table-striped table-sm">
                         <thead style="background-color:#bbe3e8 ; text-align:center">
                             <tr>
                                 @if (Model.Count() >= 2)
@@ -85,13 +85,15 @@
 
                                 <th>الدخول</th>
                                 <th>الخروج</th>
-                                <th>التقصير</th>
                                 @if (Model.Count() < 2)
                                 {
+                                    <th>التقصير</th>
                                     <th>الغياب</th>
                                 }
                                 <th>الاجازة</th>
+
                                 <th>ملاحظات</th>
+
                             </tr>
                         </thead>
                         <tbody>
@@ -118,24 +120,31 @@
                                     }
 
                                     <td class=@(empDaysReports.IsLate?"text-danger":"text-primary")>
-                                        @(empDaysReports.CheckInDateTimeForReport.HasValue ? empDaysReports.CheckInDateTimeForReport.Value.ToShortTimeString() : "")
+                                        @(empDaysReports.CheckInDateTimeForReport.HasValue ? empDaysReports.CheckInDateTimeForReport.Value.ToString("HH:mm") : "")
                                     </td>
                                     <td class=@(empDaysReports.IsEarly?"text-danger":"text-primary")>
-                                        @(empDaysReports.CheckOutDateTime.HasValue ? empDaysReports.CheckOutDateTime.Value.ToShortTimeString() : "")
+                                        @(empDaysReports.CheckOutDateTime.HasValue ? empDaysReports.CheckOutDateTime.Value.ToString("HH:mm") : "")
                                     </td>
-                                    <td class=@(empDaysReports.WasteDuration.HasValue && empDaysReports.WasteDuration.Value > 0?"text-danger":"text-primary")>
-                                        @empDaysReports.WasteDurationTime
-                                    </td>
+
                                     @if (Model.Count() < 2)
                                     {
+                                        <td class=@(empDaysReports.WasteDuration.HasValue && empDaysReports.WasteDuration.Value > 0?"text-danger":"text-primary")>
+                                            @empDaysReports.WasteDurationTime
+                                        </td>
                                         <td class=@(empDaysReports.IsAbsentEmployee && (empDaysReports.IsDelegationRequest || empDaysReports.IsVacationRequest) ? "text-secondary" : "text-danger")>
                                             @(empDaysReports.IsAbsentEmployee ? "غياب" : "")
                                         </td>
                                     }
                                     <td class="text-success">@empDaysReports.VacationName</td>
-                                    <td>@(empDaysReports.IsDelegationRequest ? "طلب انتداب" : empDaysReports.IsVacationRequest ? "طلب اجازة" : "")</td>
-                                </tr>
-                            }
+
+                                    <td>
+                                        @(empDaysReports.IsDelegationRequest ? "طلب انتداب" :
+                                                  empDaysReports.IsVacationRequest ? "طلب اجازة" :
+                                                  empDaysReports.IsAbsentEmployee ? "غياب" : "")
+                                </td>
+
+                            </tr>
+                        }
                         </tbody>
                     </table>
                 </div>

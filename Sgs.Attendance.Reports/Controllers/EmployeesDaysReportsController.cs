@@ -240,7 +240,7 @@ namespace Sgs.Attendance.Reports.Controllers
                     summaryViewModels.Add(newSummary);
                 }
 
-                if (string.IsNullOrWhiteSpace(reportType) || reportType == "summary" || (employeesIds.Count() > 1 && startDate.Subtract(endDate).TotalDays > 1))
+                if (string.IsNullOrWhiteSpace(reportType) || reportType == "summary" || (employeesIds.Count() > 1 && endDate.Subtract(startDate).TotalDays > 1))
                 {
                     ViewBag.ShowAbsents = false;
                     ViewBag.ShowWaste = true;

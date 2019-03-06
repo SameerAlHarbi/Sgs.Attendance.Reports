@@ -85,7 +85,7 @@ namespace Sgs.Attendance.Reports.Services
                     var vacations = allEmployeesVacations.Where(v => startDate >= v.StartDate && startDate <= v.EndDate).ToList();
                     var openDelegationsRequests = allEmployeesOpenDelegationsRequests.Where(d => startDate >= d.StartDate && startDate <= d.EndDate).ToList();
                     var openVacationsRequests = allEmployeesOpenVacationsRequests.Where(d => startDate >= d.StartDate && startDate <= d.EndDate).ToList();
-                    var transactions = allEmployeesTransactions.Where(t => t.TransactionDate.Date == startDate).ToList();
+                    var transactions = allEmployeesTransactions.Where(t => t.TransactionDate.Date >= startDate && t.TransactionDate.Date <= startDate.AddDays(1).Date).ToList();
 
                     foreach (var employee in employees)
                     {
