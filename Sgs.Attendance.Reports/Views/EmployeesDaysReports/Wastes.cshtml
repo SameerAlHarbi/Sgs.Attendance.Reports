@@ -22,7 +22,7 @@
 }
 
 <div class="d-print-none">
-    <form>
+    <form id="filetersForm">
         <div class="form-row">
             <div class="form-group col-md-1">
                 <label for="years" class="control-label"> السنة :</label>
@@ -50,34 +50,34 @@
                 <label for="days" class="control-label"> اليوم :</label>
                 <br />
                 @(Html.Kendo().DropDownList()
-                                                       .Name("days")
-                                                       .OptionLabel("الكل")
-                                                       .BindTo(days)
-                                                       .Value(DateTime.Today.Day.ToString())
-                                                       .HtmlAttributes(new { style = "width: 100px", data_toggle = "tooltip", data_placement = "bottom", title = "الشهر" })
+                                    .Name("days")
+                                    .OptionLabel("الكل")
+                                    .BindTo(days)
+                                    .Value(DateTime.Today.Day.ToString())
+                                    .HtmlAttributes(new { style = "width: 100px", data_toggle = "tooltip", data_placement = "bottom", title = "الشهر" })
                 )
             </div>
             <div class="form-group col-md-3">
                 <label for="employees" class="control-label"> الموظفين :</label>
                 <br />
                 @(Html.Kendo().MultiSelect()
-                                                                                .Name("employees")
-                                                                                .Placeholder("تحديد الموظفين ...")
-                                                                                .HtmlAttributes(new { style = "100%" })
-                                                                                .DataTextField("EmployeeId")
-                                                                                .DataValueField("EmployeeId")
-                                                                                .AutoClose(true)
-                                                                                .AutoBind(false)
-                                                                                .MinLength(3)
-                                                                                .ItemTemplate("<span style=\"color:red\">#= EmployeeId #</span>&nbsp;-&nbsp; #= Name #")
-                                                                        .DataSource(source =>
-                                                                        {
-                                                                            source.Read(read =>
-                                                                            {
-                                                                                read.Action("ShortEmployeesInfoByTextJson", "Employees");
-                                                                            })
-                                                                            .ServerFiltering(true);
-                                                                        })
+                                    .Name("employees")
+                                    .Placeholder("تحديد الموظفين ...")
+                                    .HtmlAttributes(new { style = "100%" })
+                                    .DataTextField("EmployeeId")
+                                    .DataValueField("EmployeeId")
+                                    .AutoClose(true)
+                                    .AutoBind(false)
+                                    .MinLength(3)
+                                    .ItemTemplate("<span style=\"color:red\">#= EmployeeId #</span>&nbsp;-&nbsp; #= Name #")
+                            .DataSource(source =>
+                            {
+                                source.Read(read =>
+                                {
+                                    read.Action("ShortEmployeesInfoByTextJson", "Employees");
+                                })
+                                .ServerFiltering(true);
+                            })
                 )
             </div>
             <div class="form-group col-md-3">
@@ -121,7 +121,7 @@
     <hr />
 
     <div id="download" style="display:none">
-        @*<button class="btn btn-outline-success btn-sm float-left" style="width:80px" data-toggle = "tooltip" data-placement = "bottom" title = "تحميل التقرير على ملف مايكروسوفت اكسل"><i class="fas fa-download"></i></button>*@
+        <button id="excelDownload" class="btn btn-outline-success btn-sm float-left" style="width:80px" data-toggle = "tooltip" data-placement = "bottom" title = "تحميل التقرير على ملف مايكروسوفت اكسل"><i class="fas fa-download"></i></button>
     </div>
 </div>
 
@@ -150,6 +150,41 @@
 
             };
 
+            function getFormParameters() {
+
+                var departmentsTree = $("#departments").data("kendoDropDownTree");
+                var departmentsNodes = departmentsTree.dataSource.view();
+                var checkedDepartmentsNodes = [];
+
+                checkedNodesIds(departmentsNodes, checkedDepartmentsNodes);
+
+                var employeesIds = $("#employees").data("kendoMultiSelect").value();
+
+                var checkedDepartmentsText;
+                if (checkedDepartmentsNodes && checkedDepartmentsNodes.length > 0) {
+                    checkedDepartmentsText = checkedDepartmentsNodes.join(',');
+                }
+
+                var employeesIdsText;
+                if (employeesIds && employeesIds.length > 0) {
+                    employeesIdsText = employeesIds.join(',');
+                }
+
+                var day = $("#days").val();
+                if (!day) {
+                    day = 0;
+                }
+
+                return {
+                      years: $("#years").val()
+                    , months: $("#months").val()
+                    , day: day
+                    , employeesIds: employeesIdsText
+                    , departments: checkedDepartmentsText
+                    , reportType: $("#reportType").val()
+                }
+            }
+
             $(function () {
 
                 $('[data-toggle="tooltip"]').tooltip()
@@ -157,32 +192,13 @@
                 $('form').submit(function (e) {
 
                     if ($(this).valid()) {
-
-                        var departmentsTree = $("#departments").data("kendoDropDownTree");
-                        var departmentsNodes = departmentsTree.dataSource.view();
-                        var checkedDepartmentsNodes = [];
-
-                        checkedNodesIds(departmentsNodes, checkedDepartmentsNodes);
-
-                        var day = $("#days").val();
-                        if (!day) {
-                            day = 0;
-                        }
-
+                        
                         var options = {
                             url: "@Url.Action("WasteReport", "EmployeesDaysReports")",
                             type: "Post",
                             dataType: "html",
-                            data: {
-                                years: $("#years").val()
-                                , months: $("#months").val()
-                                , day: day
-                                , employeesIds: $("#employees").data("kendoMultiSelect").value()
-                                , departments: checkedDepartmentsNodes
-                                , reportType: $("#reportType").val()
-                            },
-                            success: function updateBalances(data) {
-
+                            data: getFormParameters(),
+                            success: function (data) {
                                 $("#wastesData").html(data);
                                 $("#wastesData").fadeIn();
                                 $("#download").fadeIn();
@@ -195,6 +211,9 @@
                             beforeSend: function () {
                                 $("#wastesData").html("<div class='text-center'><div class='spinner-grow text-info' role='status'><span class='sr-only'> Loading...</span ></div></div>");
                                 $("#download").hide();
+                            },
+                            complete: function () {
+                                $(excelDownload).prop('disabled', false);
                             }
                         };
 
@@ -206,6 +225,46 @@
                 });
 
                 //toastr.clear();
+                
+                $("#excelDownload").click(function () {
+
+                    var me = this;
+
+                    //$(this).html('<i class="fas fa-spinner fa-lg fa-spin"></i>');
+                    //$(this).prop('disabled', true);
+
+                    var options = {
+                            url: "@Url.Action("GetDetailsReport", "EmployeesDaysReports")",
+                            type: "Get",
+                            xhrFields: {
+                                responseType: 'blob'
+                            },
+                            data: getFormParameters(),
+                        success: function (data) {
+                                var a = document.createElement('a');
+                                var url = window.URL.createObjectURL(data);
+                                a.href = url;
+                            a.download = 'attendance-' + $("#years").val() + '-' + $("#months").val() + '.xlsx';
+                                a.click();
+                                window.URL.revokeObjectURL(url);
+                                toastr.success("تم تحميل البيانات");
+                            },
+                            error: function () {
+                                toastr.error("عفواً حصل خطأ الرجاء المحاولة لاحقاً");
+                            },
+                            beforeSend: function () {
+                                $(me).html('<i class="fas fa-spinner fa-lg fa-spin"></i>');
+                                $(me).prop('disabled', true);
+                            },
+                            complete: function () {
+                                $(me).html('<i class="fas fa-download"></i>');
+                                $(me).prop('disabled', false);
+                            }
+                        };
+
+                        $.ajax(options);
+
+                });
 
             })
 

@@ -495,4 +495,16 @@
     <None Include="node_modules\jquery\src\wrap.js" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="wwwroot\Excels\Absents.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\Excels\Details.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\Excels\Summary.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

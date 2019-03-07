@@ -213,7 +213,7 @@ namespace Sgs.Attendance.Reports.Services
                                 && newDayReport.CheckInDateTime > newDayReport.ContractCheckInDateTime)
                             {
                                 if (newDayReport.CheckInDateTime <= 
-                                    newDayReport.ContractCheckInDateTime.Value.Add(new TimeSpan(0, 30, 0))
+                                    newDayReport.ContractCheckInDateTime.Value.Add(new TimeSpan(0, 31, 0))
                                     || newDayReport.IsOpenCheckInExcuse)
                                 {
                                     newDayReport.CheckInDateTime = newDayReport.ContractCheckInDateTime;
