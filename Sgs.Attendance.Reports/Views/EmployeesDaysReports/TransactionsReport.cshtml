@@ -1,0 +1,79 @@
+﻿@model IEnumerable<AttendanceTransactionViewModel>
+
+@{
+    ViewData["Title"] = "حركات البصمة";
+}
+
+<table class="report-container" style="width:100%">
+    <thead class="report-header">
+        <tr>
+            <th class="report-header-cell">
+                <div class="header-info">
+                    <div id="header-info" class="row justify-content-center align-self-center text-center">
+                        <div class="col justify-content-center align-self-center text-center d-none d-print-block">
+                            <h5>قسم عمليات الموارد البشرية</h5>
+                            <h6>تقرير حركات البصمة</h6>
+                        </div>
+                        <div class="col">
+                            <div class="d-none d-print-block"><img style="max-width:190px; max-height:130px" src="~/Images/SGSLOGO.png" /></div>
+                        </div>
+                        <div class="col justify-content-center align-self-center text-center d-none d-print-block">
+                            <img style="max-width:70px; max-height:90px" src="~/Images/scan-fingerprint-icon.png" />
+                            <h5 class="text-info" style="display:inline">نظام البصمة</h5>
+                        </div>
+                    </div>
+                </div>
+            </th>
+        </tr>
+    </thead>
+    <tfoot class="report-footer">
+        <tr>
+            <td class="report-footer-cell">
+                <div class="footer-info">
+                    
+                </div>
+            </td>
+        </tr>
+    </tfoot>
+    <tbody class="report-content">
+        <tr>
+            <td class="report-content-cell">
+                <div>
+                    <table class="table table-bordered table-striped">
+                        <thead style="background-color:#bbe3e8 ; text-align:center">
+                            <tr>
+                                <th>الرقم الوظيفي</th>
+                                <th>اسم الموظف</th>
+                                <th>الادارة - القسم</th>
+                                <th>تاريخ الحركة</th>
+                                <th>وقت الحركة</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var TransactionReport in Model)
+                            {
+                                <tr style="text-align:center">
+                                    <td>
+                                        @TransactionReport.EmployeeId
+                                    </td>
+                                    <td>
+                                        @TransactionReport.EmployeeName
+                                    </td>
+                                    <td>
+                                        @TransactionReport.DepartmentName
+                                    </td>
+                                    <td>
+                                        @TransactionReport.TransactionDate.ToString("yyyy/MM/dd")
+                                    </td>
+                                    <td>
+                                        @TransactionReport.TransactionDate.ToString("hh:mm tt")
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </td>
+        </tr>
+    </tbody>
+</table>

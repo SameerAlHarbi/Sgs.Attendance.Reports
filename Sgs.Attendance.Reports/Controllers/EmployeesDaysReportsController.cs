@@ -40,6 +40,11 @@ namespace Sgs.Attendance.Reports.Controllers
             return View();
         }
 
+        public IActionResult TransactionsReport()
+        {
+            return View();
+        }
+
         [HttpPost]
         public async Task<IActionResult> AbsentsReport(DateTime startDate, DateTime endDate
             , int[] employeesIds = null,string[] departments=null, string absentNotes = "all"
@@ -153,6 +158,21 @@ namespace Sgs.Attendance.Reports.Controllers
                     endDate = new DateTime(years, months, day);
                 }
 
+                if (reportType == "Transactions")
+                {
+                    var transactionViewModels = await _erpManager.GetAllTransaction(startDate, endDate, await getEmployeesIds(employeesIds, departments));
+
+                    var allemployees = await _erpManager.GetShortEmployeesInfo();
+
+                    Parallel.ForEach(transactionViewModels.GroupBy(t => t.EmployeeId), (source) => {
+                        var emp = allemployees.FirstOrDefault(e => e.EmployeeId == source.Key);
+
+
+                    });
+
+                    return PartialView("TransactionsReport", transactionViewModels.OrderBy(t => t.EmployeeId));
+                }
+
                 var resultViewModels = await getDetailsData(startDate, endDate
                         , employeesIds, departments, reportType, pageNumber, pageSize);
 
@@ -160,7 +180,8 @@ namespace Sgs.Attendance.Reports.Controllers
 
                 var employeesIdsList = resultViewModels.Select(d => d.EmployeeId).Distinct().ToList();
 
-                if (string.IsNullOrWhiteSpace(reportType) || reportType == "summary" || (employeesIdsList.Count() > 1 && endDate.Subtract(startDate).TotalDays > 1))
+               
+                if (string.IsNullOrWhiteSpace(reportType) || reportType    == "summary" || (employeesIdsList.Count() > 1 && endDate.Subtract(startDate).TotalDays > 1))
                 {
                     ViewBag.ShowAbsents = false;
                     ViewBag.ShowWaste = true;
@@ -171,7 +192,6 @@ namespace Sgs.Attendance.Reports.Controllers
                 {
                     return PartialView("EmployeeDetailsMonthlyReport", summaryViewModels);
                 }
-
             }
             catch (Exception ex)
             {
