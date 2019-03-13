@@ -173,7 +173,7 @@ namespace Sgs.Attendance.Reports.Services
                                 if (newDayReport.ActualCheckInDateTime.HasValue
                                     && newDayReport.ActualCheckOutDateTime.HasValue)
                                 {
-                                    newDayReport.ActualCheckOutDateTime = newDayReport.ActualCheckOutDateTime > newDayReport.ActualCheckInDateTime.Value.AddMinutes(1) ?
+                                    newDayReport.ActualCheckOutDateTime = newDayReport.ActualCheckOutDateTime >= newDayReport.ActualCheckInDateTime.Value.AddMinutes(1) ?
                                            newDayReport.ActualCheckOutDateTime : default(DateTime?);
 
                                     var checkIn = newDayReport.ActualCheckInDateTime >= newDayReport.ContractCheckInDateTime ?
@@ -203,13 +203,19 @@ namespace Sgs.Attendance.Reports.Services
                         newDayReport.CheckOutExcuseHours = employeeExcuses.FirstOrDefault(x =>
                             x.ExcuseType == ExcuseType.CheckOut)?.ExcuseHours ?? 0;
 
-
                         if (!newDayReport.IsVacation)
                         {
                             newDayReport.CheckInDateTime = newDayReport.ActualCheckInDateTime;
                             newDayReport.CheckOutDateTime = newDayReport.ActualCheckOutDateTime;
 
-                            if(newDayReport.CheckInDateTime.HasValue 
+                            if (newDayReport.CheckInDateTime.HasValue
+                                && !newDayReport.CheckOutDateTime.HasValue
+                                && newDayReport.CheckInExcuse)
+                            {
+                                newDayReport.CheckOutDateTime = newDayReport.CheckInDateTime;
+                            }
+
+                            if (newDayReport.CheckInDateTime.HasValue 
                                 && newDayReport.CheckInDateTime > newDayReport.ContractCheckInDateTime)
                             {
                                 if (newDayReport.CheckInDateTime <= 
@@ -225,6 +231,7 @@ namespace Sgs.Attendance.Reports.Services
 
                                     newDayReport.CheckInDateTime = newDayReport.CheckInDateTime < newDayReport.ContractCheckInDateTime ?
                                         newDayReport.ContractCheckInDateTime : newDayReport.CheckInDateTime;
+                                    
                                 }
                             }
                             else if(!newDayReport.CheckInDateTime.HasValue 

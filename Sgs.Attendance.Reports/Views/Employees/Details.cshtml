@@ -61,6 +61,7 @@
                                     clmn.Bound(c => c.ExcueseDateHijri).Title("تاريخ الإستئذان هجري");
                                     clmn.Bound(c => c.ExcuseTypeText).Title("نوع الإستئذان"); ;
                                     clmn.Bound(c => c.ExcuseHoursTime).Title("مدة الإستئذان");
+                                    clmn.Bound(c => c.Note).Title("ملاحظات الإستئذان");
                                     clmn.Bound(c => c.Id).Title("حذف").ClientTemplate("<a href='\\#deleteModal' data-toggle='modal' data-excuseId='#= Id #' class='text-danger' title='حذف'><i class='fas fa-trash-alt'></i></a>");
                                 })
                                 .Sortable(s => s.SortMode(GridSortMode.SingleColumn))
