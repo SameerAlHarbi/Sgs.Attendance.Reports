@@ -160,17 +160,16 @@ namespace Sgs.Attendance.Reports.Controllers
 
                 if (reportType == "Transactions")
                 {
-                    var transactionViewModels = await _erpManager.GetAllTransaction(startDate, endDate, await getEmployeesIds(employeesIds, departments));
+                    var daysCount = endDate.Date.Subtract(startDate.Date).TotalDays + 1;
+                    var empsIds = await getEmployeesIds(employeesIds, departments);
 
-                    var allemployees = await _erpManager.GetShortEmployeesInfo();
+                    if (daysCount > 1 && (empsIds.Count <1 || empsIds.Count > 10))
+                    {
+                        throw new Exception("Transactions to much");
+                    }
+                    var transactionViewModels = await _erpManager.GetAllTransaction(startDate, endDate, empsIds);
 
-                    Parallel.ForEach(transactionViewModels.GroupBy(t => t.EmployeeId), (source) => {
-                        var emp = allemployees.FirstOrDefault(e => e.EmployeeId == source.Key);
-
-
-                    });
-
-                    return PartialView("TransactionsReport", transactionViewModels.OrderBy(t => t.EmployeeId));
+                    return PartialView("TransactionsReport", transactionViewModels.OrderBy(t => t.TransactionDate));
                 }
 
                 var resultViewModels = await getDetailsData(startDate, endDate

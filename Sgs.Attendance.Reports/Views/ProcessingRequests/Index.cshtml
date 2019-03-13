@@ -22,8 +22,10 @@
                                         clmn.Bound(c => c.CompletedDate).Title("تاريخ المعالجة").Format("{0:yyyy/MM/dd hh:mm:ss tt}");
                                         clmn.Bound(c => c.Status).Title("حالة الطلب");
                                     })
+                                    .Pageable(p => p.PageSizes(new int[] { 5,10,20}))
                                     .DataSource(d =>
                                     d.Ajax()
+                                    .PageSize(5)
                                     .ServerOperation(false)
                                     .Read("GetAllProcessingRequestsForKendo", "ProcessingRequests").Events(e => e.Error("readDataError")))
 )

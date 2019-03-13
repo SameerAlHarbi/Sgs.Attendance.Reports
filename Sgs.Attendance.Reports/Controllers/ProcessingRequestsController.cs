@@ -43,7 +43,7 @@ namespace Sgs.Attendance.Reports.Controllers
             {
                 var allProcessingsData = await _processingsRequestsManager.GetAllAsNoTrackingListAsync();
                 var allViewModels = _mapper.Map<List<ProcessingRequestViewModel>>(allProcessingsData);
-                return Json(allViewModels.ToDataSourceResult(request));
+                return Json(allViewModels.OrderByDescending(p => p.RequestDate).ToDataSourceResult(request));
             }
             catch (Exception)
             {
