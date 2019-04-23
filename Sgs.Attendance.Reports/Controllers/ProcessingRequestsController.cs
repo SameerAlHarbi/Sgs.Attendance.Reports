@@ -87,7 +87,6 @@ namespace Sgs.Attendance.Reports.Controllers
             }
         }
 
-
         public async Task<IActionResult> GetProcessingPercentageJson()
         {
             try
@@ -123,5 +122,6 @@ namespace Sgs.Attendance.Reports.Controllers
                 return Json(new { Percentage = 0 });
             }
         }
+
     }
 }
