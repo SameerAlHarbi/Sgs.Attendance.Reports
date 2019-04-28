@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Sgs.Attendance.Reports.Models
 {
-    public class ReportRequest : ISameerObject
+    public class RequestReport : ISameerObject
     {
         public int Id { get; set; }
 
@@ -18,7 +18,7 @@ namespace Sgs.Attendance.Reports.Models
 
         public string ByUserName { get; set; }
 
-        public string EmployeesFilter { get; set; }
+        public string FilterText { get; set; }
 
         public DateTime FromDate { get; set; }
 

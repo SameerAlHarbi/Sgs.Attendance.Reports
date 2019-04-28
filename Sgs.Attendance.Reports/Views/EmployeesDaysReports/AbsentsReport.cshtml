@@ -64,7 +64,7 @@
                                 <td>@Absent.EmployeeId</td>
                                 <td>@Absent.EmployeeName</td>
                                 <td>@Absent.DepartmentName</td>
-                                <td>@Absent.DayDate.ToString("yyyy-MM-dd")</td>
+                                <td>@Absent.DayDate.ConvertToString(showDayName:true,showDayNameInArabic:true)</td>
                                 @if (Absent.IsDelegationRequest)
                                 {
                                     <td style="color:red">طلب انتداب</td>
