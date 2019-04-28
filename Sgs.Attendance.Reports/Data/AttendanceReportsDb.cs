@@ -22,5 +22,8 @@ namespace Sgs.Attendance.Reports.Data
 
         public DbSet<WorkShift> WorkShifts { get; set; }
 
+        public DbSet<RequestReport> RequestsReports { get; set; }
+
+
     }
 }

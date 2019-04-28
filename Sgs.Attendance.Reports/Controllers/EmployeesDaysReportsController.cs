@@ -1,31 +1,35 @@
-﻿using System;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using OfficeOpenXml;
+using Sameer.Shared;
+using Sgs.Attendance.Reports.Logic;
+using Sgs.Attendance.Reports.Models;
+using Sgs.Attendance.Reports.Services;
+using Sgs.Attendance.Reports.ViewModels;
+using System;
 using System.Collections.Generic;
+using System.DirectoryServices.AccountManagement;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using AutoMapper;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Sgs.Attendance.Reports.Logic;
-using Sgs.Attendance.Reports.ViewModels;
-using Sameer.Shared;
-using Microsoft.EntityFrameworkCore;
-using Sgs.Attendance.Reports.Services;
-using System.IO;
-using Microsoft.AspNetCore.Hosting;
-using OfficeOpenXml;
 
 namespace Sgs.Attendance.Reports.Controllers
 {
     public class EmployeesDaysReportsController : BaseController
     {
         private readonly EmployeesDaysReportsManager _employeesDaysReportsManager;
+        private readonly RequestsReportsManager _requestsReportsManager;
         private readonly IErpManager _erpManager;
         private readonly IHostingEnvironment _env;
 
-        public EmployeesDaysReportsController(IHostingEnvironment environment,EmployeesDaysReportsManager employeesDaysReportsManager
-            ,IErpManager erpManager,IMapper mapper, ILogger<EmployeesDaysReportsController> logger) : base(mapper, logger)
+        public EmployeesDaysReportsController(IHostingEnvironment environment, EmployeesDaysReportsManager employeesDaysReportsManager,
+            RequestsReportsManager requestsReportsManager, IErpManager erpManager, IMapper mapper, ILogger<EmployeesDaysReportsController> logger) : base(mapper, logger)
         {
             _employeesDaysReportsManager = employeesDaysReportsManager;
+            _requestsReportsManager = requestsReportsManager;
             _erpManager = erpManager;
             _env = environment;
         }
@@ -34,7 +38,7 @@ namespace Sgs.Attendance.Reports.Controllers
         {
             return View();
         }
-        
+
         public IActionResult Wastes()
         {
             return View();
@@ -47,20 +51,20 @@ namespace Sgs.Attendance.Reports.Controllers
 
         [HttpPost]
         public async Task<IActionResult> AbsentsReport(DateTime startDate, DateTime endDate
-            , int[] employeesIds = null,string[] departments=null, string absentNotes = "all"
-            , bool summaryReport = true,int? pageNumber = null,int pageSize=31)
+            , int[] employeesIds = null, string[] departments = null, string absentNotes = "all"
+            , bool summaryReport = true, int? pageNumber = null, int pageSize = 31)
         {
             try
             {
                 startDate = startDate.Date;
                 endDate = endDate.Date;
 
-                employeesIds = employeesIds ?? new int[] { } ;
+                employeesIds = employeesIds ?? new int[] { };
                 departments = departments ?? new string[] { };
 
                 var employeesIdsList = employeesIds.ToList();
 
-                if(departments.Count() > 0)
+                if (departments.Count() > 0)
                 {
                     var departmentsEmployees = new List<EmployeeInfoViewModel>();
                     foreach (var department in departments)
@@ -75,16 +79,29 @@ namespace Sgs.Attendance.Reports.Controllers
                     }
                 }
 
-                var resultsQuery =  _employeesDaysReportsManager
-                    .GetAll(d => (employeesIds.Count() < 1 || employeesIds.Contains(d.EmployeeId)) 
+
+                try
+                {
+                    string reportType = "Absents " + (pageNumber.HasValue ? "Page : 1" : "All Pages") + ", ";
+                    reportType += $"Notes : {absentNotes} ,";
+                    reportType += summaryReport ? "Summary" : "Details";
+
+                    saveReportRequest(employeesIds, departments, startDate, endDate, reportType);
+                }
+                catch (Exception)
+                {
+                }
+
+                var resultsQuery = _employeesDaysReportsManager
+                    .GetAll(d => (employeesIds.Count() < 1 || employeesIds.Contains(d.EmployeeId))
                             && (absentNotes.Trim().ToLower() == "show"
                                 || (absentNotes.Trim().ToLower() == "hide" && !d.IsDelegationRequest && !d.IsVacationRequest)
                                 || (absentNotes.Trim().ToLower() == "notes" && (d.IsDelegationRequest || d.IsVacationRequest))
                                 || (absentNotes.Trim().ToLower() == "vacations" && d.IsVacationRequest)
                                 || (absentNotes.Trim().ToLower() == "delegations" && d.IsDelegationRequest))
-                            &&  d.DayDate >= startDate && d.DayDate <= endDate && d.IsAbsentEmployee == true);
+                            && d.DayDate >= startDate && d.DayDate <= endDate && d.IsAbsentEmployee == true);
 
-                if(pageNumber.HasValue)
+                if (pageNumber.HasValue)
                 {
                     resultsQuery = resultsQuery.Skip((pageNumber.Value - 1) * pageSize).Take(pageSize);
                 }
@@ -144,7 +161,7 @@ namespace Sgs.Attendance.Reports.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> WasteReport(int years, int months,int day = 0
+        public async Task<IActionResult> WasteReport(int years, int months, int day = 0
             , string employeesIds = null, string departments = null, string reportType = null, int? pageNumber = null, int pageSize = 31)
         {
             try
@@ -158,16 +175,29 @@ namespace Sgs.Attendance.Reports.Controllers
                     endDate = new DateTime(years, months, day);
                 }
 
+                var empsIds = await getEmployeesIds(employeesIds, departments);
+                try
+                {
+                    saveReportRequest(empsIds.ToArray(), departments?.Split(',').ToArray() ?? new string[0], startDate, endDate, reportType);
+                }
+                catch (Exception)
+                {
+                }
+
                 if (reportType == "Transactions")
                 {
                     var daysCount = endDate.Date.Subtract(startDate.Date).TotalDays + 1;
-                    var empsIds = await getEmployeesIds(employeesIds, departments);
+                    
 
-                    if (daysCount > 1 && (empsIds.Count <1 || empsIds.Count > 10))
+                    if (daysCount > 1 && (empsIds.Count < 1 || empsIds.Count > 10))
                     {
                         throw new Exception("Transactions to much");
                     }
                     var transactionViewModels = await _erpManager.GetAllTransaction(startDate, endDate, empsIds);
+
+                    //Temp Delete
+                    //employeesIds = employeesIds.ex
+                    transactionViewModels = transactionViewModels.Except(transactionViewModels.Where(t => t.EmployeeId == 917)).ToList();
 
                     return PartialView("TransactionsReport", transactionViewModels.OrderBy(t => t.TransactionDate));
                 }
@@ -179,8 +209,8 @@ namespace Sgs.Attendance.Reports.Controllers
 
                 var employeesIdsList = resultViewModels.Select(d => d.EmployeeId).Distinct().ToList();
 
-               
-                if (string.IsNullOrWhiteSpace(reportType) || reportType    == "summary" || (employeesIdsList.Count() > 1 && endDate.Subtract(startDate).TotalDays > 1))
+
+                if (string.IsNullOrWhiteSpace(reportType) || reportType == "summary" || (employeesIdsList.Count() > 1 && endDate.Subtract(startDate).TotalDays > 1))
                 {
                     ViewBag.ShowAbsents = false;
                     ViewBag.ShowWaste = true;
@@ -253,7 +283,7 @@ namespace Sgs.Attendance.Reports.Controllers
             }
         }
 
-        public IEnumerable<EmployeeMonthReportViewModel> getSummaryData(DateTime startDate,DateTime endDate,IEnumerable<EmployeeDayReportViewModel> detailsData)
+        public IEnumerable<EmployeeMonthReportViewModel> getSummaryData(DateTime startDate, DateTime endDate, IEnumerable<EmployeeDayReportViewModel> detailsData)
         {
             try
             {
@@ -279,7 +309,7 @@ namespace Sgs.Attendance.Reports.Controllers
                         DayReportsList = employeeDays.ToList(),
                         TotalWasteDays = employeeDays.Count(d => d.IsAbsentEmployee),
                         VacationsDays = employeeDays.Count(d => d.IsVacation && d.VacationRegisterDate.HasValue),
-                        
+
                     };
 
                     newSummary.ContractWorkDurationAvarageTime = newSummary.ContractWorkDurationAvarage.ConvertToTime();
@@ -324,7 +354,7 @@ namespace Sgs.Attendance.Reports.Controllers
             return View();
         }
 
-        public async Task<IActionResult> PartialEmployeeDetailsReport(int employeeId,DateTime fromDate,DateTime toDate)
+        public async Task<IActionResult> PartialEmployeeDetailsReport(int employeeId, DateTime fromDate, DateTime toDate)
         {
             var results = await _employeesDaysReportsManager.GetAllAsNoTrackingListAsync(d => d.EmployeeId == employeeId);
 
@@ -451,5 +481,45 @@ namespace Sgs.Attendance.Reports.Controllers
                 }
             }
         }
+
+
+        private void saveReportRequest(int[] employeesIds, string[] departmentsList
+            , DateTime fromDate, DateTime toDate, string reportType)
+        {
+            try
+            {
+                string filterText = string.Join(',', employeesIds);
+                if (departmentsList.Count() > 0)
+                {
+                    filterText += filterText.Length > 0 ? "," : "";
+                    filterText += string.Join(",", departmentsList);
+                }
+
+                if (User.Identity.IsAuthenticated)
+                {
+                    using (var context = new PrincipalContext(ContextType.Domain))
+                    {
+                        UserPrincipal principal = UserPrincipal.FindByIdentity(context, User.Identity.Name);
+                        string userName = principal.Name;
+                        var requestReport = new RequestReport()
+                        {
+                            ByUserId = User.Identity.Name,
+                            ByUserName = userName,
+                            FilterText = filterText.Length > 0 ? filterText : "All",
+                            FromDate = fromDate,
+                            ToDate = toDate,
+                            ReportType = reportType,
+                            RequestDate=DateTime.Now
+                        };
+
+                        _requestsReportsManager.InsertNew(requestReport);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+        }
+
     }
 }
