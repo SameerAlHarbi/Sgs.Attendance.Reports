@@ -27,45 +27,46 @@
                 <label for="employees" class="control-label"> الموظفين :</label>
                 <br />
                 @(Html.Kendo().MultiSelect()
-                                                .Name("employees")
-                                                .Placeholder("تحديد الموظفين ...")
-                                                .HtmlAttributes(new { style = "100%" })
-                                                .DataTextField("EmployeeId")
-                                                .DataValueField("EmployeeId")
-                                                .AutoClose(true)
-                                                .AutoBind(false)
-                                                .MinLength(3)
-                                                .ItemTemplate("<span style=\"color:red\">#= EmployeeId #</span>&nbsp;-&nbsp; #= Name #")
-                                        .DataSource(source =>
-                                        {
-                                            source.Read(read =>
-                                            {
-                                                read.Action("ShortEmployeesInfoByTextJson", "Employees");
-                                            })
-                                            .ServerFiltering(true);
-                                        })
+                                                        .Name("employees")
+                                                        .Placeholder("تحديد الموظفين ...")
+                                                        .HtmlAttributes(new { style = "100%" })
+                                                        .DataTextField("EmployeeId")
+                                                        .DataValueField("EmployeeId")
+                                                        .AutoClose(true)
+                                                        .AutoBind(false)
+                                                        .MinLength(2)
+                                                        .Delay(1000)
+                                                        .ItemTemplate("<span style=\"color:red\">#= EmployeeId #</span>&nbsp;-&nbsp; #= Name #")
+                                                .DataSource(source =>
+                                                {
+                                                    source.Read(read =>
+                                                    {
+                                                        read.Action("ShortEmployeesInfoByTextJson", "Employees");
+                                                    })
+                                                    .ServerFiltering(true);
+                                                })
                 )
             </div>
             <div class="form-group col-md-3">
                 <label for="departments" class="control-label"> الادارات - الاقسام</label>
                 <br />
                 @(Html.Kendo().DropDownTree()
-                    .Name("departments")
-                    .AutoWidth(true)
-                    .HtmlAttributes(new { style = "width: 100%" })
-                    .Height("500px")
-                    .Placeholder("اختر الادارة - القسم ")
-                    .DataTextField("name")
-                    .AutoClose(false)
-                    //.Filter(FilterType.Contains)
-                    .Checkboxes(checkboxes => checkboxes
-                        .Name("checkedDepartments")
-                        .CheckChildren(false)
-                    )
-                    .DataSource(dataSource => dataSource
-                    .Read(read => read
-                        .Action("GetAllDepartmentsJson", "Departments")
-                    ))
+                            .Name("departments")
+                            .AutoWidth(true)
+                            .HtmlAttributes(new { style = "width: 100%" })
+                            .Height("500px")
+                            .Placeholder("اختر الادارة - القسم ")
+                            .DataTextField("name")
+                            .AutoClose(false)
+                            //.Filter(FilterType.Contains)
+                            .Checkboxes(checkboxes => checkboxes
+                                .Name("checkedDepartments")
+                                .CheckChildren(false)
+                            )
+                            .DataSource(dataSource => dataSource
+                            .Read(read => read
+                                .Action("GetAllDepartmentsJson", "Departments")
+                            ))
                 )
             </div>
             <div class="form-group col-md-1" style="min-width:130px" data-toggle="tooltip" data-placement="bottom" title="عرض و اخفاء أيام الغياب للموظفين حسب الملاحظات">
@@ -94,6 +95,10 @@
 
     </form>
     <hr />
+
+    <div id="mail" style="display:none">
+        <button id="mailSend" class="btn btn-outline-success btn-sm float-left" style="width:80px" data-toggle="tooltip" data-placement="bottom" title="إرسال إشعار غياب عبر البريد الكتروني للموظف"><i class="far fa-envelope fa-lg"></i></button>
+    </div>
 </div>
 
 
@@ -161,13 +166,19 @@
                     success: function updateBalances(data) {
                         $("#absentsData").html(data);
                         $("#absentsData").fadeIn();
+                        $("#mail").fadeIn();
                     },
                  error: function () {
                      $("#absentsData").text("error");
                      $("#absentsData").fadeIn();
+                     $("#mail").fadeOut();
                         },
                  beforeSend: function () {
                      $("#absentsData").html("<div class='text-center'><div class='spinner-grow text-info' role='status'><span class='sr-only'> Loading...</span ></div></div>");
+                     $("#mail").hide();
+                        },
+                        complete: function () {
+                            $("#mailSend").prop('disabled', false);
                         }
                 };
 
@@ -179,6 +190,44 @@
             });
 
             //toastr.clear();
+
+                $("#mailSend").click(function () {
+
+                    var me = this;
+
+                    //$(this).html('<i class="fas fa-spinner fa-lg fa-spin"></i>');
+                    //$(this).prop('disabled', true);
+
+                    var options = {
+                            url: "@Url.Action("SendAbsentsMails", "EmployeesDaysReports")",
+                            type: "Get",
+                            dataType:"json",
+                            data: getFormParameters(),
+                        success: function (data) {
+                                var a = document.createElement('a');
+                                var url = window.URL.createObjectURL(data);
+                                a.href = url;
+                            a.download = 'attendance-' + $("#years").val() + '-' + $("#months").val() + '.xlsx';
+                                a.click();
+                                window.URL.revokeObjectURL(url);
+                                toastr.success("تم تحميل البيانات");
+                            },
+                            error: function () {
+                                toastr.error("عفواً حصل خطأ الرجاء المحاولة لاحقاً");
+                            },
+                            beforeSend: function () {
+                                $(me).html('<i class="fas fa-spinner fa-lg fa-spin"></i>');
+                                $(me).prop('disabled', true);
+                            },
+                            complete: function () {
+                                $(me).html('<i class="fas fa-download"></i>');
+                                $(me).prop('disabled', false);
+                            }
+                        };
+
+                        $.ajax(options);
+
+                });
 
         })
 

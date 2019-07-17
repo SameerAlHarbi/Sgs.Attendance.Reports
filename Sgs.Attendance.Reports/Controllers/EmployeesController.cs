@@ -174,6 +174,7 @@ namespace Sgs.Attendance.Reports.Controllers
         {
             try
             {
+                
                 if (string.IsNullOrWhiteSpace(text))
                 {
                     return Json(new List<ShortEmployeeInfoViewModel>());

@@ -68,7 +68,8 @@
                                     .DataValueField("EmployeeId")
                                     .AutoClose(true)
                                     .AutoBind(false)
-                                    .MinLength(3)
+                                    .MinLength(2)
+                                    .Delay(1000)
                                     .ItemTemplate("<span style=\"color:red\">#= EmployeeId #</span>&nbsp;-&nbsp; #= Name #")
                             .DataSource(source =>
                             {
@@ -214,7 +215,7 @@
                                 $("#download").hide();
                             },
                             complete: function () {
-                                $(excelDownload).prop('disabled', false);
+                                $("#excelDownload").prop('disabled', false);
                             }
                         };
 
