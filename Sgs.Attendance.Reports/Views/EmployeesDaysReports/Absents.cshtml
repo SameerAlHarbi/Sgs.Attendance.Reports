@@ -94,11 +94,6 @@
         </div>
 
     </form>
-    <hr />
-
-    <div id="mail" style="display:none">
-        <button id="mailSend" class="btn btn-outline-success btn-sm float-left" style="width:80px" data-toggle="tooltip" data-placement="bottom" title="إرسال إشعار غياب عبر البريد الكتروني للموظف"><i class="far fa-envelope fa-lg"></i></button>
-    </div>
 </div>
 
 
@@ -188,46 +183,6 @@
 
                 e.preventDefault();
             });
-
-            //toastr.clear();
-
-                $("#mailSend").click(function () {
-
-                    var me = this;
-
-                    //$(this).html('<i class="fas fa-spinner fa-lg fa-spin"></i>');
-                    //$(this).prop('disabled', true);
-
-                    var options = {
-                            url: "@Url.Action("SendAbsentsMails", "EmployeesDaysReports")",
-                            type: "Get",
-                            dataType:"json",
-                            data: getFormParameters(),
-                        success: function (data) {
-                                var a = document.createElement('a');
-                                var url = window.URL.createObjectURL(data);
-                                a.href = url;
-                            a.download = 'attendance-' + $("#years").val() + '-' + $("#months").val() + '.xlsx';
-                                a.click();
-                                window.URL.revokeObjectURL(url);
-                                toastr.success("تم تحميل البيانات");
-                            },
-                            error: function () {
-                                toastr.error("عفواً حصل خطأ الرجاء المحاولة لاحقاً");
-                            },
-                            beforeSend: function () {
-                                $(me).html('<i class="fas fa-spinner fa-lg fa-spin"></i>');
-                                $(me).prop('disabled', true);
-                            },
-                            complete: function () {
-                                $(me).html('<i class="fas fa-download"></i>');
-                                $(me).prop('disabled', false);
-                            }
-                        };
-
-                        $.ajax(options);
-
-                });
 
         })
 

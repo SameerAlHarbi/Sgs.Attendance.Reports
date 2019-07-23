@@ -76,5 +76,8 @@ namespace Sgs.Attendance.Reports.Models
         public bool IsAbsentEmployee { get; set; }
 
         public DateTime ProcessingDate { get; set; }
+
+        public bool AbsentNotified { get; set; }
+    
     }
 }
