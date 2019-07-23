@@ -132,9 +132,11 @@
     <partial name="_ValidationScripts">
         <script>
 
+            
+
             $(function () {
 
-                $('[data-toggle="tooltip"]').tooltip()
+                $('[data-toggle="tooltip"]').tooltip();
 
                 $('form').submit(function (e) {
 
@@ -161,19 +163,15 @@
                     success: function updateBalances(data) {
                         $("#absentsData").html(data);
                         $("#absentsData").fadeIn();
-                        $("#mail").fadeIn();
                     },
                  error: function () {
                      $("#absentsData").text("error");
                      $("#absentsData").fadeIn();
-                     $("#mail").fadeOut();
                         },
                  beforeSend: function () {
                      $("#absentsData").html("<div class='text-center'><div class='spinner-grow text-info' role='status'><span class='sr-only'> Loading...</span ></div></div>");
-                     $("#mail").hide();
                         },
                         complete: function () {
-                            $("#mailSend").prop('disabled', false);
                         }
                 };
 
