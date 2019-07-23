@@ -132,7 +132,13 @@
     <partial name="_ValidationScripts">
         <script>
 
-            
+            function updateSent() {
+                $('[data-sent="False"]').removeClass("btn-outline-success").addClass("btn-outline-secondary").attr("title","تم ارسال البريد الالكتروني للموظف").html("<i class='far fa-envelope-open fa-lg'></i>");
+            }
+
+            function sendMail(absentId){
+                alert(absentId);
+            }
 
             $(function () {
 
@@ -172,6 +178,7 @@
                      $("#absentsData").html("<div class='text-center'><div class='spinner-grow text-info' role='status'><span class='sr-only'> Loading...</span ></div></div>");
                         },
                         complete: function () {
+                            updateSent();
                         }
                 };
 
