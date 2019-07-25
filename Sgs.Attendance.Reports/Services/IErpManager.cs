@@ -24,5 +24,7 @@ namespace Sgs.Attendance.Reports.Services
         Task<List<VacationRequestViewModel>> GetAllOpenDelegations(DateTime fromDate, DateTime toDate, IEnumerable<int> employeesIds = null);
 
         Task<List<VacationRequestViewModel>> GetAllOpenVacations(DateTime fromDate, DateTime toDate, IEnumerable<int> employeesIds = null);
+
+        Task<bool> NotifiAbsent(int employeeId,DateTime absentDate);
     }
 }

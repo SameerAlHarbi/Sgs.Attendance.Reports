@@ -7,6 +7,9 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Sameer.Shared.Data;
+using Sameer.Shared.Mvc;
+using Sameer.Shared;
 
 namespace Sgs.Attendance.Reports.Services
 {
@@ -418,6 +421,29 @@ namespace Sgs.Attendance.Reports.Services
             catch (Exception)
             {
                 throw;
+            }
+        }
+
+        public async Task<bool> NotifiAbsent(int employeeId, DateTime absentDate)
+        {
+            try
+            {
+                string absentDateText = absentDate.ToString("yyyy-MM-dd");
+
+                string url = $"AbsentMail?employeeId={employeeId}&absentDate={absentDateText}";
+
+                HttpResponseMessage response = await _client.PostAsync(url,null);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return true;
+                }
+
+                return false;
+            }
+            catch (Exception)
+            {
+                return false;
             }
         }
     }

@@ -133,11 +133,7 @@
         <script>
 
             function updateSent() {
-                $('[data-sent="False"]').removeClass("btn-outline-success").addClass("btn-outline-secondary").attr("title","تم ارسال البريد الالكتروني للموظف").html("<i class='far fa-envelope-open fa-lg'></i>");
-            }
-
-            function sendMail(absentId){
-                alert(absentId);
+                $('[data-sent="True"]').removeClass("btn-outline-success").addClass("btn-outline-secondary").attr("title","تم ارسال البريد الالكتروني للموظف").html("<i class='far fa-envelope-open fa-lg'></i>");
             }
 
             $(function () {
@@ -178,7 +174,50 @@
                      $("#absentsData").html("<div class='text-center'><div class='spinner-grow text-info' role='status'><span class='sr-only'> Loading...</span ></div></div>");
                         },
                         complete: function () {
+
                             updateSent();
+
+                            $("[data-sent]").click(function () {
+
+                                var absentId = $(this).data("absent");
+                                var me = this;
+
+                                var mailOptions = {
+                                    url: "@Url.Action("NotifiAbsent", "EmployeesDaysReports")",
+                                    type: "Post",
+                                    data: {
+                                        absentId: absentId,
+                                    },
+                                    dataType: "json",
+                                    beforeSend: function () {
+                                        $(me).html("<i class='fas fa-spinner fa-spin fa-lg'></i>");
+                                        $(me).prop('disabled', true);
+                                    },
+                                    success: function (data) {
+                                        if (data.errors) {
+                                            toastr.warning("لا يوجد بريد الكتروني مسجل للموظف !");
+                                            $(me).removeClass("btn-outline-success").removeClass("btn-outline-secondary").addClass("btn-outline-danger");
+                                            $(me).html("<i class='far fa-envelope fa-lg'></i>");
+                                            return;
+                                        }
+                                        toastr.success("تم إشعار الموظف عبر البريد الالكتروني");
+                                        $(me).removeClass("btn-outline-danger").removeClass("btn-outline-secondary").addClass("btn-outline-success");
+                                        $(me).html("<i class='far fa-envelope-open fa-lg'></i>");
+                                    },
+                                    error: function () {
+                                        toastr.error("خطأ اثناء إشعار الموظف عبر البريد الالكتروني !!");
+                                        $(me).removeClass("btn-outline-success").removeClass("btn-outline-secondary").addClass("btn-outline-danger");
+                                        $(me).html("<i class='far fa-envelope fa-lg'></i>");
+                                    },
+                                    complete: function () {
+                                        $(me).prop('disabled', false);
+                                    }
+                                };
+
+                                $.ajax(mailOptions);
+
+                            });
+                            
                         }
                 };
 
@@ -187,7 +226,9 @@
                 }
 
                 e.preventDefault();
-            });
+                });
+
+
 
         })
 

@@ -521,5 +521,36 @@ namespace Sgs.Attendance.Reports.Controllers
             }
         }
 
+
+        public async Task<IActionResult> NotifiAbsent(int absentId)
+        {
+            try
+            {
+                //Get Absents Info
+                var absentInfo  = await _employeesDaysReportsManager.GetByIdAsync(absentId);
+
+                if(absentInfo == null)
+                {
+                    throw new Exception("No Data");
+                }
+
+                var result = await _erpManager.NotifiAbsent(absentInfo.EmployeeId, absentInfo.DayDate);
+
+                if (result)
+                {
+                    return Json("Ok");
+                }
+                else
+                {
+                    return Json(new { errors = "Error" });
+                }
+
+            }
+            catch (Exception)
+            {
+                return Json(new { errors = "Error" });
+            }
+        }
+
     }
 }
