@@ -146,5 +146,11 @@ namespace Sgs.Attendance.Reports.ViewModels
         public DateTime ProcessingDate { get; set; }
 
         public bool AbsentNotified { get; set; }
+
+        public DateTime? AbsentNotifiedDate { get; set; }
+
+        public string AbsentNotifiedByEmployeeId { get; set; }
+
+        public string AbsentNotifiedByEmployeeName { get; set; }
     }
 }

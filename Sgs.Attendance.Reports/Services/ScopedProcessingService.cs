@@ -16,6 +16,7 @@ namespace Sgs.Attendance.Reports.Services
     {
         private readonly ProcessingsRequestsManager _processingsRequestsManager;
         private readonly EmployeesDaysReportsManager _employeesDaysReportsManager;
+        private readonly AbsentsNotificationsManager _absentsNotificationsManager;
         private readonly IErpManager _erpManager;
         private readonly EmployeesCalendarsManager _employeesCalendarManager;
         private readonly EmployeesExcusesManager _employeesExcusesManager;
@@ -25,6 +26,7 @@ namespace Sgs.Attendance.Reports.Services
         public ScopedProcessingService(
               ProcessingsRequestsManager processingsRequestsManager
             , EmployeesDaysReportsManager employeesDaysReportsManager
+            , AbsentsNotificationsManager absentsNotificationsManager
             , IErpManager erpManager
             , EmployeesCalendarsManager employeesCalendarManager
             , EmployeesExcusesManager employeesExcusesManager
@@ -33,6 +35,7 @@ namespace Sgs.Attendance.Reports.Services
         {
             _processingsRequestsManager = processingsRequestsManager;
             _employeesDaysReportsManager = employeesDaysReportsManager;
+            _absentsNotificationsManager = absentsNotificationsManager;
             _erpManager = erpManager;
             _employeesCalendarManager = employeesCalendarManager;
             _employeesExcusesManager = employeesExcusesManager;
@@ -316,6 +319,29 @@ namespace Sgs.Attendance.Reports.Services
                         await _employeesDaysReportsManager
                                         .DirectDeleteItems(d => (employeesIds.Count < 1 || employeesIds.Contains(d.EmployeeId))
                                             && d.DayDate >= fromDate && d.DayDate <= toDate);
+
+                        try
+                        {
+                            var notificationsLogs = await _absentsNotificationsManager.GetAllAsNoTrackingListAsync(d => (employeesIds.Count < 1 || employeesIds.Contains(d.EmployeeId))
+                                            && d.AbsentDate >= fromDate && d.AbsentDate <= toDate);
+
+                            if(notificationsLogs.Count > 0)
+                            {
+                                foreach (var rdr in resultsDaysReports)
+                                {
+                                    var notificationLog = notificationsLogs.FirstOrDefault(n => n.EmployeeId == rdr.EmployeeId 
+                                        && n.AbsentDate == rdr.DayDate);
+
+                                    rdr.AbsentNotified = notificationLog != null;
+                                    rdr.AbsentNotifiedByEmployeeId = notificationLog?.ByEmployeeId;
+                                    rdr.AbsentNotifiedByEmployeeName = notificationLog?.ByEmployeeName;
+                                    rdr.AbsentNotifiedDate = notificationLog?.SendDate;
+                                }
+                            }
+                        }
+                        catch (Exception)
+                        {
+                        }
 
                         await _employeesDaysReportsManager.InsertNewDataItems(resultsDaysReports);
 

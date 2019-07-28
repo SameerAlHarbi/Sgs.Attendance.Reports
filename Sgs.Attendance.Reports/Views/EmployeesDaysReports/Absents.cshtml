@@ -177,7 +177,7 @@
 
                             updateSent();
 
-                            $("[data-sent]").click(function () {
+                            $("[data-absent]").click(function () {
 
                                 var absentId = $(this).data("absent");
                                 var me = this;
@@ -215,6 +215,48 @@
                                 };
 
                                 $.ajax(mailOptions);
+
+                            });
+
+                            $("[data-absents]").click(function () {
+
+                                var me = this;
+  
+                                var mailsOptions = {
+                                    url: "@Url.Action("NotifiAbsents", "EmployeesDaysReports")",
+                                    type: "Post",
+                                    data: {
+                                        employeeId: $(me).data("absents"),
+                                        fromDate:$(me).data("from"),
+                                        toDate:$(me).data("to")
+                                    },
+                                    dataType: "json",
+                                    beforeSend: function () {
+                                        $(me).html("<i class='fas fa-spinner fa-spin fa-lg'></i>");
+                                        $(me).prop('disabled', true);
+                                    },
+                                    success: function (data) {
+                                        if (data.errors) {
+                                            toastr.warning("لا يوجد بريد الكتروني مسجل للموظف !");
+                                            $(me).removeClass("btn-outline-success").removeClass("btn-outline-secondary").addClass("btn-outline-danger");
+                                            $(me).html("<i class='far fa-envelope fa-lg'></i>");
+                                            return;
+                                        }
+                                        toastr.success("تم إشعار الموظف عبر البريد الالكتروني");
+                                        $(me).removeClass("btn-outline-danger").removeClass("btn-outline-secondary").addClass("btn-outline-success");
+                                        $(me).html("<i class='far fa-envelope-open fa-lg'></i>");
+                                    },
+                                    error: function () {
+                                        toastr.error("خطأ اثناء إشعار الموظف عبر البريد الالكتروني !!");
+                                        $(me).removeClass("btn-outline-success").removeClass("btn-outline-secondary").addClass("btn-outline-danger");
+                                        $(me).html("<i class='far fa-envelope fa-lg'></i>");
+                                    },
+                                    complete: function () {
+                                        $(me).prop('disabled', false);
+                                    }
+                                };
+
+                                $.ajax(mailsOptions);
 
                             });
                             

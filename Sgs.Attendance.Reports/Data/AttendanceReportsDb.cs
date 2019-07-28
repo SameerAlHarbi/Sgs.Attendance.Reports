@@ -24,6 +24,7 @@ namespace Sgs.Attendance.Reports.Data
 
         public DbSet<RequestReport> RequestsReports { get; set; }
 
+        public DbSet<AbsentNotification> AbsentsNotifications { get; set; }
 
     }
 }

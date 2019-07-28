@@ -58,6 +58,7 @@
                                 @if (ViewBag.ShowAbsents)
                                 {
                                     <th>ايام الغياب</th>
+                                    <th>اشعار الموظف</th>
                                 }
                                 @if(ViewBag.ShowWaste)
                                 {
@@ -80,6 +81,26 @@
                                     <td style="color:red">
                                         @empMonthReport.TotalAbsentsDays
                                     </td>
+                                    
+                                        @if (!empMonthReport.AllAbsentsWithNotes)
+                                        {
+                                            <td>
+                                                <button data-absents="@empMonthReport.EmployeeId"
+                                                        data-from="@empMonthReport.StartDate.ToString("yyyy-MM-dd")"
+                                                        data-to="@empMonthReport.ToDate.ToString("yyyy-MM-dd")"
+                                                        class="btn btn-outline-primary btn-sm"
+                                                        style="width:80px"
+                                                        data-sent="@empMonthReport.AllAbsentsNotified"
+                                                        title="إرسال إشعار غياب عبر البريد الكتروني للموظف">
+                                                    <i class="far fa-envelope fa-lg"></i>
+                                                </button>
+                                            </td>
+                                        }
+                                        else
+                                        {
+                                            <td style="color:red"> ( اجازة - انتداب )</td>
+                                        }
+                                    
                                 }
                                 @if (ViewBag.ShowWaste)
                                 {

@@ -62,5 +62,8 @@ namespace Sgs.Attendance.Reports.ViewModels
         public int  VacationsDays { get; set; }
 
         public int  SingleProofDays { get; set; }
+
+        public bool AllAbsentsNotified { get; set; }
+        public bool AllAbsentsWithNotes { get; set; }
     }
 }

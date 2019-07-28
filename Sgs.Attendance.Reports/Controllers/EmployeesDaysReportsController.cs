@@ -21,14 +21,16 @@ namespace Sgs.Attendance.Reports.Controllers
     public class EmployeesDaysReportsController : BaseController
     {
         private readonly EmployeesDaysReportsManager _employeesDaysReportsManager;
+        private readonly AbsentsNotificationsManager _absentsNotificationsManager;
         private readonly RequestsReportsManager _requestsReportsManager;
         private readonly IErpManager _erpManager;
         private readonly IHostingEnvironment _env;
 
         public EmployeesDaysReportsController(IHostingEnvironment environment, EmployeesDaysReportsManager employeesDaysReportsManager,
-            RequestsReportsManager requestsReportsManager, IErpManager erpManager, IMapper mapper, ILogger<EmployeesDaysReportsController> logger) : base(mapper, logger)
+            AbsentsNotificationsManager absentsNotificationsManager, RequestsReportsManager requestsReportsManager, IErpManager erpManager, IMapper mapper, ILogger<EmployeesDaysReportsController> logger) : base(mapper, logger)
         {
             _employeesDaysReportsManager = employeesDaysReportsManager;
+            _absentsNotificationsManager = absentsNotificationsManager;
             _requestsReportsManager = requestsReportsManager;
             _erpManager = erpManager;
             _env = environment;
@@ -144,7 +146,13 @@ namespace Sgs.Attendance.Reports.Controllers
                             ProcessingDate = employeeDays.Max(d => d.ProcessingDate),
                             StartDate = startDate,
                             ToDate = endDate,
-                            TotalAbsentsDays = employeeDays.Count()
+                            TotalAbsentsDays = employeeDays.Count(),
+                            AllAbsentsNotified = !employeeDays.Where(d => d.IsAbsentEmployee
+                                              && !d.IsDelegationRequest
+                                              && !d.IsVacationRequest).Any(d => !d.AbsentNotified),
+                            AllAbsentsWithNotes = !employeeDays.Where(d => d.IsAbsentEmployee
+                                             && !d.IsDelegationRequest
+                                             && !d.IsVacationRequest).Any()
                         };
                         summaryViewModels.Add(newSummary);
                     }
@@ -187,7 +195,7 @@ namespace Sgs.Attendance.Reports.Controllers
                 if (reportType == "Transactions")
                 {
                     var daysCount = endDate.Date.Subtract(startDate.Date).TotalDays + 1;
-                    
+
 
                     if (daysCount > 1 && (empsIds.Count < 1 || empsIds.Count > 10))
                     {
@@ -509,7 +517,7 @@ namespace Sgs.Attendance.Reports.Controllers
                             FromDate = fromDate,
                             ToDate = toDate,
                             ReportType = reportType,
-                            RequestDate=DateTime.Now
+                            RequestDate = DateTime.Now
                         };
 
                         _requestsReportsManager.InsertNew(requestReport);
@@ -526,15 +534,157 @@ namespace Sgs.Attendance.Reports.Controllers
         {
             try
             {
-                //Get Absents Info
-                var absentInfo  = await _employeesDaysReportsManager.GetByIdAsync(absentId);
+                var absentInfo = await _employeesDaysReportsManager.GetByIdAsync(absentId);
 
-                if(absentInfo == null)
+                if (absentInfo == null)
                 {
                     throw new Exception("No Data");
                 }
 
-                var result = await _erpManager.NotifiAbsent(absentInfo.EmployeeId, absentInfo.DayDate);
+                var result =  await _erpManager.NotifiAbsent(absentInfo.EmployeeId, absentInfo.DayDate);
+
+                if (result)
+                {
+                    try
+                    {
+                        using (var context = new PrincipalContext(ContextType.Domain))
+                        {
+                            UserPrincipal principal = UserPrincipal.FindByIdentity(context, User.Identity.Name);
+                            string userName = principal.Name;
+
+                            absentInfo.AbsentNotified = true;
+                            absentInfo.AbsentNotifiedDate = DateTime.Now;
+                            absentInfo.AbsentNotifiedByEmployeeId = User.Identity.Name;
+                            absentInfo.AbsentNotifiedByEmployeeName = principal.Name;
+                        }
+
+                        await _employeesDaysReportsManager.UpdateDataItem(absentInfo);
+
+                        var currentNotificationLog = await _absentsNotificationsManager
+                            .GetSingleItemAsync(n => n.EmployeeId == absentInfo.EmployeeId && n.AbsentDate == absentInfo.DayDate);
+
+                        currentNotificationLog = currentNotificationLog ?? new AbsentNotification
+                        {
+                            AbsentDate = absentInfo.DayDate,
+                            EmployeeId = absentInfo.EmployeeId
+                        };
+
+                        currentNotificationLog.ByEmployeeId = absentInfo.AbsentNotifiedByEmployeeId;
+                        currentNotificationLog.ByEmployeeName = absentInfo.AbsentNotifiedByEmployeeName;
+                        currentNotificationLog.SendDate = absentInfo.AbsentNotifiedDate.Value;
+
+                        if (currentNotificationLog.Id < 1)
+                        {
+                            await _absentsNotificationsManager.InsertNewAsync(currentNotificationLog);
+                        }
+                        else
+                        {
+                            await _absentsNotificationsManager.UpdateItemAsync(currentNotificationLog);
+                        }
+                    }
+                    catch (Exception)
+                    {
+                    }
+                    return Json("Ok");
+                }
+                else
+                {
+                    return Json(new { errors = "Error" });
+                }
+
+            }
+            catch (Exception)
+            {
+                return Json(new { errors = "Error" });
+            }
+        }
+
+        public async Task<IActionResult> NotifiAbsents(int employeeId, string fromDate, string toDate)
+        {
+            try
+            {
+                DateTime? fromDateObject = fromDate.TryParseToDate();
+                DateTime? toDateObject = toDate.TryParseToDate();
+
+                if (!fromDateObject.HasValue || !toDateObject.HasValue)
+                {
+                    throw new Exception("Date error");
+                }
+
+                var absentsInfo = await _employeesDaysReportsManager
+                    .GetAllAsNoTrackingListAsync(d => d.EmployeeId == employeeId && d.IsAbsentEmployee && !d.IsDelegationRequest && !d.IsVacationRequest
+                        && d.DayDate >= fromDateObject.Value && d.DayDate <= toDateObject.Value);
+
+                if (absentsInfo == null || !absentsInfo.Any())
+                {
+                    throw new Exception("No Data");
+                }
+
+                string userName = "";
+                using (var context = new PrincipalContext(ContextType.Domain))
+                {
+                    UserPrincipal principal = UserPrincipal.FindByIdentity(context, User.Identity.Name);
+                    userName = principal.Name;
+                }
+
+                var currentNotificationsLog = new List<AbsentNotification>();
+
+                try
+                {
+                    currentNotificationsLog = await _absentsNotificationsManager
+                                .GetAllAsNoTrackingListAsync(n => n.EmployeeId == employeeId
+                                    && n.AbsentDate >= fromDateObject.Value
+                                    && n.AbsentDate <= toDateObject.Value);
+                }
+                catch (Exception)
+                {
+                }
+
+                bool result = true;
+
+                foreach (var absentInfo in absentsInfo)
+                {
+
+                    result = await _erpManager.NotifiAbsent(absentInfo.EmployeeId, absentInfo.DayDate);
+
+                    try
+                    {
+
+                        absentInfo.AbsentNotified = true;
+                        absentInfo.AbsentNotifiedDate = DateTime.Now;
+                        absentInfo.AbsentNotifiedByEmployeeId = User.Identity.Name;
+                        absentInfo.AbsentNotifiedByEmployeeName = userName;
+
+
+                        await _employeesDaysReportsManager.UpdateDataItem(absentInfo);
+
+                        var currentNotificationLog = currentNotificationsLog
+                            .FirstOrDefault(n => n.EmployeeId == absentInfo.EmployeeId && n.AbsentDate == absentInfo.DayDate);
+
+                        currentNotificationLog = currentNotificationLog ?? new AbsentNotification
+                        {
+                            AbsentDate = absentInfo.DayDate,
+                            EmployeeId = absentInfo.EmployeeId
+                        };
+
+                        currentNotificationLog.ByEmployeeId = absentInfo.AbsentNotifiedByEmployeeId;
+                        currentNotificationLog.ByEmployeeName = absentInfo.AbsentNotifiedByEmployeeName;
+                        currentNotificationLog.SendDate = absentInfo.AbsentNotifiedDate.Value;
+
+                        if (currentNotificationLog.Id < 1)
+                        {
+                            await _absentsNotificationsManager.InsertNewAsync(currentNotificationLog);
+                        }
+                        else
+                        {
+                            await _absentsNotificationsManager.UpdateItemAsync(currentNotificationLog);
+                        }
+                    }
+                    catch (Exception)
+                    {
+                    }
+
+                }
 
                 if (result)
                 {
@@ -551,6 +701,5 @@ namespace Sgs.Attendance.Reports.Controllers
                 return Json(new { errors = "Error" });
             }
         }
-
     }
 }
