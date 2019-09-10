@@ -232,6 +232,34 @@ namespace Sgs.Attendance.Reports.Services
             }
         }
 
+        public async Task<IEnumerable<DepartmentInfoViewModel>> GetFlatDepartmentsInfo()
+        {
+            try
+            {
+                HttpResponseMessage response = await _client.GetAsync("FlatDepartments");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    string content = await response.Content.ReadAsStringAsync();
+                    var results = JsonConvert.DeserializeObject<List<DepartmentInfoViewModel>>(content);
+
+                    return results;
+                }
+                else if (response.StatusCode == HttpStatusCode.NotFound)
+                {
+                    throw new Exception("Data not found !!");
+                }
+                else //Else in case of BadRequest for not found data or InternalServerError
+                {
+                    throw new Exception("Internal Server Error");
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
         public async Task<IEnumerable<DepartmentInfoViewModel>> GetChildsDepartmentsInfo(string parentDepartmentCode)
         {
             try

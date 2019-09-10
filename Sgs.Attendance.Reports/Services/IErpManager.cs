@@ -15,6 +15,8 @@ namespace Sgs.Attendance.Reports.Services
 
         Task<IEnumerable<DepartmentInfoViewModel>> GetAllDepartmentsInfo();
 
+        Task<IEnumerable<DepartmentInfoViewModel>> GetFlatDepartmentsInfo();
+
         Task<IEnumerable<DepartmentInfoViewModel>> GetChildsDepartmentsInfo(string parentDepartmentCode);
 
         Task<List<VacationViewModel>> GetAllVacations(DateTime fromDate, DateTime toDate, IEnumerable<int> employeesIds = null);

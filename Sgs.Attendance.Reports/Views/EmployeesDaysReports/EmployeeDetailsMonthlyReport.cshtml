@@ -13,7 +13,23 @@
                     <div id="header-info" class="row justify-content-center align-self-center text-center">
                         <div class="col justify-content-center align-self-center text-center d-none d-print-block">
                             <h5>قسم عمليات الموارد البشرية</h5>
-                            <h6>تقرير الموظف</h6>
+                            @if (Model.Count() < 2)
+                            {
+                                <h6>تقرير الموظف</h6>
+                            }
+                            else if (!string.IsNullOrWhiteSpace(ViewBag.DepartmentName))
+                            {
+                                @*<h6 style="color:red">@(ViewBag.MultiDates ? $"تقرير الادارة - {ViewBag.MonthName}" : "تقرير الادارة")</h6>*@
+                                <h6>تقرير الادارة</h6>
+                                if (ViewBag.MultiDates)
+                                {
+                                 <span style="color:red">@ViewBag.MonthName</span>
+                                }
+                            }
+                            else
+                            {
+                                <h6>تقرير الموظفين</h6>
+                            }
                         </div>
                         <div class="col">
                             <div class="d-none d-print-block"><img style="max-width:190px; max-height:130px" src="~/Images/SGSLOGO.png" /></div>
@@ -31,6 +47,18 @@
                             </div>
                             <div class="col d-none d-print-block" style="text-align:left">
                                 <span>الادارة - القسم : </span><span class="text-info">@Model.First().DepartmentName</span>
+                            </div>
+                        </div>
+                    }
+                    else if (!string.IsNullOrWhiteSpace(ViewBag.DepartmentName))
+                    {
+                        <div id="employee-info" class="row">
+                            <div class="col d-none d-print-block" style="text-align:right">
+                                @if (!ViewBag.MultiDates)
+                                {
+                                    <span class="text-info">@Model.FirstOrDefault(d => d.DayReportsList.Any())?.DayReportsList.First().DayDate.ConvertToString(showDayName: true, showDayNameInArabic: true) -</span>
+                                }
+                                <span> @ViewBag.DepartmentName</span>
                             </div>
                         </div>
                     }
@@ -74,9 +102,16 @@
                             <tr>
                                 @if (Model.Count() >= 2)
                                 {
+                                    if (!string.IsNullOrWhiteSpace(ViewBag.DepartmentName) && ViewBag.MultiDates)
+                                    {
+                                        <th>التاريخ</th>
+                                    }
                                     <th>الرقم الوظيفي</th>
                                     <th>الاسم</th>
-                                    <th>الادارة - القسم</th>
+                                    if (string.IsNullOrWhiteSpace(ViewBag.DepartmentName) || !ViewBag.MultiDates)
+                                    {
+                                        <th>الادارة - القسم</th>
+                                    }
                                 }
                                 else
                                 {
@@ -97,20 +132,29 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var empDaysReports in Model.SelectMany(s => s.DayReportsList).Where(d => d.AttendanceProof != AttendanceProof.Exempted).OrderBy(d => d.EmployeeId).ThenBy(d => d.DayDate))
+                            @foreach (var empDaysReports in Model.SelectMany(s => s.DayReportsList).Where(d => d.AttendanceProof != AttendanceProof.Exempted).OrderBy(d => d.DayDate).ThenBy(d => d.EmployeeId))
                             {
                                 <tr style="text-align:center">
                                     @if (Model.Count() >= 2)
                                     {
+                                        if (!string.IsNullOrWhiteSpace(ViewBag.DepartmentName) && ViewBag.MultiDates)
+                                        {
+                                            <td class="@(empDaysReports.IsAbsentEmployee?"text-danger":"")">
+                                                @empDaysReports.DayDate.ConvertToString(false, true, true)
+                                            </td>
+                                        }
                                         <td>
                                             @empDaysReports.EmployeeId
                                         </td>
                                         <td>
                                             @empDaysReports.EmployeeName
                                         </td>
-                                        <td>
-                                            @empDaysReports.DepartmentName
-                                        </td>
+                                        if (string.IsNullOrWhiteSpace(ViewBag.DepartmentName) || !ViewBag.MultiDates)
+                                        {
+                                            <td>
+                                                @empDaysReports.DepartmentName
+                                            </td>
+                                        }
                                     }
                                     else
                                     {
@@ -139,12 +183,12 @@
 
                                     <td>
                                         @(empDaysReports.IsDelegationRequest ? "طلب انتداب" :
-                                                  empDaysReports.IsVacationRequest ? "طلب اجازة" :
-                                                  empDaysReports.IsAbsentEmployee ? "غياب" : "")
-                                </td>
+                                                                          empDaysReports.IsVacationRequest ? "طلب اجازة" :
+                                                                          empDaysReports.IsAbsentEmployee ? "غياب" : "")
+                                    </td>
 
-                            </tr>
-                        }
+                                </tr>
+                            }
                         </tbody>
                     </table>
                 </div>

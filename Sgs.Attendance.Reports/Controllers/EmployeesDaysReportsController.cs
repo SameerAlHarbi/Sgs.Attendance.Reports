@@ -204,8 +204,7 @@ namespace Sgs.Attendance.Reports.Controllers
                     var transactionViewModels = await _erpManager.GetAllTransaction(startDate, endDate, empsIds);
 
                     //Temp Delete
-                    //employeesIds = employeesIds.ex
-                    transactionViewModels = transactionViewModels.Except(transactionViewModels.Where(t => t.EmployeeId == 917)).ToList();
+                    //transactionViewModels = transactionViewModels.Except(transactionViewModels.Where(t => t.EmployeeId == 917)).ToList();
 
                     return PartialView("TransactionsReport", transactionViewModels.OrderBy(t => t.TransactionDate));
                 }
@@ -218,7 +217,7 @@ namespace Sgs.Attendance.Reports.Controllers
                 var employeesIdsList = resultViewModels.Select(d => d.EmployeeId).Distinct().ToList();
 
 
-                if (string.IsNullOrWhiteSpace(reportType) || reportType == "summary" || (employeesIdsList.Count() > 1 && endDate.Subtract(startDate).TotalDays > 1))
+                if (string.IsNullOrWhiteSpace(reportType) || reportType == "summary" || (string.IsNullOrWhiteSpace(departments) && employeesIdsList.Count() > 1 && endDate.Subtract(startDate).TotalDays > 1))
                 {
                     ViewBag.ShowAbsents = false;
                     ViewBag.ShowWaste = true;
@@ -227,6 +226,23 @@ namespace Sgs.Attendance.Reports.Controllers
                 }
                 else
                 {
+                    var departmentsNamesList = new List<string>();
+                    if (!string.IsNullOrWhiteSpace(departments))
+                    {
+                        var departmentsList = departments?.Split(',').ToList() ?? new List<string>();
+                        var allDepartments = await _erpManager.GetFlatDepartmentsInfo();
+                        foreach (var dept in departmentsList)
+                        {
+                            var currentDept = allDepartments.FirstOrDefault(d => d.Code == dept);
+                            if(currentDept != null)
+                            {
+                                departmentsNamesList.Add(currentDept.Name);
+                            }
+                        }
+                    }
+                    ViewBag.DepartmentName = string.Join(" - ", departmentsNamesList);
+                    ViewBag.MultiDates = endDate.Subtract(startDate).TotalDays > 1;
+                    ViewBag.MonthName = startDate.GetMonthName();
                     return PartialView("EmployeeDetailsMonthlyReport", summaryViewModels);
                 }
             }
@@ -490,7 +506,6 @@ namespace Sgs.Attendance.Reports.Controllers
             }
         }
 
-
         private void saveReportRequest(int[] employeesIds, string[] departmentsList
             , DateTime fromDate, DateTime toDate, string reportType)
         {
@@ -528,7 +543,6 @@ namespace Sgs.Attendance.Reports.Controllers
             {
             }
         }
-
 
         public async Task<IActionResult> NotifiAbsent(int absentId)
         {
