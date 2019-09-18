@@ -135,6 +135,8 @@
     <partial name="_ValidationScripts">
         <script>
 
+
+
             function dateChange() {
                 var year = $("#years").val();
                 var month = $("#months").val();
@@ -157,14 +159,22 @@
                 var departmentsTree = $("#departments").data("kendoDropDownTree");
                 var departmentsNodes = departmentsTree.dataSource.view();
                 var checkedDepartmentsNodes = [];
+                var checkedDepartmentsNames = [];
 
                 checkedNodesIds(departmentsNodes, checkedDepartmentsNodes);
+
+                checkedNodesNames(departmentsNodes, checkedDepartmentsNames);
 
                 var employeesIds = $("#employees").data("kendoMultiSelect").value();
 
                 var checkedDepartmentsText;
                 if (checkedDepartmentsNodes && checkedDepartmentsNodes.length > 0) {
                     checkedDepartmentsText = checkedDepartmentsNodes.join(',');
+                }
+
+                var checkedDepartmentsNamesText;
+                if (checkedDepartmentsNames && checkedDepartmentsNames.length > 0) {
+                    checkedDepartmentsNamesText = checkedDepartmentsNames.join(',');
                 }
 
                 var employeesIdsText;
@@ -183,6 +193,7 @@
                     , day: day
                     , employeesIds: employeesIdsText
                     , departments: checkedDepartmentsText
+                    , departmentsNames: checkedDepartmentsNamesText
                     , reportType: $("#reportType").val()
                 }
             }
@@ -235,18 +246,21 @@
                     //$(this).html('<i class="fas fa-spinner fa-lg fa-spin"></i>');
                     //$(this).prop('disabled', true);
 
+                    var fromParameters = getFormParameters();
+                    
                     var options = {
                             url: "@Url.Action("GetDetailsReport", "EmployeesDaysReports")",
                             type: "Get",
                             xhrFields: {
                                 responseType: 'blob'
                             },
-                            data: getFormParameters(),
+                        data: fromParameters,
                         success: function (data) {
                                 var a = document.createElement('a');
                                 var url = window.URL.createObjectURL(data);
-                                a.href = url;
-                            a.download = 'attendance-' + $("#years").val() + '-' + $("#months").val() + '.xlsx';
+                            a.href = url;
+                            var f = fromParameters && fromParameters.departmentsNames ? fromParameters.departmentsNames : 'attendance';
+                            a.download = f + '-' + $("#years").val() + '-' + $("#months").val() + '.xlsx';
                                 a.click();
                                 window.URL.revokeObjectURL(url);
                                 toastr.success("تم تحميل البيانات");
