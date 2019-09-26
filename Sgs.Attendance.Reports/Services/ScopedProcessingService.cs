@@ -157,12 +157,14 @@ namespace Sgs.Attendance.Reports.Services
                             newDayReport.DelegationRequestDate = employeeOpenDelegationRequest.RequestDate;
                         }
 
+                        DateTime? checkOutStartRange = null;
+
                         if (newDayReport.ContractCheckInDateTime.HasValue
                                 && newDayReport.ContractCheckOutDateTime.HasValue)
                         {
                             var checkInStartRange = newDayReport.ContractCheckInDateTime.Value.Add(new TimeSpan(-2, 0, 0));
 
-                            var checkOutStartRange = newDayReport.ContractCheckInDateTime.Value.Add(new TimeSpan(0, 31, 0));
+                             checkOutStartRange = newDayReport.ContractCheckInDateTime.Value.Add(new TimeSpan(0, 31, 0));
                             var checkOutEndRange = newDayReport.ContractCheckOutDateTime.Value.Add(new TimeSpan(5, 0, 0));
 
                             var employeeTransactions = transactions.Where(t => t.EmployeeId == employee.EmployeeId).OrderBy(o => o.TransactionDate).ToList();
@@ -171,7 +173,7 @@ namespace Sgs.Attendance.Reports.Services
                                 newDayReport.ActualCheckInDateTime = employeeTransactions
                                     .FirstOrDefault(t => t.TransactionDate >= checkInStartRange && t.TransactionDate <= newDayReport.ContractCheckOutDateTime.Value)?.TransactionDate;
 
-                                newDayReport.ActualCheckOutDateTime = employeeTransactions.LastOrDefault(t => t.TransactionDate >= checkOutStartRange && t.TransactionDate <= checkOutEndRange)?.TransactionDate;
+                                newDayReport.ActualCheckOutDateTime = employeeTransactions.LastOrDefault(t => t.TransactionDate >= checkOutStartRange.Value && t.TransactionDate <= checkOutEndRange)?.TransactionDate;
 
                                 if (newDayReport.ActualCheckInDateTime.HasValue
                                     && newDayReport.ActualCheckOutDateTime.HasValue)
@@ -212,6 +214,7 @@ namespace Sgs.Attendance.Reports.Services
                             newDayReport.CheckOutDateTime = newDayReport.ActualCheckOutDateTime;
 
                             if (newDayReport.CheckInDateTime.HasValue
+                                && (newDayReport.CheckInDateTime.HasValue && checkOutStartRange.HasValue && newDayReport.CheckInDateTime.Value > checkOutStartRange.Value )
                                 && !newDayReport.CheckOutDateTime.HasValue
                                 && newDayReport.CheckInExcuse)
                             {
@@ -343,11 +346,24 @@ namespace Sgs.Attendance.Reports.Services
                         {
                         }
 
+                        //foreach (var item in resultsDaysReports)
+                        //{
+                        //    try
+                        //    {
+                        //        await _employeesDaysReportsManager.InsertNewDataItem(item);
+                        //    }
+                        //    catch (Exception ex)
+                        //    {
+
+                        //        throw;
+                        //    }
+                        //}
+
                         await _employeesDaysReportsManager.InsertNewDataItems(resultsDaysReports);
 
                         scope.Complete();
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
                         scope.Dispose();
                         throw;
