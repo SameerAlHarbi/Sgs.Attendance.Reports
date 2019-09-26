@@ -411,7 +411,7 @@ namespace Sgs.Attendance.Reports.Controllers
 
             var employeesIdsList = resultViewModels.Select(d => d.EmployeeId).Distinct().ToList();
 
-            if (string.IsNullOrWhiteSpace(reportType) || reportType == "summary" || (employeesIdsList.Count() > 1 && endDate.Subtract(startDate).TotalDays > 1))
+            if (string.IsNullOrWhiteSpace(reportType) || reportType == "summary" || (string.IsNullOrWhiteSpace(departments) && employeesIdsList.Count() > 1 && endDate.Subtract(startDate).TotalDays > 1))
             {
                 summaryViewModels = summaryViewModels.Where(s => s.WasteDays > 0).OrderBy(s => s.EmployeeId).ToList();
 
@@ -438,6 +438,50 @@ namespace Sgs.Attendance.Reports.Controllers
                             excelWorksheet.Cells[i, k++].Value = data.WasteDays;
                             //excelWorksheet.Cells[i, k++].Value = data.VacationsDays;
                             //excelWorksheet.Cells[i, k++].Value = data.TotalAbsentsDays;
+                            i++;
+                        }
+                        catch (Exception ex)
+                        {
+                            throw ex;
+                        }
+                    }
+
+                    var fileStream = new MemoryStream();
+                    package.SaveAs(fileStream);
+                    fileStream.Position = 0;
+
+                    var fsr = new FileStreamResult(fileStream, contentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+                    fsr.FileDownloadName = $"Details{startDate.Year}-{startDate.Month}.xlsx";
+                    return fsr;
+                }
+            }
+            else if (!string.IsNullOrWhiteSpace(departments))
+            {
+                var path = Path.Combine(_env.WebRootPath, "Excels/DepartmentReport.xlsx");
+                var fileInfo = new FileInfo(path);
+
+                using (ExcelPackage package = new ExcelPackage(fileInfo.OpenRead()))
+                {
+                    ExcelWorksheet excelWorksheet = package.Workbook.Worksheets[0];
+                    int i = 2;
+
+                    foreach (var data in resultViewModels
+                        .Where(d => d.DayDate.DayOfWeek != DayOfWeek.Friday
+                        && d.DayDate.DayOfWeek != DayOfWeek.Saturday).OrderBy(d => d.DayDate).ThenBy(d => d.EmployeeId))
+                    {
+                        try
+                        {
+                            int k = 1;
+                            excelWorksheet.Cells[i, k++].Value = data.EmployeeId;
+                            excelWorksheet.Cells[i, k++].Value = data.EmployeeName;
+                            excelWorksheet.Cells[i, k++].Value = data.DepartmentName;
+                            excelWorksheet.Cells[i, k++].Value = data.DayDate;
+                            excelWorksheet.Cells[i, k++].Value = data.DayDate.ConvertToString(true, true, true);
+                            excelWorksheet.Cells[i, k++].Value = data.CheckInDateTimeForReport;
+                            excelWorksheet.Cells[i, k++].Value = data.CheckOutDateTime;
+                            excelWorksheet.Cells[i, k++].Value = data.VacationName;
+                            excelWorksheet.Cells[i, k++].Value = data.IsDelegationRequest ? "طلب انتداب" : data.IsVacationRequest ? "طلب إجازة" : string.Empty;
+
                             i++;
                         }
                         catch (Exception ex)

@@ -12,6 +12,18 @@ function checkedNodesIds(nodes, checkedNodes) {
     }
 }
 
+function checkedNodesNames(nodes, checkedNodes) {
+    for (var i = 0; i < nodes.length; i++) {
+        if (nodes[i].checked) {
+            checkedNodes.push(nodes[i].name);
+        }
+
+        if (nodes[i].hasChildren) {
+            checkedNodesNames(nodes[i].children.view(), checkedNodes);
+        }
+    }
+}
+
 (function () {
 
     $(function () {
