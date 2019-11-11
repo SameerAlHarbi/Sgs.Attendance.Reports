@@ -52,7 +52,7 @@
 <div class="row" style="margin-top:40px">
     <div class="col-sm-12">
         <div class="clearfix">
-            <h4 class="text-info float-right"> التقويم</h4>
+            <h4 class="text-info float-right"><i class="far fa-calendar-alt"></i> التقويم</h4>
             <button class="btn btn-sm btn-outline-info float-left" style="width:150px" data-toggle="modal" data-target="#addEmployeeCalendar"><i class="fa fa-plus"></i>  إضافة تقويم جديد </button>
         </div>
         <hr />
@@ -65,6 +65,7 @@
                             clmn.Bound(c => c.ContractWorkTimeText).Title("نوع الوردية");
                             clmn.Bound(c => c.AttendanceProofText).Title("نوع البصمة");
                             clmn.Bound(c => c.Note).Title("ملاحظات");
+                            clmn.Bound(c => c.Id).Title("حذف").ClientTemplate("<a href='\\#deleteModal' data-toggle='modal' data-calendarId='#= Id #' class='text-danger' title='حذف'><i class='fas fa-trash-alt'></i></a>");
                         })
                         .Sortable(s => s.SortMode(GridSortMode.SingleColumn))
                         .DataSource(dataSource => dataSource.Ajax().Read(read => read.Action("GetAllEmployeeCalendarsJsonForKendo", "EmployeesCalendars").Data("readExcusesData")))
@@ -75,7 +76,7 @@
 <div class="row" style="margin-top:80px">
     <div class="col">
         <div class="clearfix">
-            <h4 class="text-info float-right"> الاستئذان</h4>
+            <h4 class="text-info float-right"><i class="far fa-clock"></i> الاستئذان</h4>
             <button class="btn btn-sm btn-outline-info float-left" style="width:150px" data-toggle="modal" data-target="#addExcuseModal"><i class="fa fa-plus"></i>  إضافة استئذان جديد </button>
         </div>
         <hr />
@@ -108,6 +109,9 @@
                     <h5 class="modal-title text-info" id="addCalendarLabel"> إضافة تقويم جديد للموظف</h5>
                 </div>
                 <div class="modal-body">
+
+                    <input type="hidden" id="calendarId" name="xc" />
+
                     <!-- نوع التقويم -->
                     <div class="form-group">
                         <label for="durationType" class="control-label"> نوع التقويم </label>
@@ -295,7 +299,10 @@
 
             if (deleteMode == 'excuse') {
                 deleteExcuse();
+            } else if(deleteMode === 'calendar'){
+                deleteCalendar();
             }
+
         }
 
         var selectedExcuse;
@@ -335,7 +342,6 @@
 
         }
 
-
         //Calendars Work -------------
         function updateNewCalendarInfo() {
 
@@ -346,6 +352,41 @@
                     $("[data-limitedCalendar]").fadeIn();
             }
 
+        }
+
+        var selectedCalendar;
+
+        function deleteCalendar() {
+
+            if (!selectedCalendar) {
+                return;
+            }
+
+            var options = {
+                        url: "@Url.Action("DeleteEmployeeCalendar", "EmployeesCalendars")",
+                        type: "Post",
+                        data: {
+                            calendarId: selectedCalendar
+                        },
+                        dataType: "json",
+                        success: function (data) {
+
+                            if (data.errors) {
+                                alert("error hapend");
+                                return;
+                            }
+
+                            var dataGrid = $("#grdCalendars").data("kendoGrid");
+                            dataGrid.dataSource.read();
+                            toastr.success("تم حذف تقويم الموظف بنجاح");
+                        },
+                        error: function () {
+                            console.log("error");
+                            toastr.error("خطأ اثناء حذف تقويم الموظف");
+                        }
+                    };
+
+                    $.ajax(options);
         }
 
         $(function () {
@@ -396,10 +437,15 @@
             $('#deleteModal').on('show.bs.modal', function (event) {
                 var button = $(event.relatedTarget) // Button that triggered the modal
                 selectedExcuse = button.data('excuseid') // Extract info from data-* attributes
+                selectedCalendar = button.data('calendarid') // Extract info from data-* attributes
                 if (selectedExcuse) {
                     $('#deleteLabel').text('هل انت متأكد من حذف الاستئذان ؟');
                     deleteMode = 'excuse';
+                } else if (selectedCalendar) {
+                    $('#deleteLabel').text('هل انت متأكد من حذف التقويم ؟');
+                    deleteMode = 'calendar';
                 }
+
             })
 
 
@@ -415,6 +461,128 @@
                 updateNewCalendarInfo();
             });
 
+
+            $('#addEmployeeCalendar').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget) // Button that triggered the modal
+                var calendarId = button.data('calendarid') // Extract info from data-* attributes
+
+                if (!calendarId) {
+                    calendarId = 0;
+                }
+                else {
+
+                    var options = {
+                        url: "@Url.Action("GetDataByIdJson", "EmployeesCalendars")",
+                        type: "Get",
+                        data: {
+                            calendarId: calendarId
+                        },
+                        dataType: "json",
+                        success: function (data) {
+                            if (data.errors) {
+                                toastr.error(data.errors[0]);
+                                event.preventDefault();
+                                return;
+                            }
+
+                            if (data.EndDate) {
+                                $('#limitedCalendar').prop('checked', true);
+                            } else {
+                                $('#openCalendar').prop('checked', true);
+                            }
+
+                            $("#calendarStartDate").data("kendoDatePicker").value(data.StartDate);
+                            $("#calendarEndDate").data("kendoDatePicker").value(data.EndDate);
+
+                            switch (data.ContractWorkTime) {
+                                case 0:
+                                    $('#Default').prop('checked', true);
+                                    break;
+                                case 1:
+                                    $('#ShiftA').prop('checked', true);
+                                    break;
+                                case 2:
+                                    $('#ShiftB').prop('checked', true);
+                                    break;
+                                case 3:
+                                    $('#ShiftC').prop('checked', true);
+                                    break;
+                                case 4:
+                                    $('#ShiftD').prop('checked', true);
+                                    break;
+                                default:
+                                    $('#ShiftH').prop('checked', true);
+                            }
+
+                            switch (data.AttendanceProof) {
+                                case 0:
+                                    $('#RequiredInOut').prop('checked', true);
+                                    break;
+                                case 1:
+                                    $('#RequiredIn').prop('checked', true);
+                                    break;
+                                default:
+                                    $('#Exempted').prop('checked', true);
+                            }
+                           
+                            $("#note").val(data.Note);
+                            updateNewCalendarInfo();
+                        },
+                        error: function () {
+                            toastr.error("خطأ اثناء قراءة معلومات التقويم");
+                            event.preventDefault();
+                        }
+                    };
+
+                    $.ajax(options);
+
+                }
+
+                $("#calendarId").val(calendarId);
+
+            });
+
+            $('#calendarForm').submit(function (e) {
+                if ($(this).valid()) {
+
+                    $("#addEmployeeCalendar").modal("hide");
+
+                    var options = {
+                        url: "@Url.Action("AddOrUpdateEmployeeCalendar", "EmployeesCalendars")",
+                        type: "Post",
+                        data: {
+                            employeeId: @Model.EmployeeId,
+                            calendarId: $("calendarId").val(),
+                            isOpenCalendar: $("input[name='durationType']:checked").val() == "open",
+                            startDate: $("#calendarStartDate").val(),
+                            endDate: $("#calendarEndDate").val(),
+                            workTime: $("input[name='ContractWorkTime']:checked").val(),
+                            attendanceProof: $("input[name='AttendanceProof']:checked").val(),
+                            note: $("#note").val()
+                        },
+                        dataType: "json",
+                        success: function (data) {
+
+                            if (data.errors) {
+                                toastr.error("التقويم المحدود للموظف متعارض مع تقويم محدود آخر !");
+                                return;
+                            }
+
+                            var dataGrid = $("#grdCalendars").data("kendoGrid");
+                            dataGrid.dataSource.read();
+                            toastr.success("تم حفظ تقويم الموظف بنجاح");
+                        },
+                        error: function () {
+                            toastr.error("خطأ اثناء حفظ تقويم الموظف");
+                        }
+                    };
+
+                    $.ajax(options);
+
+                }
+
+                e.preventDefault();
+            });
 
         });
 

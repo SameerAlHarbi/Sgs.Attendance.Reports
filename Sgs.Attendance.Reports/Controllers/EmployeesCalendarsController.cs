@@ -119,5 +119,114 @@ namespace Sgs.Attendance.Reports.Controllers
                 return Json(new DataSourceResult() { Errors = ex.Message });
             }
         }
+
+        public async Task<IActionResult> DeleteEmployeeCalendar(int calendarId)
+        {
+            try
+            {
+
+                var saveResult = await _employeesCalendarsManager.DeleteDataItem(calendarId);
+
+                if (saveResult.Status == RepositoryActionStatus.Deleted)
+                {
+                    return Json("Ok");
+                }
+                else
+                {
+                    return Json(new { errors = "Error" });
+                }
+
+            }
+            catch (Exception)
+            {
+                return Json(new { errors = "Error" });
+            }
+        }
+
+        public virtual async Task<IActionResult> GetDataByIdJson(int calendarId)
+        {
+            try
+            {
+                var dataItem = await _employeesCalendarsManager.GetDataById(calendarId);
+
+                if (dataItem == null)
+                {
+                    return Json(new { errors = new string[] { "NotFound" } });
+                }
+
+                var dataItemVM = _mapper.Map<EmployeeCalendarViewModel>(dataItem);
+                return Json(dataItemVM);
+            }
+            catch (Exception)
+            {
+                return Json(new { errors = new string[] { "خطأ أثناء قراءة البيانات" } });
+            }
+        }
+
+        public async Task<IActionResult> AddOrUpdateEmployeeCalendar(int employeeId, int calendarId,bool isOpenCalendar ,DateTime startDate,DateTime endDate, ContractWorkTime workTime, AttendanceProof attendanceProof, string note)
+        {
+            try
+            {
+
+                var newData = new EmployeeCalendar
+                {
+                    Id = calendarId,
+                    StartDate = startDate,
+                    EndDate = isOpenCalendar? default(DateTime?) : endDate,
+                    ContractWorkTime = workTime,
+                    AttendanceProof = attendanceProof,
+                    EmployeeId = employeeId,
+                    Note = note,
+                };
+
+                if (User.Identity.IsAuthenticated)
+                {
+                    newData.UserId = User.Identity.Name.ConvertToInteger();
+                }
+
+                if(newData.Id == 0)
+                {
+                    var saveResult = await _employeesCalendarsManager.InsertNewAsync(newData);
+                    if (saveResult.Status == RepositoryActionStatus.Created)
+                    {
+                        return Json("ok");
+                    }
+                    else
+                    {
+                        return Json(new { errors = "Error" });
+                    }
+                }
+                else
+                {
+                    var currentData = await _employeesCalendarsManager.GetByIdAsync(newData.Id);
+
+                    if(currentData  == null)
+                    {
+                        return Json(new { errors = "NotFound" });
+                    }
+
+                    currentData.StartDate = newData.StartDate;
+                    currentData.EndDate = newData.EndDate;
+                    currentData.ContractWorkTime = newData.ContractWorkTime;
+                    currentData.AttendanceProof = newData.AttendanceProof;
+                    currentData.Note = newData.Note;
+                    currentData.UserId = newData.UserId;
+
+                    var updateResult = await _employeesCalendarsManager.UpdateDataItem(currentData);
+                    if (updateResult.Status == RepositoryActionStatus.Updated)
+                    {
+                        return Json("ok");
+                    }
+                    else
+                    {
+                        return Json(new { errors = "Error" });
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                return Json(new { errors = "Error" });
+            }
+        }
     }
 }
