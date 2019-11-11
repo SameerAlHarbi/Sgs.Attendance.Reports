@@ -9,6 +9,10 @@ using Sgs.Attendance.Reports.ViewModels;
 using System;
 using System.Threading.Tasks;
 using Sgs.Attendance.Reports.Helpers;
+using Kendo.Mvc.UI;
+using System.Collections.Generic;
+using System.Linq;
+using Kendo.Mvc.Extensions;
 
 namespace Sgs.Attendance.Reports.Controllers
 {
@@ -75,6 +79,44 @@ namespace Sgs.Attendance.Reports.Controllers
             {
 
                 throw;
+            }
+        }
+
+        public virtual async Task<IActionResult> GetAllEmployeeCalendarsJsonForKendo([DataSourceRequest] DataSourceRequest request
+            , int employeeId)
+        {
+            try
+            {
+                var allDataList = await _employeesCalendarsManager.GetAllAsNoTrackingListAsync(e => e.EmployeeId == employeeId);
+
+                var resultData = _mapper.Map<List<EmployeeCalendarViewModel>>(allDataList);
+
+                if (resultData != null && resultData.Count > 0)
+                {
+
+                    try
+                    {
+                        var erpData = await _erpManager.GetEmployeesInfo(new int[] { employeeId });
+                        var empInfo = erpData?.FirstOrDefault();
+                        if (empInfo != null)
+                        {
+                            foreach (var empCalendar in resultData)
+                            {
+                                empCalendar.EmployeeName = empInfo.Name;
+                            }
+                        }
+
+                    }
+                    catch (Exception)
+                    {
+                    }
+                }
+
+                return Json(resultData.OrderBy(c => c.StartDate).ToDataSourceResult(request));
+            }
+            catch (Exception ex)
+            {
+                return Json(new DataSourceResult() { Errors = ex.Message });
             }
         }
     }

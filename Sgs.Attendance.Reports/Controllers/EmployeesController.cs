@@ -205,5 +205,6 @@ namespace Sgs.Attendance.Reports.Controllers
             IEnumerable<ShortEmployeeInfoViewModel> results = await _erpManager.GetShortEmployeesInfo();
             return Json(results.OrderBy(e => e.EmployeeId).ToList().ToDataSourceResult(request));
         }
+
     }
 }

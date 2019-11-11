@@ -16,10 +16,14 @@
             </div>
             <div class="col-md-9">
                 <div class="row">
-                    <div class="col-md-6"><small class="text-info">الرقم الوظيفي</small><br />
-                    <span>@Model.EmployeeId</span></div>
-                    <div class="col-md-6"><small class="text-info">الاسم </small><br />
-                    <span>@Model.Name</span></div>
+                    <div class="col-md-6">
+                        <small class="text-info">الرقم الوظيفي</small><br />
+                        <span>@Model.EmployeeId</span>
+                    </div>
+                    <div class="col-md-6">
+                        <small class="text-info">الاسم </small><br />
+                        <span>@Model.Name</span>
+                    </div>
                 </div>
                 <hr />
                 <div class="row">
@@ -40,13 +44,35 @@
                     </div>
                 </div>
             </div>
-            
+
         </div>
     </div>
 </div>
-<br />
-<br />
-<div class="row">
+
+<div class="row" style="margin-top:40px">
+    <div class="col-sm-12">
+        <div class="clearfix">
+            <h4 class="text-info float-right"> التقويم</h4>
+            <button class="btn btn-sm btn-outline-info float-left" style="width:150px" data-toggle="modal" data-target="#addEmployeeCalendar"><i class="fa fa-plus"></i>  إضافة تقويم جديد </button>
+        </div>
+        <hr />
+        @(Html.Kendo().Grid<EmployeeCalendarViewModel>()
+                        .Name("grdCalendars")
+                        .Columns(clmn =>
+                        {
+                            clmn.Bound(c => c.StartDate).Format("{0:yyyy/MM/dd}").Title("بداية التقويم");
+                            clmn.Bound(c => c.EndDate).Format("{0:yyyy/MM/dd}").Title("نهاية التقويم");
+                            clmn.Bound(c => c.ContractWorkTimeText).Title("نوع الوردية");
+                            clmn.Bound(c => c.AttendanceProofText).Title("نوع البصمة");
+                            clmn.Bound(c => c.Note).Title("ملاحظات");
+                        })
+                        .Sortable(s => s.SortMode(GridSortMode.SingleColumn))
+                        .DataSource(dataSource => dataSource.Ajax().Read(read => read.Action("GetAllEmployeeCalendarsJsonForKendo", "EmployeesCalendars").Data("readExcusesData")))
+        )
+    </div>
+</div>
+
+<div class="row" style="margin-top:80px">
     <div class="col">
         <div class="clearfix">
             <h4 class="text-info float-right"> الاستئذان</h4>
@@ -54,26 +80,127 @@
         </div>
         <hr />
         @(Html.Kendo().Grid<EmployeeExcuseViewModel>()
-                                .Name("grdExcuses")
-                                .Columns(clmn =>
-                                {
-                                    clmn.Bound(c => c.ExcueseDate).Format("{0:yyyy/MM/dd}").Title("تاريخ الإستئذان");
-                                    clmn.Bound(c => c.ExcueseDateHijri).Title("تاريخ الإستئذان هجري");
-                                    clmn.Bound(c => c.ExcuseTypeText).Title("نوع الإستئذان"); ;
-                                    clmn.Bound(c => c.ExcuseHoursTime).Title("مدة الإستئذان");
-                                    clmn.Bound(c => c.Note).Title("ملاحظات الإستئذان");
-                                    clmn.Bound(c => c.Id).Title("حذف").ClientTemplate("<a href='\\#deleteModal' data-toggle='modal' data-excuseId='#= Id #' class='text-danger' title='حذف'><i class='fas fa-trash-alt'></i></a>");
-                                })
-                                .Sortable(s => s.SortMode(GridSortMode.SingleColumn))
-                                .DataSource(dataSource => dataSource
-                                    .Ajax()
-                                    .Read(read => read.Action("GetAllEmployeeExcusesJsonForKendo", "EmployeesExcuses").Data("readExcusesData"))
-                                )
+                                        .Name("grdExcuses")
+                                        .Columns(clmn =>
+                                        {
+                                            clmn.Bound(c => c.ExcueseDate).Format("{0:yyyy/MM/dd}").Title("تاريخ الإستئذان");
+                                            clmn.Bound(c => c.ExcueseDateHijri).Title("تاريخ الإستئذان هجري");
+                                            clmn.Bound(c => c.ExcuseTypeText).Title("نوع الإستئذان"); ;
+                                            clmn.Bound(c => c.ExcuseHoursTime).Title("مدة الإستئذان");
+                                            clmn.Bound(c => c.Note).Title("ملاحظات الإستئذان");
+                                            clmn.Bound(c => c.Id).Title("حذف").ClientTemplate("<a href='\\#deleteModal' data-toggle='modal' data-excuseId='#= Id #' class='text-danger' title='حذف'><i class='fas fa-trash-alt'></i></a>");
+                                        })
+                                        .Sortable(s => s.SortMode(GridSortMode.SingleColumn))
+                                        .DataSource(dataSource => dataSource
+                                            .Ajax()
+                                            .Read(read => read.Action("GetAllEmployeeExcusesJsonForKendo", "EmployeesExcuses").Data("readExcusesData"))
+                                        )
         )
     </div>
 </div>
 
 <!-- Modal -->
+<div id="addEmployeeCalendar" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="addCalendarLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form id="calendarForm">
+                <div class="modal-header">
+                    <h5 class="modal-title text-info" id="addCalendarLabel"> إضافة تقويم جديد للموظف</h5>
+                </div>
+                <div class="modal-body">
+                    <!-- نوع التقويم -->
+                    <div class="form-group">
+                        <label for="durationType" class="control-label"> نوع التقويم </label>
+                        <div class="col">
+                            <div class="form-check form-check-inline" title="تقويم مفتوح">
+                                <input style="margin-left:5px" class="form-check-input" type="radio" id="openCalendar" name="durationType" value="open">
+                                <label for="openCalendar" class="form-check-label"> مفتوح </label>
+                            </div>
+                            <div class="form-check form-check-inline" title="تقويم محدود">
+                                <input style="margin-left:5px" class="form-check-input" type="radio" id="limitedCalendar" name="durationType" value="limited">
+                                <label for="limitedCalendar" class="form-check-label"> محدود </label>
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                    <!-- تاريخ البداية -->
+                    <div class="form-group">
+                        <label for="calendarStartDate" class="control-label">بداية التقويم</label>
+                        <br />
+                        <kendo-datepicker class="form-control" min="new DateTime(2018,12,1)" name="calendarStartDate" id="calendarStartDate" value="DateTime.Today" format="yyyy-MM-dd" title="تاريخ بداية التقويم" />
+                    </div>
+                    <div data-limitedCalendar class="form-group">
+                        <label for="calendarEndDate" class="control-label">نهاية التقويم</label>
+                        <br />
+                        <kendo-datepicker class="form-control" min="new DateTime(2018,12,1)" name="calendarEndDate" id="calendarEndDate" value="DateTime.Today" format="yyyy-MM-dd" title="تاريخ نهاية التقويم" />
+                    </div>
+
+                    <!-- الوردية -->
+                    <div class="form-group">
+                        <label for="ContractWorkTime" class="control-label">نوع الوردية</label>
+                        <div class="col" style="margin-top:5px">
+                            <div class="form-check form-check-inline" data-toggle="tooltip" data-placement="top" title="@ContractWorkTime.Default.GetText()">
+                                <input style="margin-left:5px" class="form-check-input" type="radio" id="Default" name="ContractWorkTime" value="Default">
+                                <label for="Default" class="form-check-label"> الصباح  </label>
+                            </div>
+                            <div class="form-check form-check-inline" data-toggle="tooltip" data-placement="top" title="@ContractWorkTime.ShiftA.GetText()">
+                                <input style="margin-left:5px" class="form-check-input" type="radio" id="ShiftA" name="ContractWorkTime" value="ShiftA">
+                                <label for="ShiftA" class="form-check-label"> أ-A  </label>
+                            </div>
+                            <div class="form-check form-check-inline" data-toggle="tooltip" data-placement="top" title="@ContractWorkTime.ShiftB.GetText()">
+                                <input style="margin-left:5px" class="form-check-input" type="radio" id="ShiftB" name="ContractWorkTime" value="ShiftB">
+                                <label for="ShiftB" class="form-check-label"> ب-B  </label>
+                            </div>
+                            <div class="form-check form-check-inline" data-toggle="tooltip" data-placement="top" title="@ContractWorkTime.ShiftC.GetText()">
+                                <input style="margin-left:5px" class="form-check-input" type="radio" id="ShiftC" name="ContractWorkTime" value="ShiftC">
+                                <label for="ShiftC" class="form-check-label"> ج-C  </label>
+                            </div>
+                            <div class="form-check form-check-inline" data-toggle="tooltip" data-placement="top" title="@ContractWorkTime.ShiftD.GetText()">
+                                <input style="margin-left:5px" class="form-check-input" type="radio" id="ShiftD" name="ContractWorkTime" value="ShiftD">
+                                <label for="ShiftD" class="form-check-label"> د-D </label>
+                            </div>
+                            <div class="form-check form-check-inline" data-toggle="tooltip" data-placement="top" title="@ContractWorkTime.ShiftH.GetText()">
+                                <input style="margin-left:5px" class="form-check-input" type="radio" id="ShiftH" name="ContractWorkTime" value="ShiftH">
+                                <label for="ShiftH" class="form-check-label"> هـ-H </label>
+                            </div>
+                            <small id="emailHelp" class="form-text text-muted text-center">حسب جدول الورديات في شهر ديسمبر 2018</small>
+                        </div>
+                    </div>
+
+                    <!-- نوع البصمة -->
+                    <div class="form-group">
+                        <label for="AttendanceProof" class="control-label">نوع البصمة</label>
+                        <div class="col" style="margin-top:5px">
+                            <div class="form-check form-check-inline" data-toggle="tooltip" data-placement="top" title="بصمتين للحضور و الانصراف">
+                                <input style="margin-left:5px" class="form-check-input" type="radio" id="RequiredInOut" name="AttendanceProof" value="RequiredInOut">
+                                <label for="RequiredInOut" class="form-check-label"> حضور وانصراف </label>
+                            </div>
+                            <div class="form-check form-check-inline" data-toggle="tooltip" data-placement="top" title="بصمة واحدة فقط خلال وقت الدوام لإثبات الحضور">
+                                <input style="margin-left:5px" class="form-check-input" type="radio" id="RequiredIn" name="AttendanceProof" value="RequiredIn">
+                                <label for="RequiredIn" class="form-check-label"> حضور فقط </label>
+                            </div>
+                            <div class="form-check form-check-inline" data-toggle="tooltip" data-placement="top" title="معفي من البصمة">
+                                <input style="margin-left:5px" class="form-check-input" type="radio" id="Exempted" name="AttendanceProof" value="Exempted">
+                                <label for="Exempted" class="form-check-label control-label"> معفي </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ملاحظات -->
+                    <div class="form-group">
+                        <label for="note" class="control-label">ملاحظات</label>
+                        <textarea class="form-control" rows="3" id="note" name="note"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">حفظ</button>
+                    <button onclick="toastr.warning('تم الغاء الأمر')" type="reset" class="btn btn-secondary" style="margin-right:10px;" data-dismiss="modal">إلغاء الأمر</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <div id="addExcuseModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="addExcuseLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -174,7 +301,7 @@
         var selectedExcuse;
 
         function deleteExcuse() {
-                
+
 
                 if (!selectedExcuse) {
                     return;
@@ -206,7 +333,20 @@
 
                     $.ajax(options);
 
+        }
+
+
+        //Calendars Work -------------
+        function updateNewCalendarInfo() {
+
+            if ($("input[name='durationType']:checked").val() == 'open') {
+                    $("[data-limitedCalendar]").fadeOut();
+                }
+                else {
+                    $("[data-limitedCalendar]").fadeIn();
             }
+
+        }
 
         $(function () {
 
@@ -232,7 +372,7 @@
                                 toastr.error("الاستئذان مسجل مسبقا للموظف !");
                                 return;
                             }
-                            
+
                             var dataGrid = $("#grdExcuses").data("kendoGrid");
                             dataGrid.dataSource.read();
                             toastr.success("تم حفظ استئذان الموظف بنجاح");
@@ -261,6 +401,20 @@
                     deleteMode = 'excuse';
                 }
             })
+
+
+            //Calendars Work ----------------
+
+            $("#openCalendar").prop("checked", true);
+            $("#Default").prop("checked", true);
+            $("#RequiredInOut").prop("checked", true);
+
+            updateNewCalendarInfo();
+
+            $('input[type=radio][name=durationType]').change(function () {
+                updateNewCalendarInfo();
+            });
+
 
         });
 

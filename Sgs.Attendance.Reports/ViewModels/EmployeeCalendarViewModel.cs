@@ -11,6 +11,8 @@ namespace Sgs.Attendance.Reports.ViewModels
 
         public int EmployeeId { get; set; }
 
+        public string EmployeeName { get; set; }
+
         public ContractWorkTime ContractWorkTime { get; set; }
 
         public string ContractWorkTimeText => ContractWorkTime.GetText();
@@ -32,5 +34,7 @@ namespace Sgs.Attendance.Reports.ViewModels
         public string EndDateHijri => EndDate.HasValue ? EndDate.Value.ConvertToString(true, true, true) + "هـ " : "";
 
         public string Note { get; set; }
+
+        public int UserId { get; set; }
     }
 }
