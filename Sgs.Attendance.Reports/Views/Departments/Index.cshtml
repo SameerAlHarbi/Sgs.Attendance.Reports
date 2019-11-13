@@ -41,8 +41,10 @@
                                             columns.Add().Field(e => e.ContractWorkTimeText).Title("الوردية");
                                             columns.Add().Field(e => e.AttendanceProofText).Title("نوع البصمة");
                                             columns.Add().Field(e => e.Id).Title("تحكم").Width(100).Template(
-                                                                     "<a href='" + Url.Action("Details", "Employees") + "/#= EmployeeId #' class='text-info' title='تفاصيل الموظف'><i class='fa fa fa-info-circle'></i> </a>" +
-                                                                     "<a href='.modal' data-toggle='modal' data-startDate='#= DefaultCalendarStartDate #' data-workTime='#= ContractWorkTimeString #' data-attendance='#= AttendanceProofString #' data-employeeId='#= EmployeeId #' data-employeeName='#= Name #' data-note='#= Note #' class='text-info' title='التقويم الافتراضي'><i class='fas fa-calendar-alt'></i> </a>");
+                                            "<a href='" + Url.Action("Details", "Employees") + "/#= EmployeeId #' class='text-info' title='تفاصيل الموظف'><i class='fa fa fa-info-circle'></i> </a>");
+                                            //columns.Add().Field(e => e.Id).Title("تحكم").Width(100).Template(
+                                            //                         "<a href='" + Url.Action("Details", "Employees") + "/#= EmployeeId #' class='text-info' title='تفاصيل الموظف'><i class='fa fa fa-info-circle'></i> </a>" +
+                                            //                         "<a href='.modal' data-toggle='modal' data-startDate='#= DefaultCalendarStartDate #' data-workTime='#= ContractWorkTimeString #' data-attendance='#= AttendanceProofString #' data-employeeId='#= EmployeeId #' data-employeeName='#= Name #' data-note='#= Note #' class='text-info' title='التقويم الافتراضي'><i class='fas fa-calendar-alt'></i> </a>");
                                         })
                                         .Sortable()
                                         .DataSource(dataSource => dataSource

@@ -223,8 +223,15 @@ namespace Sgs.Attendance.Reports.Controllers
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                if (!string.IsNullOrWhiteSpace(ex.Message))
+                {
+                    if (ex.Message.Contains("before"))
+                    {
+                        return Json(new { errors = "enddate" });
+                    }
+                }
                 return Json(new { errors = "Error" });
             }
         }

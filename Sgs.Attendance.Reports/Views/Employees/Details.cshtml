@@ -564,7 +564,12 @@
                         success: function (data) {
 
                             if (data.errors) {
-                                toastr.error("التقويم المحدود للموظف متعارض مع تقويم محدود آخر !");
+                                if (data.errors === 'enddate') {
+                                    toastr.error("تاريخ النهاية يجب ان يكون بعد تاريخ البداية !");
+                                } else {
+                                    toastr.error("التقويم متعارض مع تقويم آخر !");
+                                }
+                               
                                 return;
                             }
 
