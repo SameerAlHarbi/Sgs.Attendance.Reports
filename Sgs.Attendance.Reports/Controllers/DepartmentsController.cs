@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Sgs.Attendance.Reports.Services;
@@ -8,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace Sgs.Attendance.Reports.Controllers
 {
+    [Authorize(Roles = "Admin,AttendanceDepartment")]
     public class DepartmentsController : BaseController
     {
         private readonly IErpManager _erpManager;

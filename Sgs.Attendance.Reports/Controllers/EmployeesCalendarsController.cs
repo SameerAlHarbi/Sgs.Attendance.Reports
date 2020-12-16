@@ -13,9 +13,11 @@ using Kendo.Mvc.UI;
 using System.Collections.Generic;
 using System.Linq;
 using Kendo.Mvc.Extensions;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Sgs.Attendance.Reports.Controllers
 {
+    [Authorize(Roles = "Admin,AttendanceDepartment")]
     public class EmployeesCalendarsController : BaseController
     {
         private readonly EmployeesCalendarsManager _employeesCalendarsManager;

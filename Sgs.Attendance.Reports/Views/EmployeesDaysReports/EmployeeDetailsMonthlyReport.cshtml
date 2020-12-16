@@ -132,7 +132,8 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var empDaysReports in Model.SelectMany(s => s.DayReportsList).Where(d => d.AttendanceProof != AttendanceProof.Exempted && d.DayDate.DayOfWeek != DayOfWeek.Friday && d.DayDate.DayOfWeek != DayOfWeek.Saturday).OrderBy(d => d.DayDate).ThenBy(d => d.EmployeeId))
+                            @*@foreach (var empDaysReports in Model.SelectMany(s => s.DayReportsList).Where(d => d.AttendanceProof != AttendanceProof.Exempted && d.DayDate.DayOfWeek != DayOfWeek.Friday && d.DayDate.DayOfWeek != DayOfWeek.Saturday).OrderBy(d => d.DayDate).ThenBy(d => d.EmployeeId))*@
+                            @foreach (var empDaysReports in Model.SelectMany(s => s.DayReportsList).Where(d => d.AttendanceProof != AttendanceProof.Exempted).OrderBy(d => d.DayDate).ThenBy(d => d.EmployeeId))
                             {
                                 <tr style="text-align:center">
                                     @if (Model.Count() >= 2)
@@ -183,8 +184,8 @@
 
                                     <td>
                                         @(empDaysReports.IsDelegationRequest ? "طلب انتداب" :
-                                                                          empDaysReports.IsVacationRequest ? "طلب اجازة" :
-                                                                          empDaysReports.IsAbsentEmployee ? "غياب" : "")
+                                                                                  empDaysReports.IsVacationRequest ? "طلب اجازة" :
+                                                                                  empDaysReports.IsAbsentEmployee ? "غياب" : "")
                                     </td>
 
                                 </tr>

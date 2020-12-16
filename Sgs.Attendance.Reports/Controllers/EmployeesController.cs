@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Kendo.Mvc.Extensions;
 using Kendo.Mvc.UI;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -15,6 +16,7 @@ using System.Threading.Tasks;
 
 namespace Sgs.Attendance.Reports.Controllers
 {
+    [Authorize(Roles = "Admin,AttendanceDepartment")]
     public class EmployeesController : BaseController
     {
         private readonly EmployeesCalendarsManager _employeesCalendarsManager;

@@ -7,11 +7,11 @@ namespace Sgs.Attendance.Reports.Services
 {
     public interface IErpManager
     {
-        Task<List<EmployeeInfoViewModel>> GetEmployeesInfo(IEnumerable<int> employeesIds = null,string employeeName = null);
+        Task<List<EmployeeInfoViewModel>> GetEmployeesInfo(IEnumerable<int> employeesIds = null,string employeeName = null, bool? active = true, string fromDate = null, string toDate = null, string dateFormat = "yyyy-MM-dd");
 
-        Task<List<ShortEmployeeInfoViewModel>> GetShortEmployeesInfo(IEnumerable<int> employeesIds = null, string employeeName = null);
+        Task<List<ShortEmployeeInfoViewModel>> GetShortEmployeesInfo(IEnumerable<int> employeesIds = null, string employeeName = null, bool? active = true);
 
-        Task<List<EmployeeInfoViewModel>> GetDepartmentEmployeesInfo(string departmentCode);
+        Task<List<EmployeeInfoViewModel>> GetDepartmentEmployeesInfo(string departmentCode, bool? active = true);
 
         Task<IEnumerable<DepartmentInfoViewModel>> GetAllDepartmentsInfo();
 

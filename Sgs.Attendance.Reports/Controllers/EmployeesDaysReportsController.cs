@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -18,6 +19,7 @@ using System.Threading.Tasks;
 
 namespace Sgs.Attendance.Reports.Controllers
 {
+    [Authorize(Roles = "Admin,AttendanceDepartment")]
     public class EmployeesDaysReportsController : BaseController
     {
         private readonly EmployeesDaysReportsManager _employeesDaysReportsManager;

@@ -13,9 +13,11 @@ using Sgs.Attendance.Reports.Services;
 using Sgs.Attendance.Reports.ViewModels;
 using Sameer.Shared;
 using Sgs.Attendance.Reports.Helpers;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Sgs.Attendance.Reports.Controllers
 {
+    [Authorize(Roles = "Admin,AttendanceDepartment")]
     public class EmployeesExcusesController : BaseController
     {
         private readonly EmployeesExcusesManager _employeesExcusesManager;

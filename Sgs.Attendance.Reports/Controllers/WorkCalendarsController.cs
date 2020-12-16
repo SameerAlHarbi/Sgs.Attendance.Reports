@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Kendo.Mvc.Extensions;
 using Kendo.Mvc.UI;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Sgs.Attendance.Reports.Logic;
@@ -14,6 +15,7 @@ using System.Threading.Tasks;
 
 namespace Sgs.Attendance.Reports.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class WorkCalendarsController : GeneralMvcController<WorkCalendar, WorkCalendarViewModel>
     {
         public WorkCalendarsController(WorkCalendarsManager dataManager, IMapper mapper
