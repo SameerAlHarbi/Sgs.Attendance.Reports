@@ -11,10 +11,8 @@ using Sameer.Shared.Mvc;
 using Sgs.Attendance.Reports.Data;
 using Sgs.Attendance.Reports.Helpers;
 using Sgs.Attendance.Reports.Services;
-using System;
 using System.Globalization;
 using System.Net.Http.Headers;
-using System.Threading.Tasks;
 
 namespace Sgs.Attendance.Reports
 {
