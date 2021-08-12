@@ -96,6 +96,7 @@ namespace Sgs.Attendance.Reports.Services
                         {
                             EmployeeId = employee.EmployeeId,
                             EmployeeName = employee.Name,
+                            EmployeeRank = employee.Rank,
                             DepartmentId = employee.DepartmentId,
                             DepartmentName = employee.DepartmentName,
                             DayDate = startDate.Date,
@@ -391,7 +392,7 @@ namespace Sgs.Attendance.Reports.Services
                     IEnumerable<decimal> listOfEmployeesIdsNumbers = openProcessingRequest.Employees.TryParseToNumbers();
                     List<int> employeesIds = listOfEmployeesIdsNumbers?.Select(d => (int)d).ToList() ?? new List<int>();
 
-                    //Get last processed day report for required employees
+                    //Get last processed day report for all required employees
                     var lastDayReport = await  _employeesDaysReportsManager
                         .GetAll(d => (employeesIds.Count < 1 || employeesIds.Contains(d.EmployeeId))
                             && d.ProcessingDate > openProcessingRequest.RequestDate)
@@ -400,9 +401,10 @@ namespace Sgs.Attendance.Reports.Services
                     int lastEmployeeId = lastDayReport?.EmployeeId ?? 0;
                     DateTime fromDate = lastDayReport?.DayDate.AddDays(1) ?? openProcessingRequest.FromDate;
                     DateTime toDate = lastDayReport?.DayDate.AddDays(10) ?? openProcessingRequest.FromDate.AddDays(10);
+
                     toDate = toDate <= openProcessingRequest.ToDate ? toDate : openProcessingRequest.ToDate;
 
-                    var employees = await _erpManager.GetEmployeesInfo(employeesIds);
+                    var employees = await _erpManager.GetEmployeesInfo(employeesIds,fromDate: fromDate.ToString("yyyy-MM-dd"), toDate: toDate.ToString("yyyy-MM-dd"), active: true);
                     var lastRequestEmployeeId = employees.Max(e => e.EmployeeId);
 
                     if (fromDate > openProcessingRequest.ToDate)

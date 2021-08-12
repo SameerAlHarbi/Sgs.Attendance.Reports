@@ -1,0 +1,143 @@
+﻿@using Sameer.Shared.Data;
+@model IEnumerable<EmployeeMonthReportViewModel>
+
+@{
+    ViewData["Title"] = "تقرير الموظفين";
+}
+
+<table class="report-container" style="width:100%">
+
+    <thead class="report-header">
+        <tr class="report-header-cell">
+            <div class="header-info">
+                <div id="header-info" class="row justify-content-center align-self-center text-center">
+                    <div class="col justify-content-center align-self-center text-center d-none d-print-block">
+                        <h5>إدارة التطبيقات</h5>
+                        @if (Model.Count() < 2)
+                        {
+                            <h6>تقرير الموظف</h6>
+                        }
+                        else if (!string.IsNullOrWhiteSpace(ViewBag.DepartmentName))
+                        {
+                            @*<h6 style="color:red">@(ViewBag.MultiDates ? $"تقرير الادارة - {ViewBag.MonthName}" : "تقرير الادارة")</h6>*@
+                            <h6>تقرير الادارة</h6>
+                            if (ViewBag.MultiDates)
+                            {
+                                <span style="color:red">@ViewBag.MonthName</span>
+                            }
+                        }
+                        else
+                        {
+                            <h6>تقرير الموظفين</h6>
+                        }
+                    </div>
+                    <div class="col">
+                        <div class="d-none d-print-block"><img style="max-width:190px; max-height:130px" src="~/Images/SGSLOGO.png" /></div>
+                    </div>
+                    <div class="col justify-content-center align-self-center text-center d-none d-print-block">
+                        <img style="max-width:70px; max-height:90px" src="~/Images/scan-fingerprint-icon.png" />
+                        <h5 class="text-info" style="display:inline">نظام البصمة</h5>
+                    </div>
+                </div>
+                @if (Model.Count() < 2)
+                {
+                    <div id="employee-info" class="row">
+                        <div class="col d-none d-print-block" style="text-align:right">
+                            <span>اسم الموظف : </span><span class="text-info">@Model.First().EmployeeId - @Model.First().EmployeeName</span>
+                        </div>
+                        <div class="col d-none d-print-block" style="text-align:left">
+                            <span>الادارة - القسم : </span><span class="text-info">@Model.First().DepartmentName</span>
+                        </div>
+                    </div>
+                }
+                else if (!string.IsNullOrWhiteSpace(ViewBag.DepartmentName))
+                {
+                    <div id="employee-info" class="row">
+                        <div class="col d-none d-print-block" style="text-align:right">
+                            @if (!ViewBag.MultiDates)
+                            {
+                                <span class="text-info">@Model.FirstOrDefault(d => d.DayReportsList.Any())?.DayReportsList.First().DayDate.ConvertToString(showDayName: true, showDayNameInArabic: true) -</span>
+                            }
+                            <span> @ViewBag.DepartmentName</span>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div id="employee-info" class="row">
+                        <div class="col d-none d-print-block" style="text-align:right">
+                            <span class="text-info">@Model.FirstOrDefault(d => d.DayReportsList.Any())?.DayReportsList.First().DayDate.ConvertToString(showDayName: true, showDayNameInArabic: true)</span>
+                        </div>
+                    </div>
+                }
+            </div>
+        </tr>
+    </thead>
+    <tbody class="report-content">
+        <tr>
+            <td class="report-content-cell">
+                <div>
+
+                    <table class="table table-bordered table-striped table-sm">
+                        <thead style="background-color:#bbe3e8 ; text-align:center">
+                            <tr>
+                                <th>الرقم الوظيفي</th>
+                                <th>الاسم</th>
+                                <th>الادارة - القسم</th>
+                                <th>المرتبة</th>
+                                <th>التاريخ</th>
+                                <th>الدخول</th>
+                                <th>الخروج</th>
+                                <th>الاجازة</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var empDaysReports in Model.SelectMany(s => s.DayReportsList).Where(d => d.AttendanceProof != AttendanceProof.Exempted).OrderBy(d => d.EmployeeId).ThenBy(d => d.DayDate))
+                            {
+                            <tr style="text-align:center">
+                                <td>
+                                    @empDaysReports.EmployeeId
+                                </td>
+                                <td>
+                                    @empDaysReports.EmployeeName
+                                </td>
+                                <td>
+                                    @empDaysReports.DepartmentName
+                                </td>
+                                <td>
+                                    @empDaysReports.EmployeeRank
+                                </td>
+                                <td class="@(empDaysReports.IsAbsentEmployee?"text-danger":"")">
+                                    @empDaysReports.DayDate.ConvertToString(false, true, true)
+                                </td>
+                                <td>
+                                    @(empDaysReports.CheckInDateTimeForReport.HasValue ? empDaysReports.CheckInDateTimeForReport.Value.ToString("HH:mm") : "")
+                                </td>
+                                <td>
+                                    @(empDaysReports.CheckOutDateTime.HasValue ? empDaysReports.CheckOutDateTime.Value.ToString("HH:mm") : "")
+                                </td>
+                                <td class="text-success">@empDaysReports.VacationName</td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                </div>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+
+
+<script>
+    $(function () {
+
+        $("#print").on("click", function () {
+            window.print();
+        });
+
+    }
+    );
+</script>
+

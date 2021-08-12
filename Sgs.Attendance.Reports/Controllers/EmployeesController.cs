@@ -11,6 +11,7 @@ using Sgs.Attendance.Reports.Services;
 using Sgs.Attendance.Reports.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -31,6 +32,68 @@ namespace Sgs.Attendance.Reports.Controllers
             _employeesCalendarsManager = employeesCalendarsManager;
             _employeesExcusesManager = employeesExcusesManager;
             _erpManager = erpManager;
+        }
+
+        public async Task<IActionResult> employeesReports()
+        {
+            try
+            {
+                return View();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> employeesReports(DateTime startDate, DateTime endDate
+         , int[] employeesIds = null, string[] departments = null, string shiftType = "All"
+         , string attendanceType = "All", int? pageNumber = null, int pageSize = 31)
+        {
+            startDate = startDate.Date;
+            endDate = endDate.Date;
+
+            employeesIds = employeesIds ?? new int[] { };
+            departments = departments ?? new string[] { };
+
+            var employeesIdsList = employeesIds.ToList();
+
+            if (departments.Count() > 0)
+            {
+                var departmentsEmployees = new List<EmployeeInfoViewModel>();
+                foreach (var department in departments)
+                {
+                    departmentsEmployees.AddRange(await _erpManager.GetDepartmentEmployeesInfo(department, active: null));
+                }
+
+                if (departmentsEmployees.Any())
+                {
+                    employeesIdsList.AddRange(departmentsEmployees.Select(d => d.EmployeeId));
+                }
+            }
+
+            employeesIds = employeesIdsList.Distinct().OrderBy(e => e).ToArray();
+
+            IEnumerable<EmployeeInfoViewModel> results = await _erpManager.GetEmployeesInfo(employeesIds, 
+                fromDate: startDate.ToString("yyyy-MM-dd", new CultureInfo("en-US")),
+                toDate: endDate.ToString("yyyy-MM-dd", new CultureInfo("en-US")), active: true);
+
+            results = await setupEmployeesInfo(results.OrderBy(d => d.DepartmentName), DateTime.Now);
+
+            if (shiftType != "All")
+            {
+                Enum.TryParse(shiftType, out ContractWorkTime workTime);
+                results = results.Where(r => r.ContractWorkTime == workTime);
+            }
+
+            if (attendanceType != "All")
+            {
+                Enum.TryParse(attendanceType, out AttendanceProof attendanceProof);
+                results = results.Where(r => r.AttendanceProof == attendanceProof);
+            }
+
+            return PartialView("employeesReport", results.OrderBy(r => r.EmployeeId));
         }
 
         private async Task<List<EmployeeInfoViewModel>> setupEmployeesInfo(IEnumerable<EmployeeInfoViewModel> employeesInfoList,DateTime setupDate)
@@ -76,7 +139,7 @@ namespace Sgs.Attendance.Reports.Controllers
                 return Json(new List<object>() { });
             }
 
-            var allDataList = await _erpManager.GetDepartmentEmployeesInfo(deptCode);
+            var allDataList = await _erpManager.GetDepartmentEmployeesInfo(deptCode, active: null);
             
             allDataList = await setupEmployeesInfo(allDataList.OrderBy(d => d.DepartmentName),DateTime.Now);
 
@@ -92,7 +155,7 @@ namespace Sgs.Attendance.Reports.Controllers
         {
             try
             {
-                var resultData = await _erpManager.GetEmployeesInfo(new int[] { id});
+                var resultData = await _erpManager.GetEmployeesInfo(new int[] { id}, active: null);
 
                 if(resultData == null || resultData.Count <1)
                 {
@@ -128,11 +191,11 @@ namespace Sgs.Attendance.Reports.Controllers
 
                 if (int.TryParse(employeeId, out int empId))
                 {
-                    results = await this._erpManager.GetEmployeesInfo(new int[] { empId});
+                    results = await this._erpManager.GetEmployeesInfo(new int[] { empId},active: null);
                 }
                 else
                 {
-                    results = await this._erpManager.GetEmployeesInfo(employeeName: employeeId);
+                    results = await this._erpManager.GetEmployeesInfo(employeeName: employeeId ,active: null);
                 }
 
                 return this.Json(results);
@@ -145,7 +208,7 @@ namespace Sgs.Attendance.Reports.Controllers
 
         public async Task<ActionResult> EmployeesNamesJson()
         {
-            IEnumerable<EmployeeInfoViewModel> results = await _erpManager.GetEmployeesInfo();
+            IEnumerable<EmployeeInfoViewModel> results = await _erpManager.GetEmployeesInfo(active: null);
             return Json(results.Select(e => e.Name).OrderBy(e => e).Distinct());
         }
 
@@ -153,7 +216,7 @@ namespace Sgs.Attendance.Reports.Controllers
         {
             try
             {
-                IEnumerable<EmployeeInfoViewModel> results = await _erpManager.GetEmployeesInfo(new int[] { employeeId });
+                IEnumerable<EmployeeInfoViewModel> results = await _erpManager.GetEmployeesInfo(new int[] { employeeId }, active: null);
                 if(results == null || results.Count() <1 )
                 {
                     return Json(new { errors = "لايمكن العثور على بيانات الموظف" });
@@ -168,7 +231,7 @@ namespace Sgs.Attendance.Reports.Controllers
 
         public async Task<ActionResult> ShortEmployeesInfoJson()
         {
-            IEnumerable<ShortEmployeeInfoViewModel> results = await _erpManager.GetShortEmployeesInfo();
+            IEnumerable<ShortEmployeeInfoViewModel> results = await _erpManager.GetShortEmployeesInfo(active: null);
             return Json(results.OrderBy(e => e.EmployeeId).ToList());
         }
 
@@ -179,18 +242,18 @@ namespace Sgs.Attendance.Reports.Controllers
                 
                 if (string.IsNullOrWhiteSpace(text))
                 {
-                    return Json(new List<ShortEmployeeInfoViewModel>());
+                    return Json(new List<EmployeeInfoViewModel>());
                 }
 
-                IEnumerable<ShortEmployeeInfoViewModel> results = new List<ShortEmployeeInfoViewModel>();
+                IEnumerable<EmployeeInfoViewModel> results = new List<EmployeeInfoViewModel>();
 
                 if (int.TryParse(text, out int empId))
                 {
-                    results = await _erpManager.GetShortEmployeesInfo(new int[] { empId });
+                    results = await _erpManager.GetEmployeesInfo(new int[] { empId }, active: null);
                 }
                 else
                 {
-                    results = await _erpManager.GetShortEmployeesInfo();
+                    results = await _erpManager.GetEmployeesInfo(active: null);
                     results = results.Where(e => e.Name.Trim().ToLower().Contains(text)).ToList();
                 }
 
@@ -204,7 +267,7 @@ namespace Sgs.Attendance.Reports.Controllers
 
         public async Task<ActionResult> ShortEmployeesInfoForKendo([DataSourceRequest]DataSourceRequest request)
         {
-            IEnumerable<ShortEmployeeInfoViewModel> results = await _erpManager.GetShortEmployeesInfo();
+            IEnumerable<EmployeeInfoViewModel> results = await _erpManager.GetEmployeesInfo(active: null);
             return Json(results.OrderBy(e => e.EmployeeId).ToList().ToDataSourceResult(request));
         }
 

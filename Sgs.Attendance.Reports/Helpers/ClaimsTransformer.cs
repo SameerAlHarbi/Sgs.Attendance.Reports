@@ -16,7 +16,7 @@ namespace Sgs.Attendance.Reports.Helpers
 
                 if (wi.IsAuthenticated)
                 {
-                    if (wi.Name.Contains("1143") || wi.Name.Contains("917") || wi.Name.Contains("865") || wi.Name.Contains("1550") || wi.Name.Contains("1113"))
+                    if (wi.Name.Contains("1143") || wi.Name.Contains("917") || wi.Name.Contains("865") || wi.Name.Contains("1550") || wi.Name.Contains("1113") || wi.Name.Contains("25"))
                     {
                         wi.AddClaim(new Claim(wi.RoleClaimType, "Admin"));
                     }

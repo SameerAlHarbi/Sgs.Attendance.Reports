@@ -21,13 +21,15 @@ namespace Sgs.Attendance.Reports.Controllers
     public class EmployeesExcusesController : BaseController
     {
         private readonly EmployeesExcusesManager _employeesExcusesManager;
+        private readonly EmployeesDaysReportsManager _employeesDaysReportsManager;
         private readonly IErpManager _erpManager;
 
-        public EmployeesExcusesController(EmployeesExcusesManager employeesExcusesManager
-            ,IErpManager erpManager,IMapper mapper, ILogger<EmployeesExcusesController> logger) 
+        public EmployeesExcusesController(EmployeesExcusesManager employeesExcusesManager, EmployeesDaysReportsManager employeesDaysReportsManager
+            , IErpManager erpManager,IMapper mapper, ILogger<EmployeesExcusesController> logger) 
             : base(mapper, logger)
         {
             _employeesExcusesManager = employeesExcusesManager;
+            _employeesDaysReportsManager = employeesDaysReportsManager;
             _erpManager = erpManager;
         }
 
@@ -111,6 +113,57 @@ namespace Sgs.Attendance.Reports.Controllers
                     return Json(new { errors = "Error" });
                 }
 
+            }
+            catch (Exception)
+            {
+                return Json(new { errors = "Error" });
+            }
+        }
+
+        [HttpPut]
+        [AllowAnonymous]
+        public async Task<IActionResult> AddExcuseToAll(string excuseDate, string excuseType)
+        {
+            try
+            {
+                DateTime? excuseDateObject = excuseDate.TryParseToDate();
+
+                if (!excuseDateObject.HasValue || !excuseDateObject.HasValue)
+                {
+                    throw new Exception("Date error");
+                }
+
+                excuseDateObject = excuseDateObject.Value.Date;
+
+                var excuses = await this._employeesExcusesManager.GetAllAsNoTrackingListAsync(e => e.ExcueseDate == excuseDateObject.Value && e.ExcuseType == ExcuseType.CheckOut);
+
+                var results = await this._employeesDaysReportsManager
+                        .GetAllAsNoTrackingListAsync(d => d.DayDate == excuseDateObject.Value
+                        && d.CheckInDateTime.HasValue && !d.CheckOutDateTime.HasValue && d.AttendanceProof == AttendanceProof.RequiredInOut
+                        && !d.IsVacation && !d.IsVacationRequest && !d.IsDelegationRequest);
+
+                var excusesList = new List<EmployeeExcuse>();
+                foreach (var result in results)
+                {
+                    var newExcuse = new EmployeeExcuse
+                    {
+                        EmployeeId = result.EmployeeId,
+                        ExcuseType = ExcuseType.CheckOut,
+                        ExcueseDate = excuseDateObject.Value,
+                        ExcuseHours = 0,
+                        Note = "إيميل انقطاع الكهرباء",
+                        RegisterDate = DateTime.Now,
+                        UserId = 917
+                    };
+
+                    excusesList.Add(newExcuse);
+                }
+
+
+
+                var saveResult = await _employeesExcusesManager.InsertNewDataItems(excusesList);
+
+                return Json(saveResult);
             }
             catch (Exception)
             {

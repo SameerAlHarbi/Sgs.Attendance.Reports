@@ -1,0 +1,192 @@
+﻿@{
+    ViewData["Title"] = " تقارير الموظفين";
+
+    DateTime firstMonthDay = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+    DateTime lastMonthDay = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1).AddMonths(1).AddDays(-1);
+}
+
+<div class="d-print-none">
+    <form>
+        <div class="form-row">
+            <div class="form-group col-md-2" style="max-width:170px">
+                <label for="startDate" class="control-label"> من تاريخ :</label>
+                <br />
+                <kendo-datepicker name="startDate" id="startDate" value="firstMonthDay"
+                                  format="yyyy-MM-dd" min="new DateTime(2018,12,1)" max="lastMonthDay"
+                                  class="form-control" style="width:160px" data-toggle="tooltip" data-placement="bottom" title="عرض من تاريخ" />
+            </div>
+            <div class="form-group col-md-2" style="max-width:170px">
+                <label for="endDate" class="control-label"> إلى تاريخ :</label>
+                <br />
+                <kendo-datepicker name="endDate" id="endDate" value="lastMonthDay"
+                                  format="yyyy-MM-dd" min="new DateTime(2018,12,1)" max="lastMonthDay"
+                                  class="form-control" style="width:160px" data-toggle="tooltip" data-placement="bottom" title="عرض الى تاريخ" />
+            </div>
+            <div class="form-group col-md-3">
+                <label for="employees" class="control-label"> الموظفين :</label>
+                <br />
+                @(Html.Kendo().MultiSelect()
+                                                        .Name("employees")
+                                                        .Placeholder("تحديد الموظفين ...")
+                                                        .HtmlAttributes(new { style = "100%" })
+                                                        .DataTextField("EmployeeId")
+                                                        .DataValueField("EmployeeId")
+                                                        .AutoClose(true)
+                                                        .AutoBind(false)
+                                                        .MinLength(2)
+                                                        .Delay(1000)
+                                                        .ItemTemplate("<span style=\"color:red\">#= EmployeeId #</span>&nbsp;-&nbsp; #= Name #")
+                                                .DataSource(source =>
+                                                {
+                                                    source.Read(read =>
+                                                    {
+                                                        read.Action("ShortEmployeesInfoByTextJson", "Employees");
+                                                    })
+                                                    .ServerFiltering(true);
+                                                })
+                )
+            </div>
+            <div class="form-group col-md-3">
+                <label for="departments" class="control-label"> الادارات - الاقسام</label>
+                <br />
+                @(Html.Kendo().DropDownTree()
+                            .Name("departments")
+                            .AutoWidth(true)
+                            .HtmlAttributes(new { style = "width: 100%" })
+                            .Height("500px")
+                            .Placeholder("اختر الادارة - القسم ")
+                            .DataTextField("name")
+                            .AutoClose(false)
+                            //.Filter(FilterType.Contains)
+                            .Checkboxes(checkboxes => checkboxes
+                                .Name("checkedDepartments")
+                                .CheckChildren(false)
+                            )
+                            .DataSource(dataSource => dataSource
+                            .Read(read => read
+                                .Action("GetAllDepartmentsJson", "Departments")
+                            ))
+                )
+            </div>
+            <div class="form-group col-md-1" style="min-width:140px" data-toggle="tooltip" data-placement="bottom" title="عرض الموظفين حسب نوع الوردية">
+                <label for="shiftType" class="control-label">نوع الوردية</label>
+                <select id="shiftType" name="shiftType" class="custom-select">
+                    <option value="All" selected title="عرض الموظفين المسجلين على جميع الورديات">الكل</option>
+                    <option value="Default" title="عرض الموظفين المسجلين على وردية الصباح فقط">الصباح</option>
+                    <option value="ShiftA" title="عرض الموظفين المسجلين على الوردية أ-A فقط">أ-A</option>
+                    <option value="ShiftB" title="عرض الموظفين المسجلين على الوردية ب-B فقط">ب-B</option>
+                    <option value="ShiftC" title="عرض الموظفين المسجلين على الوردية ج-C فقط">ج-C</option>
+                    <option value="ShiftD" title="عرض الموظفين المسجلين على الوردية د-D فقط">د-D</option>
+                    <option value="ShiftH" title="عرض الموظفين المسجلين على الوردية هـ-H فقط">هـ-H</option>
+                </select>
+            </div>
+            <div class="form-group col-md-1" style="min-width:200px" data-toggle="tooltip" data-placement="bottom" title="عرض الموظفين حسب نوع البصمة">
+                <label for="attendanceType" class="control-label">نوع البصمة</label>
+                <select id="attendanceType" name="attendanceType" class="custom-select">
+                    <option value="All" selected title="جميع انواع البصمة">الكل</option>
+                    <option value="RequiredInOut" title="بصمتين للحضور و الانصراف">حضور و انصراف</option>
+                    <option value="RequiredIn" title="بصمة واحدة فقط لاثبات الحضور">حضور فقط</option>
+                    <option value="Exempted" title="معفي من البصمة">معفي</option>
+                </select>
+            </div>
+            <div class="form-group col-md-1">
+                <label for="showAbsents" class="control-label">&nbsp;</label>
+                <br />
+                <button type="submit" id="showAbsents" class="btn btn-info btn-block"> عرض <i class="fas fa-search"></i> </button>
+            </div>
+        </div>
+    </form>
+    <hr />
+</div>
+
+<div id="reportData">
+    <p id="report" class="lead" style="text-align:center;margin-top:150px;font-style:italic;color:gray"> .... تقرير الموظفين .... </p>
+</div>
+
+
+@section header{
+    <style>
+
+        .search-row {
+            display: flex;
+            flex-flow: row nowrap;
+            justify-content: space-between;
+            align-items: center;
+            background-color: lightyellow;
+            min-height: 50px;
+        }
+
+            .search-row > div {
+                padding: 0 5px;
+            }
+
+        .search-dates {
+            background-color: lightcyan;
+        }
+
+        .search-2 {
+            flex: 1;
+        }
+    </style>
+}
+
+@section scripts{
+
+    <partial name="_ValidationScripts">
+
+        <script>
+
+            $(function () {
+                $('[data-toggle="tooltip"]').tooltip();
+            })
+
+            $('form').submit(function (e) {
+
+                if ($(this).valid()) {
+
+                    var departmentsTree = $("#departments").data("kendoDropDownTree");
+                    var departmentsNodes = departmentsTree.dataSource.view();
+                    var checkedDepartmentsNodes = [];
+
+                    checkedNodesIds(departmentsNodes, checkedDepartmentsNodes);
+
+                    var options = {
+                        url: "@Url.Action("employeesReports", "Employees")",
+                        type: "post",
+                        dataType: "html",
+                        data: {
+                              startDate: $("#startDate").val()
+                            , endDate: $("#endDate").val()
+                            , employeesIds: $("#employees").data("kendoMultiSelect").value()
+                            , departments: checkedDepartmentsNodes
+                            , shiftType: $("#shiftType").val()
+                            , attendanceType: $("#attendanceType").val()
+                        },
+                        success: function (data) {
+                            $("#reportData").html(data);
+                            $("#reportData").fadeIn();
+                        },
+                        error: function () {
+                            $("#reportData").text("error");
+                            $("#reportData").fadeIn();
+                        },
+                        beforeSend: function () {
+                            $("#reportData").html("<div class='text-center'><div class='spinner-grow text-info' role='status'><span class='sr-only'> Loading...</span ></div></div>");
+                        },
+                        complete: function () {
+
+                        }
+
+                    }
+
+                    $.ajax(options);
+
+                }
+
+
+                e.preventDefault();
+            });
+
+        </script>
+
+}

@@ -1,0 +1,81 @@
+﻿@model IEnumerable<EmployeeInfoViewModel>
+
+@{
+    ViewData["Title"] = "تقرير الموظفين";
+}
+
+<table class="report-container" style="width:100%">
+    <thead class="report-header">
+        <tr>
+            <th class="report-header-cell">
+                <div class="header-info">
+                    <div id="header-info" class="row justify-content-center align-self-center text-center">
+                        <div class="col justify-content-center align-self-center text-center d-none d-print-block">
+                            <h5>إدارة التطبيقات</h5>
+                            <h6>التقرير الشامل</h6>
+                        </div>
+                        <div class="col">
+                            <div class="d-none d-print-block"><img style="max-width:190px; max-height:130px" src="~/Images/SGSLOGO.png" /></div>
+                        </div>
+                        <div class="col justify-content-center align-self-center text-center d-none d-print-block">
+                            <img style="max-width:70px; max-height:90px" src="~/Images/scan-fingerprint-icon.png" />
+                            <h5 class="text-info" style="display:inline">نظام البصمة</h5>
+                        </div>
+                    </div>
+                    <br />
+                </div>
+            </th>
+        </tr>
+    </thead>
+    <tfoot class="report-footer">
+        <tr>
+            <td class="report-footer-cell">
+                <div class="footer-info">
+
+                </div>
+            </td>
+        </tr>
+    </tfoot>
+    <tbody class="report-content">
+        <tr>
+            <td class="report-content-cell">
+                <div>
+                <table class="table table-bordered table-striped">
+                    <thead style="background-color:#bbe3e8; text-align:center">
+                        <tr>
+                            <th>الرقم الوظيفي</th>
+                            <th>اسم الموظف</th>
+                            <th>الادارة - القسم</th>
+                            <th style="min-width: 200px">نوع الوردية</th>
+                            <th style="min-width: 200px">نوع البصمة</th>
+                            <th>ملاحظات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var employee in Model)
+                        {
+                            <tr style="text-align:center">
+                                <td>@employee.EmployeeId</td>
+                                <td>@employee.Name</td>
+                                <td>@employee.DepartmentName</td>
+                                <td>@employee.ContractWorkTimeText</td>
+                                <td>@employee.AttendanceProofText</td>
+                                <td>@employee.Note</td>
+                            </tr>
+                        }
+                        @if (Model.Count() < 1)
+                        {
+                            <tr>
+                                <td colspan="5" class="text-center">
+                                    ... لا يوجد بيانات ...
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                    </div>
+                </td>
+        </tr>
+        </tbody>
+</table>
+

@@ -10,9 +10,13 @@ namespace Sgs.Attendance.Reports.ViewModels
 
         public DateTime DayDate { get; set; }
 
+        public string DayDateText => DayDate.ConvertToString(false, true, true);
+
         public int EmployeeId { get; set; }
 
         public string EmployeeName { get; set; }
+
+        public string EmployeeRank { get; set; }
 
         public int DepartmentId { get; set; }
 
@@ -99,7 +103,11 @@ namespace Sgs.Attendance.Reports.ViewModels
             }
         }
 
+        public string CheckInDateTimeForReportText => CheckInDateTimeForReport.HasValue ? CheckInDateTimeForReport.Value.ToString("HH:mm") : "";
+
         public DateTime? CheckOutDateTime { get; set; }
+
+        public string CheckOutDateTimeText => CheckOutDateTime.HasValue ? CheckOutDateTime.Value.ToString("HH:mm") : "";
 
         public TimeSpan? WorkDurationTime { get; set; }
 
@@ -152,5 +160,7 @@ namespace Sgs.Attendance.Reports.ViewModels
         public string AbsentNotifiedByEmployeeId { get; set; }
 
         public string AbsentNotifiedByEmployeeName { get; set; }
+
+        public string DayNote => IsDelegationRequest ? "طلب انتداب" : IsVacationRequest ? "طلب اجازة" : IsAbsentEmployee ? "غياب" : "";
     }
 }

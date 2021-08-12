@@ -85,11 +85,14 @@ namespace Sgs.Attendance.Reports.Services
             }
         }
 
-        public async Task<List<ShortEmployeeInfoViewModel>> GetShortEmployeesInfo(IEnumerable<int> employeesIds = null, string employeeName = null, bool? active = true)
+        public async Task<List<ShortEmployeeInfoViewModel>> GetShortEmployeesInfo(IEnumerable<int> employeesIds = null, string employeeName = null, bool? active = true, string fromDate = null, string toDate = null, string dateFormat = "yyyy-MM-dd")
         {
             try
             {
                 string url = "Employees/shortinfo";
+
+                DateTime? fromDateObject = fromDate?.TryParseToDate(dateFormat) ?? new DateTime(2018,1,1);
+                DateTime? toDateObject = toDate?.TryParseToDate(dateFormat);
 
                 if (employeesIds != null && employeesIds.Count() > 0)
                 {
@@ -101,6 +104,18 @@ namespace Sgs.Attendance.Reports.Services
                 {
                     url += url.IndexOf('?') >= 0 ? "&" : "?";
                     url += $"employeeName={employeeName}";
+                }
+
+                if (fromDateObject.HasValue)
+                {
+                    url += url.IndexOf('?') >= 0 ? "&" : "?";
+                    url += $"fromDate={fromDateObject.Value.ToString("yyyy-MM-dd", new CultureInfo("en-US"))}";
+                }
+
+                if (toDateObject.HasValue)
+                {
+                    url += url.IndexOf('?') >= 0 ? "&" : "?";
+                    url += $"toDate={toDateObject.Value.ToString("yyyy-MM-dd", new CultureInfo("en-US"))}";
                 }
 
                 HttpResponseMessage response = await _client.GetAsync(url);
@@ -126,7 +141,7 @@ namespace Sgs.Attendance.Reports.Services
             }
         }
 
-        public async Task<List<EmployeeInfoViewModel>> GetDepartmentEmployeesInfo(string departmentCode, bool? active = true)
+        public async Task<List<EmployeeInfoViewModel>> GetDepartmentEmployeesInfo(string departmentCode, bool? active = true, string fromDate = null, string toDate = null, string dateFormat = "yyyy-MM-dd")
         {
             try
             {

@@ -13,6 +13,8 @@ namespace Sgs.Attendance.Reports.Models
 
         public string EmployeeName { get; set; }
 
+        public string EmployeeRank { get; set; }
+
         public int DepartmentId { get; set; }
 
         public string DepartmentName { get; set; }

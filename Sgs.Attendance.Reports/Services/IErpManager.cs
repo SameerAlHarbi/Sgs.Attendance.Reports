@@ -9,9 +9,9 @@ namespace Sgs.Attendance.Reports.Services
     {
         Task<List<EmployeeInfoViewModel>> GetEmployeesInfo(IEnumerable<int> employeesIds = null,string employeeName = null, bool? active = true, string fromDate = null, string toDate = null, string dateFormat = "yyyy-MM-dd");
 
-        Task<List<ShortEmployeeInfoViewModel>> GetShortEmployeesInfo(IEnumerable<int> employeesIds = null, string employeeName = null, bool? active = true);
+        Task<List<ShortEmployeeInfoViewModel>> GetShortEmployeesInfo(IEnumerable<int> employeesIds = null, string employeeName = null, bool? active = true, string fromDate = null, string toDate = null, string dateFormat = "yyyy-MM-dd");
 
-        Task<List<EmployeeInfoViewModel>> GetDepartmentEmployeesInfo(string departmentCode, bool? active = true);
+        Task<List<EmployeeInfoViewModel>> GetDepartmentEmployeesInfo(string departmentCode, bool? active = true, string fromDate = null, string toDate = null, string dateFormat = "yyyy-MM-dd");
 
         Task<IEnumerable<DepartmentInfoViewModel>> GetAllDepartmentsInfo();
 

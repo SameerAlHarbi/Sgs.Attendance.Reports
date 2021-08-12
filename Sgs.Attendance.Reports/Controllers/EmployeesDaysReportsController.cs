@@ -172,7 +172,7 @@ namespace Sgs.Attendance.Reports.Controllers
 
         [HttpPost]
         public async Task<IActionResult> WasteReport(int years, int months, int day = 0
-            , string employeesIds = null, string departments = null, string reportType = null, int? pageNumber = null, int pageSize = 31)
+            , string employeesIds = null, string departments = null, string reportType = null, string ranks = null, int? pageNumber = null, int pageSize = 31)
         {
             try
             {
@@ -185,10 +185,10 @@ namespace Sgs.Attendance.Reports.Controllers
                     endDate = new DateTime(years, months, day);
                 }
 
-                var empsIds = await getEmployeesIds(employeesIds, departments);
+                var empsIds = await getEmployeesIds(employeesIds, departments, ranks);
                 try
                 {
-                    saveReportRequest(empsIds.ToArray(), departments?.Split(',').ToArray() ?? new string[0], startDate, endDate, reportType);
+                    saveReportRequest(empsIds.ToArray(), departments?.Split(',').ToArray() ?? new string[0], startDate, endDate, reportType, ranksList: ranks?.Split(',').ToArray() ?? new string[0]);
                 }
                 catch (Exception)
                 {
@@ -212,14 +212,14 @@ namespace Sgs.Attendance.Reports.Controllers
                 }
 
                 var resultViewModels = await getDetailsData(startDate, endDate
-                        , employeesIds, departments, reportType, pageNumber, pageSize);
+                        , employeesIds, departments, reportType, ranks,pageNumber, pageSize);
 
                 var summaryViewModels = getSummaryData(startDate, endDate, resultViewModels);
 
                 var employeesIdsList = resultViewModels.Select(d => d.EmployeeId).Distinct().ToList();
 
 
-                if (string.IsNullOrWhiteSpace(reportType) || reportType == "summary" || (string.IsNullOrWhiteSpace(departments) && employeesIdsList.Count() > 1 && endDate.Subtract(startDate).TotalDays > 1))
+                if (reportType != "fullDetailsEmployees" && (string.IsNullOrWhiteSpace(reportType) || reportType == "summary" || (string.IsNullOrWhiteSpace(departments) && employeesIdsList.Count() > 1 && endDate.Subtract(startDate).TotalDays > 1)))
                 {
                     ViewBag.ShowAbsents = false;
                     ViewBag.ShowWaste = true;
@@ -245,6 +245,12 @@ namespace Sgs.Attendance.Reports.Controllers
                     ViewBag.DepartmentName = string.Join(" - ", departmentsNamesList);
                     ViewBag.MultiDates = endDate.Subtract(startDate).TotalDays > 1;
                     ViewBag.MonthName = startDate.GetMonthName();
+                    if(reportType == "fullDetailsEmployees")
+                    {
+                        ViewBag.Ranks = ranks;
+                        return PartialView("EmployeesDetailsMonthlyReport", summaryViewModels);
+                    }
+
                     return PartialView("EmployeeDetailsMonthlyReport", summaryViewModels);
                 }
             }
@@ -254,13 +260,15 @@ namespace Sgs.Attendance.Reports.Controllers
             }
         }
 
-        private async Task<List<int>> getEmployeesIds(string employeesIds, string departments)
+        private async Task<List<int>> getEmployeesIds(string employeesIds, string departments, string ranks = null)
         {
             IEnumerable<decimal> listOfEmployeesIdsNumbers = employeesIds.TryParseToNumbers();
 
             var employeesIdsList = listOfEmployeesIdsNumbers?.Select(d => (int)d).ToList() ?? new List<int>();
 
             var departmentsList = departments?.Split(',').ToList() ?? new List<string>();
+
+            var ranksList = ranks?.Split(',').ToList() ?? new List<string>();
 
             if (departmentsList.Count() > 0)
             {
@@ -277,20 +285,31 @@ namespace Sgs.Attendance.Reports.Controllers
                 }
             }
 
+            if(ranksList.Count() > 0)
+            {
+                var ranksEmployees = await _erpManager.GetEmployeesInfo();
+                ranksEmployees = ranksEmployees.Where(emp => ranksList.Any(r => r.Trim().ToUpper() == emp.Rank.Trim().ToUpper())).ToList();
+                if (ranksEmployees.Count() > 0)
+                {
+                    employeesIdsList.AddRange(ranksEmployees.Select(d => d.EmployeeId));
+                    employeesIdsList = employeesIdsList.Distinct().OrderBy(e => e).ToList();
+                }
+            }
+
             return employeesIdsList;
         }
 
         public async Task<IEnumerable<EmployeeDayReportViewModel>> getDetailsData(DateTime startDate, DateTime endDate
-            , string employeesIds = null, string departments = null, string reportType = null, int? pageNumber = null, int pageSize = 31)
+            , string employeesIds = null, string departments = null, string reportType = null, string ranks = null, int? pageNumber = null, int pageSize = 31)
         {
             try
             {
-                List<int> employeesIdsList = await getEmployeesIds(employeesIds, departments);
+                List<int> employeesIdsList = await getEmployeesIds(employeesIds, departments, ranks);
 
                 var resultsQuery = _employeesDaysReportsManager
                     .GetAll(d => (employeesIdsList.Count < 1 || employeesIdsList.Contains(d.EmployeeId))
                             && d.DayDate >= startDate && d.DayDate <= endDate
-                            && (reportType == null || reportType == "fullDetails"
+                            && (reportType == null || reportType == "fullDetails" || reportType == "fullDetailsEmployees"
                             || (d.WasteDurationTime != null && d.WasteDurationTime.Value > new TimeSpan(0, 0, 0))));
 
                 if (pageNumber.HasValue)
@@ -344,6 +363,7 @@ namespace Sgs.Attendance.Reports.Controllers
                     newSummary.TotalWasteHoursTime = newSummary.TotalWasteHours.ConvertToTime();
 
                     newSummary.SingleProofDays = employeeDays.Where(d => d.WasteDuration >= d.ContractWorkDuration).Count();
+                    newSummary.TotalAbsentsDays = employeeDays.Where(d => d.IsAbsentEmployee).Count();
 
                     newSummary.WasteHours = newSummary.TotalWasteHours - newSummary.ContractWorkDurationAvarage;
 
@@ -395,7 +415,7 @@ namespace Sgs.Attendance.Reports.Controllers
 
         [HttpGet]
         public async Task<IActionResult> GetDetailsReport(int years, int months, int day = 0
-            , string employeesIds = null, string departments = null, string reportType = null, int? pageNumber = null, int pageSize = 31)
+            , string employeesIds = null, string departments = null, string reportType = null, string ranks = null, int? pageNumber = null, int pageSize = 31)
         {
             DateTime startDate = new DateTime(years, months, 1);
             DateTime endDate = new DateTime(years, months, 1).AddMonths(1).AddDays(-1);
@@ -407,7 +427,7 @@ namespace Sgs.Attendance.Reports.Controllers
             }
 
             var resultViewModels = await getDetailsData(startDate, endDate
-                    , employeesIds, departments, reportType, pageNumber, pageSize);
+                    , employeesIds, departments, reportType, ranks, pageNumber: pageNumber, pageSize: pageSize);
 
             var summaryViewModels = getSummaryData(startDate, endDate, resultViewModels);
 
@@ -553,7 +573,7 @@ namespace Sgs.Attendance.Reports.Controllers
         }
 
         private void saveReportRequest(int[] employeesIds, string[] departmentsList
-            , DateTime fromDate, DateTime toDate, string reportType)
+            , DateTime fromDate, DateTime toDate, string reportType, string[] ranksList = null)
         {
             try
             {
@@ -562,6 +582,12 @@ namespace Sgs.Attendance.Reports.Controllers
                 {
                     filterText += filterText.Length > 0 ? "," : "";
                     filterText += string.Join(",", departmentsList);
+                }
+
+                if (ranksList != null && ranksList.Count() > 0)
+                {
+                    filterText += filterText.Length > 0 ? "," : "";
+                    filterText += string.Join(",", ranksList);
                 }
 
                 if (User.Identity.IsAuthenticated)
@@ -760,6 +786,39 @@ namespace Sgs.Attendance.Reports.Controllers
             {
                 return Json(new { errors = "Error" });
             }
+        }
+
+        [AllowAnonymous]
+        public async Task<IActionResult> GetAllDayesReports(string employeesIds, string fromDate, string toDate)
+        {
+            try
+            {
+                DateTime? fromDateObject = fromDate.TryParseToDate();
+                DateTime? toDateObject = toDate.TryParseToDate();
+
+                if (!fromDateObject.HasValue || !toDateObject.HasValue)
+                {
+                    throw new Exception("Date error");
+                }
+
+                if(toDateObject.Value.Date >= DateTime.Today)
+                {
+                    toDateObject = DateTime.Today.AddDays(-1);
+                }
+
+                var resultViewModels = await getDetailsData(fromDateObject.Value.Date, toDateObject.Value.Date
+                        , employeesIds, null, "fullDetails", null, null);
+
+                var summaryViewModels = getSummaryData(fromDateObject.Value.Date, toDateObject.Value.Date, resultViewModels);
+
+                return Json(summaryViewModels);
+
+            } 
+            catch(Exception ex)
+            {
+                return Json(new { errors = "Error" });
+            }
+
         }
     }
 }

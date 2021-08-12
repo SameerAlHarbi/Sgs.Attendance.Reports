@@ -57,7 +57,7 @@ namespace Sgs.Attendance.Reports.Logic
                 }
 
                 var workTimeCalenars = await GetAllAsNoTrackingListAsync(c => c.ContractWorkTime == workTime
-                    && (!c.EndDate.HasValue && c.StartDate <= toDate.Value) || (c.EndDate.HasValue && c.EndDate >= fromDate.Value && c.StartDate <= toDate.Value),c => c.WorkShifts);
+                    && ((!c.EndDate.HasValue && c.StartDate <= toDate.Value) || (c.EndDate.HasValue && c.EndDate >= fromDate.Value && c.StartDate <= toDate.Value)),c => c.WorkShifts);
 
                 foreach (var calendar in workTimeCalenars.Where(c => !c.EndDate.HasValue).OrderBy(c => c.StartDate))
                 {

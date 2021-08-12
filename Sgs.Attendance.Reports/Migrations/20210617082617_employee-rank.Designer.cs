@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Sgs.Attendance.Reports.Data;
 
 namespace Sgs.Attendance.Reports.Migrations
 {
     [DbContext(typeof(AttendanceReportsDb))]
-    partial class AttendanceReportsDbModelSnapshot : ModelSnapshot
+    [Migration("20210617082617_employee-rank")]
+    partial class employeerank
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

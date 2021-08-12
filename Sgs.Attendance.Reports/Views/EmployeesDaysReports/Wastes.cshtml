@@ -57,7 +57,7 @@
                                     .HtmlAttributes(new { style = "width: 100px", data_toggle = "tooltip", data_placement = "bottom", title = "الشهر" })
                 )
             </div>
-            <div class="form-group col-md-3">
+            <div class="form-group col-md-2">
                 <label for="employees" class="control-label"> الموظفين :</label>
                 <br />
                 @(Html.Kendo().MultiSelect()
@@ -81,7 +81,7 @@
                             })
                 )
             </div>
-            <div class="form-group col-md-3">
+            <div class="form-group col-md-2">
                 <label for="departments" class="control-label"> الادارات - الاقسام</label>
                 <br />
                 @(Html.Kendo().DropDownTree()
@@ -103,12 +103,35 @@
                                                     ))
                 )
             </div>
+            <div class="form-group col-md-2">
+                <label for="employees" class="control-label"> المرتبة :</label>
+                <br />
+                @(Html.Kendo().MultiSelect()
+                                    .Name("ranks")
+                                    .Placeholder("تحديد المرتبة ...")
+                                    .HtmlAttributes(new { style = "100%" })
+                                    .AutoClose(true)
+                                    .BindTo(new List<string>() {
+                                      "S9",
+                                      "S10",
+                                      "S11",
+                                      "S12",
+                                      "S13",
+                                      "S14",
+                                      "S15",
+                                      "S16",
+                                      "S17"
+                                  })
+
+                )
+            </div>
             <div class="form-group col-md-2" style="min-width:130px" data-toggle="tooltip" data-placement="bottom" title="نوع تقرير التقصير للموظفين">
                 <label for="reportType" class="control-label">نوع التقرير</label>
                 <select id="reportType" name="reportType" class="custom-select">
                     <option value="summary" selected title="تقرير مختصر بأيام التقصير للموظفين">مختصر</option>
                     <option value="wasteDetails" title="تقرير تفصيلي بأيام التقصير للموظفين">تفصيلي التقصير</option>
                     <option value="fullDetails" title="تقرير تفصيلي شامل للموظفين">تفصيلي شامل</option>
+                    <option value="fullDetailsEmployees" title="تقرير تفصيلي شامل للموظفين">تفصيلي شامل الموظفين</option>
                     <option value="Transactions" title="تقرير حركات البصمة للموظفين">حركات البصمة</option>
                 </select>
             </div>
@@ -166,6 +189,7 @@
                 checkedNodesNames(departmentsNodes, checkedDepartmentsNames);
 
                 var employeesIds = $("#employees").data("kendoMultiSelect").value();
+                var ranks = $("#ranks").data("kendoMultiSelect").value();
 
                 var checkedDepartmentsText;
                 if (checkedDepartmentsNodes && checkedDepartmentsNodes.length > 0) {
@@ -182,6 +206,11 @@
                     employeesIdsText = employeesIds.join(',');
                 }
 
+                var ranksText;
+                if (ranks && ranks.length > 0) {
+                    ranksText = ranks.join(',');
+                }
+
                 var day = $("#days").val();
                 if (!day) {
                     day = 0;
@@ -192,6 +221,7 @@
                     , months: $("#months").val()
                     , day: day
                     , employeesIds: employeesIdsText
+                    , ranks: ranksText
                     , departments: checkedDepartmentsText
                     , departmentsNames: checkedDepartmentsNamesText
                     , reportType: $("#reportType").val()

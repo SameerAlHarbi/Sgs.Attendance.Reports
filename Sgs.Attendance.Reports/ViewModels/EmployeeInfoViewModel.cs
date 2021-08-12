@@ -18,6 +18,8 @@ namespace Sgs.Attendance.Reports.ViewModels
 
         public int? ReportToId { get; set; }
 
+        public string Rank { get; set; }
+
         public DepartmentInfoViewModel DepartmentInfo { get; set; }
 
         public EmployeeInfoViewModel ReportTo { get; set; }
